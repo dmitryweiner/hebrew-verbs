@@ -107,6 +107,11 @@ const PLAIN = {
   // Decision 17: the spoken infinitive first; Hspell has only literary לאמור.
   'אמר infinitive.inf': ['לומר'],
 };
+/** Forms where the sources disagree and the plan takes Hspell's, by "lemma slot". */
+const NIKUD = {
+  // Wiktionary has the regular מוּכֶנֶת; Hspell (only for this verb) and speech מוכנה.
+  'הוכן present.fs': ['מוּכָנָה'],
+};
 
 /**
  * The expected forms of a verb, slot -> { nikud: [...], plain: [...] }:
@@ -117,11 +122,13 @@ export function expectedForms(verb, wslots, hblock) {
   const out = {};
   for (const key of slotKeys()) {
     if (verb.flags?.noPresent && key.startsWith('present.')) continue;
-    if (!wslots?.[key]) continue;
-    let nikud = [...new Set(wslots[key].map((f) => f.nikud.normalize('NFC')))];
+    // An empty cell: no such form (the infinitive of pual and hufal).
+    const forms = wslots?.[key]?.filter((f) => f.nikud);
+    if (!forms?.length) continue;
+    let nikud = NIKUD[`${verb.lemma} ${key}`] ?? [...new Set(forms.map((f) => f.nikud.normalize('NFC')))];
     // Decision 15, classical nikud: 1st person future אֶקַּח, not Wiktionary's אֵקַּח.
     if (key === 'future.1s') nikud = nikud.map((n) => n.replace(/^א\u05B5(?=.[\u05B0-\u05BB]*\u05BC)/u, 'א\u05B6'));
-    const plain = PLAIN[`${verb.lemma} ${key}`] ?? hblock?.[key] ?? [...new Set(wslots[key].map((f) => strip(f.plain)))];
+    const plain = PLAIN[`${verb.lemma} ${key}`] ?? hblock?.[key] ?? [...new Set(forms.map((f) => strip(f.plain)))];
     out[key] = { nikud, plain };
   }
   return out;

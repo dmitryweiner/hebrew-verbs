@@ -36,7 +36,8 @@
 //   segolateInfinitive  לָקַחַת-type infinitive
 //   hollow         treat as ע"ו/ע"י even if C2 is not ו/י
 //   override       { 'infinitive.inf': pattern, ... } for single forms (inf)
-// Not covered yet: pual, hufal, geminates (הֵגֵן), quadriliterals (תִּרְגֵּם),
+// Pual and hufal have no infinitive. Not covered yet: pual and hufal ל"ה,
+// geminates (הֵגֵן), quadriliterals (תִּרְגֵּם),
 // nifal and hitpael of פ"י/פ"ו roots.
 
 const MARK = {
@@ -452,6 +453,34 @@ function piel(root) {
   };
 }
 
+function pual(root) {
+  return {
+    ...past({ c: '1u2*a3', third: '1u2*a3', thirdV: '1u2*%3' }),
+    'present.ms': 'מ%1u2*A3',
+    'present.fs': `מ%1u${segolate(root).replace('2', '2*')}`,
+    'present.mp': 'מ%1u2*A3iים',
+    'present.fp': 'מ%1u2*A3וoת',
+    ...future({ base: (p) => `${p}%1u2*a3`, vowelEnd: (p) => `${p}%1u2*%3`, literary: (p) => `${p}%1u2*a3:נAה` }),
+  };
+}
+
+function hufal(root, f) {
+  const [c1, c2] = root.map((r) => r[0]);
+  // The stem up to the consonant before C3: strong הֻשְׁ־ל, hollow הוּ־כ,
+  // פ"י/ו הוּ־ר, פ"נ (and assim) הֻ־גּ.
+  const stem = (pre) =>
+    c2 === 'ו' || c2 === 'י' ? `${pre}וU1` : c1 === 'נ' || f.assim ? `${pre}u2*` : c1 === 'י' || c1 === 'ו' ? `${pre}וU2` : `${pre}u1:2`;
+  const last = stem('').at(-1) === '*' ? '2*' : stem('').at(-1);
+  return {
+    ...past({ c: `${stem('ה')}a3`, third: `${stem('ה')}a3`, thirdV: `${stem('ה')}%3` }),
+    'present.ms': `${stem('מ')}A3`,
+    'present.fs': `${stem('מ').slice(0, -last.length)}${segolate(root).replace('2', last)}`,
+    'present.mp': `${stem('מ')}A3iים`,
+    'present.fp': `${stem('מ')}A3וoת`,
+    ...future({ base: (p) => `${stem(p)}a3`, vowelEnd: (p) => `${stem(p)}%3`, literary: (p) => `${stem(p)}a3:נAה` }),
+  };
+}
+
 function hifil(root, f) {
   const [c1, c2, c3] = root.map((r) => r[0]);
   const pastV = f.segolPrefix ? 'e' : 'i';
@@ -502,6 +531,20 @@ function hifil(root, f) {
 }
 
 function nifal(root) {
+  if (root[2][0] === 'ה')
+    return {
+      ...ls.past({ c: 'נi1:2', v12: 'E' }),
+      'present.ms': 'נi1:2eה',
+      'present.fs': 'נi1:2Eית',
+      'present.mp': 'נi1:2iים',
+      'present.fp': 'נi1:2וoת',
+      ...future({
+        base: (p) => `${p}${p === 'א' ? 'e' : 'i'}1*A2eה`,
+        vowelEnd: (p) => `${p}i1*A2`,
+        literary: (p) => `${p}i1*A2eינAה`,
+      }),
+      'infinitive.inf': 'ל%הi1*A2וoת',
+    };
   // Before a final ח/ע the stem tsere is patah: יֵרָגַע, לְהִשָּׁמַע.
   const v2 = root[2][0] === 'ח' || root[2][0] === 'ע' ? 'a' : 'E';
   return {
@@ -562,7 +605,7 @@ function metathesis(segs) {
   return segs;
 }
 
-const BUILD = { paal, piel, hifil, nifal, hitpael };
+const BUILD = { paal, nifal, piel, pual, hifil, hufal, hitpael };
 
 /** Root letters with an optional shin/sin dot: 'עשׂה' -> ['ע', 'שׂ', 'ה']. */
 export function splitRoot(root) {

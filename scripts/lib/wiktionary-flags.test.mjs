@@ -26,13 +26,14 @@ describe('conjugator input from Wiktionary parameters', () => {
   });
 
   // The hand-set flags of the golden verbs are the reference: the mapped
-  // ones must conjugate to the same forms. A hand `override` is kept where
-  // the mapping asks a person for it.
+  // ones must conjugate to the same forms. A hand `override` (an explicit
+  // infinitive, a form where the sources disagree) is a person's decision
+  // and is kept.
   for (const verb of golden.filter((v) => !v.wiktionary.manual)) {
     it(`${verb.lemma} (${verb.binyan})`, () => {
       const mapped = fromWiktionary(verb.wiktionary);
       expect(mapped?.binyan).toBe(verb.binyan);
-      const flags = mapped?.notes.length ? { ...mapped.flags, override: verb.flags.override } : mapped?.flags;
+      const flags = verb.flags.override ? { ...mapped?.flags, override: verb.flags.override } : mapped?.flags;
       expect(conjugate({ ...verb, root: mapped?.root, flags })).toEqual(conjugate(verb));
     });
   }
