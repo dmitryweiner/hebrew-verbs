@@ -44,7 +44,8 @@ function phrases(f, r) {
     if (f['future.2ms']) list.push(['אַתָּה', 'future.2ms', `ты (м.) будешь ${r.short.m}`]);
   } else {
     if (f['present.ms'] && r.present) list.push(['הוּא', 'present.ms', `он ${r.present['3s']}`]);
-    list.push(['הִיא', 'past.3fs', `она ${both(r.past.ipf.f, r.past.pf?.f)}`]);
+    const fem = r.f ?? r;
+    list.push(['הִיא', 'past.3fs', `она ${both(fem.past.ipf.f, fem.past.pf?.f)}`]);
     const ipf = r.future.ipf?.['2s'] ?? `будешь ${r.ipf}`;
     if (f['future.2ms']) list.push(['אַתָּה', 'future.2ms', `ты (м.) ${both(ipf, r.future.pf?.['2s'])}`]);
   }

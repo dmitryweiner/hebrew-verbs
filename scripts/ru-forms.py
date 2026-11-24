@@ -15,6 +15,7 @@
 #   verb:    { ipf, pf?, present: {1s..3p}?, past: { ipf: {m, f, pl}, pf? },
 #              future: { ipf?: {1s..3p}, pf?: {1s..3p} } }  (no future.ipf:
 #            the app says "буду" + ipf; only быть has its own: буду)
+#            f?: the same for a woman, from ipfF/pfF (выходить замуж)
 #   passive: { ipf: "быть приглашённым", short: { m, f, pl } }  (the app adds
 #            был / буду: "она была приглашена")
 
@@ -38,7 +39,7 @@ problems = []
 def rows(path):
     for line in path.read_text(encoding='utf-8').split('\n'):
         if line.strip() and not line.startswith('#'):
-            yield (line.split('\t') + ['', '', ''])[:4]
+            yield (line.split('\t') + [''] * 5)[:6]
 
 
 def infinitive(word, aspect, lemma):
@@ -133,11 +134,13 @@ def main():
     for lemma in lemmas:
         if lemma not in ru:
             continue
-        _, translations, ipf, pf = ru[lemma]
+        _, translations, ipf, pf, ipf_f, pf_f = ru[lemma]
         if not translations or not ipf:
             problems.append(f'{lemma}: no translation or no ipf')
             continue
         forms = passive(lemma, ipf) if ipf.startswith('быть ') else verb(lemma, ipf, pf)
+        if forms and ipf_f:
+            forms['f'] = verb(lemma, ipf_f, pf_f)
         if forms:
             out[lemma] = forms
     for lemma in ru:

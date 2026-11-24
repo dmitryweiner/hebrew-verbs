@@ -8,18 +8,17 @@
 //   import { translit } from './lib/translit.mjs';
 //   translit(segs, { key: 'past.3ms', binyan: 'piel' }); // -> 'дибер'
 //
-// Conventions of Russian textbooks: ח, כ, ה — х; ל before a consonant and at
-// the end — ль (ахальтем, охель); е after a consonant, э elsewhere (шоэль);
-// י before a vowel — я, е, йо, ю, йи (ь after a consonant: ихье); the
-// infinitive ל before a guttural with a hyphen, as the plan writes it
-// (ле-эхоль).
+// Conventions of Russian textbooks: ח, כ — х, ה — a Latin h (леhагид); ל
+// before a consonant and at the end — ль (ахальтем, охель); е after a
+// consonant, э elsewhere (шоэль, леэхоль); י before a vowel — я, е, йо, ю,
+// йи (ь after a consonant: иhье); no sign before א/ע (нишар).
 
 const SHIN_DOT = 'ׁ';
 const RAFE = 'ֿ';
 const CONSONANT = {
   ג: 'г',
   ד: 'д',
-  ה: 'х',
+  ה: 'h',
   ו: 'в',
   ז: 'з',
   ח: 'х',
@@ -40,7 +39,7 @@ const STOP = { ב: ['б', 'в'], כ: ['к', 'х'], ך: ['к', 'х'], פ: ['п', 
 const VOWEL = { a: 'a', A: 'a', '~a': 'a', e: 'e', E: 'e', '~e': 'e', i: 'i', o: 'o', Q: 'o', '~A': 'o', u: 'u', U: 'u' };
 const CYR = { a: 'а', e: 'е', i: 'и', o: 'о', u: 'у' };
 const IOTATED = { a: 'я', e: 'е', i: 'йи', o: 'йо', u: 'ю' };
-const AFTER_SOFT = { a: 'я', e: 'е', o: 'о', u: 'ю' }; // ь + vowel: ихье, лихьот
+const AFTER_SOFT = { a: 'я', e: 'е', o: 'о', u: 'ю' }; // ь + vowel: иhье, лиhьот
 
 const isSheva = (v) => v === ':' || v === '%';
 
@@ -59,7 +58,7 @@ function isVowelLetter(s, k, segs) {
  * @param {{ key: string, binyan: string }} ctx
  */
 export function translit(segs, { key, binyan }) {
-  /** @type {({ t: 'c', ch: string } | { t: 'j' } | { t: 'g' } | { t: 'v', ch: string } | { t: '-' })[]} */
+  /** @type {({ t: 'c', ch: string } | { t: 'j' } | { t: 'g' } | { t: 'v', ch: string })[]} */
   const toks = [];
   const sounded = []; // per segment: does its sheva sound
   segs.forEach((s, k) => {
@@ -88,15 +87,12 @@ export function translit(segs, { key, binyan }) {
       const hufal = binyan === 'hufal' && (s.root === 0 ? s.v === 'Q' : s.v === '~A');
       toks.push({ t: 'v', ch: hufal ? (s.root === 0 ? 'u' : 'a') : VOWEL[s.v] });
     }
-    if (key === 'infinitive.inf' && k === 0 && s.l === 'ל' && VOWEL[s.v] && (n?.l === 'א' || n?.l === 'ע') && VOWEL[n.v])
-      toks.push({ t: '-' });
   });
 
   let out = '';
   toks.forEach((tok, i) => {
     const next = toks[i + 1];
     if (tok.t === 'c') out += tok.ch === 'л' && next?.t !== 'v' && next?.t !== 'j' ? 'ль' : tok.ch;
-    else if (tok.t === '-') out += '-';
     else if (tok.t === 'j') {
       if (next?.t !== 'v') out += 'й';
     } else if (tok.t === 'v') {

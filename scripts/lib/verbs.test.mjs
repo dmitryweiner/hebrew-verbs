@@ -23,6 +23,9 @@ describe('the verb list', () => {
   });
 });
 
+/** Do these generated forms come from this pair? */
+const same = (f, ipf, pf) => f?.ipf === ipf && (f?.pf ?? '') === pf;
+
 describe('the Russian of the list', () => {
   const data = resolve(import.meta.dirname, '../../data');
   const ru = readFileSync(resolve(data, 'ru.tsv'), 'utf8')
@@ -37,7 +40,17 @@ describe('the Russian of the list', () => {
   });
 
   it('has the forms of the current pairs (scripts/ru-forms.py was run)', () => {
-    const stale = ru.filter(([lemma, , ipf, pf = '']) => forms[lemma]?.ipf !== ipf || (forms[lemma]?.pf ?? '') !== pf);
+    const stale = ru.filter(
+      ([lemma, , ipf, pf = '', ipfF = '', pfF = '']) =>
+        !same(forms[lemma], ipf, pf) || (ipfF ? !same(forms[lemma].f, ipfF, pfF) : forms[lemma]?.f),
+    );
     expect(stale.map(([lemma]) => lemma)).toEqual([]);
+  });
+
+  it('gives a woman her own pair where Russian says it otherwise: она вышла замуж', () => {
+    for (const lemma of ['התחתן', 'נישא']) {
+      expect(forms[lemma].past.ipf.m).toBe('женился');
+      expect(forms[lemma].f.past.pf.f).toBe('вышла замуж');
+    }
   });
 });
