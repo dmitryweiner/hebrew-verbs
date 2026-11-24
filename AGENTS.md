@@ -62,6 +62,10 @@ fetched on demand and cached in `.cache/wikt/`.
   change of `ru.tsv` — `verbs.test.mjs` fails on a stale pair).
 - `scripts/probe/wiktionary-glosses.mjs` — English glosses of the listed verbs
   from the cached Wiktionary pages, a reference for the translations.
+- `scripts/build-verbs.mjs` — the app's data `src/data/verbs.json` (the
+  `Verb` type of `src/verbs.ts`) from the list, the hand tables, `ru.tsv` and
+  `ru-forms.json`; committed, one verb a line; `--check` fails when it is not
+  up to date (`verbs.test.mjs` runs it). Rerun after any change of `data/`.
 - `scripts/review-list.mjs` — writes the list's review page (HTML, Russian)
   for a person to approve; `--ru` — the translations' page (translit, pair,
   three phrases, a comment per marked row).
@@ -82,14 +86,16 @@ fetched on demand and cached in `.cache/wikt/`.
   written on it, `holdout-50.tsv` — check only); `--top N` takes the N most
   frequent verbs with binyan, root and flags from Wiktionary, `--list
 data/verbs.tsv` the verb list (no Wiktionary table: Hspell spelling only);
-  `--summary` prints one line per differing verb.
+  `--summary` prints one line per differing verb; `--snapshot data/hspell.tsv`
+  (with `--list`) rewrites Hspell's spellings that `src/data/verbs.test.ts`
+  checks the data against.
 - `scripts/probe/wiktionary-coverage.mjs` — how many of the top verbs have a
   Wiktionary table.
 
 What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` ~0.5 s;
 `wiktionary.mjs` ~0.5 s per cached page, ~2.5 s per lemma uncached (up to three
 titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
-(`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s; `review-list.mjs` ~0.3 s; `ru-forms.py` ~1.5 s.
+(`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s; `review-list.mjs` ~0.3 s; `ru-forms.py` ~1.5 s; `build-verbs.mjs` ~0.2 s.
 
 ## Test-driven development is mandatory
 
@@ -111,6 +117,9 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - `src/app.ts` — DOM wiring and rendering.
 - `src/texts.ts` — every interface text (Russian).
 - `src/storage.ts` — versioned, validated settings in localStorage.
+- `src/verbs.ts` — the verb data's types and `parseVerbs` (a shape check, so
+  the data is read without casts); `src/data/verbs.json` — the data (~3 MB,
+  ~410 KB gzip), `src/data/verbs.test.ts` — its test.
 - `src/sw-plugin.ts` — Vite plugin emitting `sw.js` that precaches the build;
   `src/pwa.ts` — its registration, an update check on every return to the
   page and a reload when a new version takes control (`_conventions/pwa.md`).
@@ -118,8 +127,9 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - `public/` — manifest, icons (`icon.svg` is the source).
 - `scripts/lib/harness.mjs` — Playwright plumbing; `scripts/smoke.mjs` — the
   smoke; `scripts/icons.mjs` — icon rendering.
-- `data/` — the hand-curated verb list and its exclusions (TSV); the app's
-  generated data will go to `src/data/`.
+- `data/` — the hand-curated verb list, its exclusions, hand tables and
+  Russian (TSV), `ru-forms.json` (generated) and `hspell.tsv` (a test
+  fixture); the app's generated data is in `src/data/`.
 - `docs/` — user and design docs; `plans/` — plans and reports (Russian).
 
 ## Invariants
@@ -133,8 +143,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - Hebrew inside Russian text is isolated (`dir`/`unicode-bidi`), see the RTL
   lessons in `~/projects/CLAUDE.md`.
 - The verb data is CC BY-SA 4.0 (Wiktionary, FrequencyWords), the code
-  GPL-3.0-or-later; Hspell (AGPL) is used by build scripts only and nothing of
-  it ships.
+  GPL-3.0-or-later; Hspell (AGPL) is used by build scripts and as a test
+  fixture (`data/hspell.tsv`) only; nothing of it ships.
 
 ## Conventions
 

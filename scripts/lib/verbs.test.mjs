@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -52,5 +53,12 @@ describe('the Russian of the list', () => {
       expect(forms[lemma].past.ipf.m).toBe('женился');
       expect(forms[lemma].f.past.pf.f).toBe('вышла замуж');
     }
+  });
+});
+
+describe('the app data', () => {
+  it('is built from the current list and Russian (scripts/build-verbs.mjs was run)', () => {
+    const script = resolve(import.meta.dirname, '../build-verbs.mjs');
+    expect(() => execFileSync(process.execPath, [script, '--check'], { stdio: 'pipe' })).not.toThrow();
   });
 });

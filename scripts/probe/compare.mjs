@@ -6,6 +6,7 @@
 //   node scripts/probe/compare.mjs [--conjugator] [--verbose] [--sample scripts/probe/holdout-50.tsv]
 //   node scripts/probe/compare.mjs --conjugator --top 1000 [--summary]
 //   node scripts/probe/compare.mjs --conjugator --list data/verbs.tsv [--summary]
+//   node scripts/probe/compare.mjs --conjugator --list data/verbs.tsv --snapshot data/hspell.tsv
 //
 // --sample: a hand-made list (lemma, binyan, root, flags). --top N: the N
 // most frequent lemmas of .cache/verb-frequency.json, binyan, root and flags
@@ -14,7 +15,9 @@
 // and skipped. --list: the verb list (scripts/verb-list.mjs); a verb without
 // a Wiktionary table is checked against Hspell's spelling only, and a
 // difference under a "checked: …" note is counted apart. --summary
-// prints only the verbs that differ, one line each.
+// prints only the verbs that differ, one line each. --snapshot FILE: also
+// writes Hspell's spellings of the listed verbs, slot by slot, for
+// src/data/verbs.test.ts to check the data against without .cache/.
 //
 // Needs .cache/wiktionary.json (scripts/probe/wiktionary.mjs) and
 // .cache/dl/woo-forms.txt (scripts/fetch-sources.sh).
@@ -35,6 +38,7 @@ const { values: args } = parseArgs({
     sample: { type: 'string' },
     top: { type: 'string' },
     list: { type: 'string' },
+    snapshot: { type: 'string' },
   },
 });
 const conjugate = args.conjugator ? (await import('../lib/conjugate.mjs')).conjugate : null;
@@ -85,6 +89,7 @@ const stats = {
   conj: { nikud: 0, plain: 0, slots: 0, verbsExact: 0, verbsCompared: 0, verbsChecked: 0 },
 };
 const report = [];
+const snapshot = [];
 
 for (const verb of sample) {
   /** @type {{ lemma: string, binyan: string, rank?: number, missing?: string, notes?: string[], wiktVsHspell: string[], conj: string[] }} */
@@ -109,6 +114,7 @@ for (const verb of sample) {
   const h = hspellBlock(hspell, verb.lemma, w ?? asSlots);
   if (w) stats.wiktionary++;
   if (h) stats.hspell++;
+  if (h) for (const k of keys) if (h[k]) snapshot.push(`${verb.lemma}\t${k}\t${h[k].join(' ')}`);
 
   if (w && h) {
     let differ = false;
@@ -167,3 +173,15 @@ for (const verb of sample) {
 
 console.log('\n' + JSON.stringify(stats, null, 1));
 writeFileSync(resolve(root, `.cache/compare-${name}.json`), JSON.stringify({ stats, report }, null, 1));
+
+if (args.snapshot) {
+  const header = [
+    "# Hspell's plain spellings of the listed verbs, slot by slot (several: space",
+    '# between). Written by scripts/probe/compare.mjs --snapshot from Hspell',
+    '# (http://hspell.ivrix.org.il/, AGPL-3.0): a test fixture of',
+    '# src/data/verbs.test.ts, nothing of it ships with the app.',
+    '# lemma\tslot\tspellings',
+  ];
+  writeFileSync(resolve(args.snapshot), [...header, ...snapshot].join('\n') + '\n');
+  console.log(`${snapshot.length} slots → ${args.snapshot}`);
+}
