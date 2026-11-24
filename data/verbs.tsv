@@ -1,0 +1,1009 @@
+# The verb list: the most frequent Hebrew verbs, most frequent first (the
+# line number is the rank). Drafted by scripts/verb-list.mjs, then by hand.
+# lemma: past 3ms in plene spelling, as Hspell has it — the verb's id.
+# freq: scripts/verb-frequency.mjs (by hand for a verb Hspell lacks).
+# binyan, root (שׂ = sin, פֿ = no dagesh), flags: the conjugator's input
+# (scripts/lib/conjugate.mjs), plus variants: other accepted forms of a slot,
+# {"infinitive.inf": ["לנגוע"]} (decision 17); note: "by hand: …" or "checked: …" marks a
+# line a person decided (kept as is), anything else is redrafted.
+# lemma	freq	binyan	root	flags	note
+היה	2874649	paal	היה	{"keepPrefix":true,"hatafSegol":true,"noPresent":true}	by hand: Wiktionary's table is hand-written; flags as in the stage 0 sample
+ידע	1257007	paal	ידע
+עשה	1201100	paal	עשׂה
+יכול	1100000	paal	יכל	{"manual":true}	by hand: Hspell lacks it; frequency estimated from יכול, יכולה, יכולים, תוכל, נוכל
+רצה	962188	paal	רצה
+ראה	959364	paal	ראה
+חשב	774793	paal	חשב	{"noChataf":true}
+הלך	700730	paal	הלך	{"peYod":true}
+אמר	619476	paal	אמר	{"peAlef":true,"override":{"infinitive.inf":"לוoמaר"},"variants":{"infinitive.inf":["לאמור"]}}	checked: spoken infinitive לוֹמַר (decision 17); second infinitive לאמור (literary)
+בא	571735	paal	בוא	{"futureVowel":"o"}
+דיבר	348587	piel	דבר
+מצא	316588	paal	מצא
+לקח	314882	paal	לקח	{"assim":true,"segolateInfinitive":true}
+הגיע	304390	hifil	נגע
+קיבל	251332	piel	קבל
+חזר	241125	paal	חזר
+ניסה	240211	piel	נסה
+הגיד	238623	hifil	נגד
+הצטער	235233	hitpael	צער
+שמע	226431	paal	שמע
+אהב	219231	paal	אהב	{"peAlef":true}
+יצא	217146	paal	יצא
+סיפר	205278	piel	ספר
+עזר	188531	paal	עזר
+נתן	181512	paal	נתן	{"assimT":true,"futureVowel":"E","override":{"infinitive.inf":"לAתEת"}}	checked: infinitive לָתֵת
+התכוון	171486	hitpael	כון
+התחיל	162947	hifil	תחל
+קרא	153231	paal	קרא
+עזב	152755	paal	עזב
+הרג	151715	paal	הרג
+עבד	150347	paal	עבד
+נשאר	143272	nifal	שאר
+הכיר	133332	hifil	נכר
+נכנס	132165	nifal	כנס
+מת	129899	paal	מות	{"pastVowel":"E"}
+הבין	122034	hifil	בין
+זכר	121493	paal	זכר
+אכל	120565	paal	אכל	{"peAlef":true}
+קרה	119810	paal	קרה
+הרגיש	115915	hifil	רגש
+עמד	114814	paal	עמד
+התקשר	113401	hitpael	קשר
+הספיק	111606	hifil	ספק
+הניח	111406	hifil	נוח
+הפסיק	111017	hifil	פסק
+הקשיב	109847	hifil	קשב
+הסתכל	106721	hitpael	סכל
+עבר	106180	paal	עבר
+עצר	105881	paal	עצר
+דאג	103073	paal	דאג
+חיפש	102861	piel	חפשׂ
+נראה	102651	nifal	ראה
+האמין	101296	hifil	אמן
+חי	100000	paal	חיה	{"manual":true}	by hand: Hspell lacks it; frequency estimated from חי, חיה, לחיות
+המשיך	99114	hifil	משך
+חיכה	97882	piel	חכה
+שאל	96352	paal	שאל
+גרם	93718	paal	גרם
+שיחק	92718	piel	שׂחק
+ביקש	91154	piel	בקש
+הצליח	89592	hifil	צלח
+שמר	84169	paal	שמר
+השתמש	82961	hitpael	שמש
+בדק	81667	paal	בדק
+תפס	81200	paal	תפס
+השיג	80416	hifil	נשׂג
+הצטרך	78953	hitpael	צרך
+הודה	75269	hifil	ודה
+פגש	74792	paal	פגש
+הפך	74590	paal	הפך
+שמח	73889	paal	שׂמח	{"presentShort":true}
+שם	73321	paal	שׂים
+איבד	72263	piel	אבד
+סיים	71526	piel	סים
+זז	70836	paal	זוז
+גילה	70702	piel	גלה
+שכח	69600	paal	שכח
+הוציא	69584	hifil	וצא
+הראה	68672	hifil	ראה	{"segolPrefix":true}
+ישב	66761	paal	ישב
+הביא	66496	hifil	בוא
+הוכן	65601	hufal	כון	{"override":{"present.fs":"מוU1A3Aה"}}	checked: מוּכָנָה as spoken (decision 21)
+ירד	65188	paal	ירד
+הציל	64716	hifil	נצל
+שינה	63640	piel	שנה
+קנה	63352	paal	קנה
+השאיר	63081	hifil	שאר
+למד	62598	paal	למד	{"futureVowel":"a"}
+נמצא	62537	nifal	מצא
+התראה	60365	hitpael	ראה
+סלח	59664	paal	סלח
+שלח	59159	paal	שלח
+ישן	58857	paal	ישן	{"presentShort":true,"keepYod":true}
+צדק	58757	paal	צדק	{"futureVowel":"a"}
+שילם	57129	piel	שלם
+הבטיח	56978	hifil	בטח
+נסע	56645	paal	נסע		inf: לנסוע / לִנְסֹעַ
+רב	56107	paal	ריב
+החזיק	55603	hifil	חזק	{"noChataf":true}
+טיפל	55114	piel	טפל
+פגע	54889	paal	פגע
+ניצח	54603	piel	נצח
+נוסף	54130	nifal	וסף
+שתה	53604	paal	שתה
+צחק	51908	paal	צחק
+ברח	50766	paal	ברח
+בחר	50341	paal	בחר
+עלה	48215	paal	עלה
+הדהים	47541	hifil	דהם
+קיווה	46837	piel	קוה
+ירה	44673	paal	ירה
+הוריד	44184	hifil	ורד
+החזיר	42999	hifil	חזר	{"noChataf":true}
+זרק	42714	paal	זרק
+הזמין	42685	hifil	זמן
+הציע	41966	hifil	יצע	{"assim":true}
+חלה	41279	paal	חלה
+הושלם	40924	hufal	שלם
+נגמר	40874	nifal	גמר
+הכניס	40466	hifil	כנס
+החליט	40122	hifil	חלט	{"noChataf":true}
+נרגע	39993	nifal	רגע
+ציפה	39755	piel	צפה
+נפגש	39637	nifal	פגש
+פתח	38473	paal	פתח
+הצחיק	38398	hifil	צחק
+הכין	38341	hifil	כון
+סמך	38102	paal	סמך
+גמר	38070	paal	גמר
+הגן	37680	hifil	גנן
+הרס	37118	paal	הרס
+הסכים	36474	hifil	סכם
+פיטר	36241	piel	פטר
+לבש	35917	paal	לבש	{"futureVowel":"a"}
+כתב	35068	paal	כתב
+רצח	34912	paal	רצח
+יצר	34669	paal	יצר	{"keepYod":true,"futureVowel":"o"}	checked: future יִיצֹר as Hspell (ייצור); Hspell 1s אצור
+רץ	33943	paal	רוץ
+התמודד	33874	hitpael	מדד	{"polel":true}
+ביצע	33704	piel	בצע
+מכר	33639	paal	מכר
+גר	32791	paal	גור
+נלחם	32738	nifal	לחם
+שחרר	32573	piel	שחרר
+ניהל	32379	piel	נהל
+פיתח	31982	piel	פתח
+דן	31820	paal	דון
+שיקר	31768	piel	שקר
+ענה	31585	paal	ענה
+נגע	31368	paal	נגע	{"segolateInfinitive":true,"variants":{"infinitive.inf":["לנגוע"]}}	checked: infinitive לָגַעַת; second infinitive לנגוע (spoken)
+הופיע	31177	hifil	ופע
+זכה	30968	paal	זכה
+הסביר	30807	hifil	סבר
+העביר	30419	hifil	עבר
+עקב	30330	paal	עקב
+הביך	30216	hifil	בוך
+הסתובב	29498	hitpael	סבב	{"polel":true}
+הוביל	29497	hifil	ובל
+דפק	29387	paal	דפק
+כעס	29237	paal	כעס
+התחתן	29233	hitpael	חתן
+הפחיד	29062	hifil	פחד
+התאים	29013	hifil	תאם
+טעה	28992	paal	טעה
+בילה	28796	piel	בלה
+הסתדר	28673	hitpael	סדר
+הצטרף	28619	hitpael	צרף
+נפל	28371	paal	נפל	{"override":{"infinitive.inf":"לi2*o3"},"variants":{"infinitive.inf":["לנפול"]}}	checked: second infinitive לנפול
+וידא	27989	piel	ודא
+נהג	27805	paal	נהג
+התגעגע	27643	hitpael	געגע
+חיבר	27563	piel	חבר
+שנא	27307	paal	שׂנא	{"pastVowel":"E"}
+התנהג	27000	hitpael	נהג
+קפץ	26805	paal	קפץ
+לימד	26791	piel	למד
+התעורר	26678	hitpael	עור	{"polel":true}
+נהנה	26630	nifal	הנה		checked: infinitive לְהֵהָנוֹת as Hspell (להיהנות), Wiktionary לֵהָנוֹת
+התרחק	26470	hitpael	רחק		by hand: no Wiktionary table
+גנב	25745	paal	גנב
+שכב	25695	paal	שכב	{"futureVowel":"a","override":{"infinitive.inf":"לi1:2a3"}}	checked: infinitive לִשְׁכַּב
+קם	25498	paal	קום
+השתנה	25104	hitpael	שנה
+נעלם	25103	nifal	עלם
+תיקן	24977	piel	תקן
+ילד	24942	paal	ילד
+פנה	24779	paal	פנה
+חייך	24721	piel	חיך
+ניקה	24662	piel	נקה
+התקרב	24487	hitpael	קרב
+הפסיד	24443	hifil	פסד
+הרים	24442	hifil	רום
+העריך	24389	hifil	ערך
+תהה	24317	paal	תהה	{"futureVowel":"o"}
+אסף	24175	paal	אסף
+הכה	24028	hifil	נכה
+סגר	24006	paal	סגר
+הרשה	23870	hifil	רשה
+שבר	23555	paal	שבר
+סבל	23441	paal	סבל
+הפריע	22979	hifil	פרע
+כאב	22854	paal	כאב
+חלק	22824	paal	חלק
+החליף	22565	hifil	חלף	{"noChataf":true}
+פעל	22492	paal	פעל
+חידש	22156	piel	חדש
+פחד	22072	paal	פחד
+ערך	22025	paal	ערך
+נזהר	21857	nifal	זהר
+שלט	21742	paal	שלט
+חשש	21653	paal	חשש
+צפה	21605	paal	צפה
+עף	21429	paal	עוף
+נשא	21106	paal	נשׂא	{"override":{"infinitive.inf":"לA2E3ת"}}	checked: infinitive לָשֵׂאת
+משך	20893	paal	משך
+הזכיר	20866	hifil	זכר
+הודיע	20511	hifil	ודע
+אשם	20370	paal	אשׂם	{"futureVowel":"a","presentShort":true}	checked: present אָשֵׁם as Hspell
+צילם	20203	piel	צלם
+נשם	20133	paal	נשם	{"noAssim":true}
+חיבב	20068	piel	חבב		by hand: no Wiktionary table
+ביקר	19995	piel	בקר
+נשבע	19984	nifal	שבע
+הביט	19947	hifil	נבט
+רקד	19787	paal	רקד
+שיער	19693	piel	שער
+סידר	19572	piel	סדר
+האשים	19514	hifil	אשם
+מסר	19407	paal	מסר
+רדף	19122	paal	רדף
+שר	18910	paal	שיר
+זיהה	18888	piel	זהה
+נולד	18788	nifal	ולד
+התנצל	18710	hitpael	נצל
+בכה	18614	paal	בכה
+כלל	18434	paal	כלל	{"futureVowel":"o"}	checked: future יִכְלֹל as Hspell
+איים	18417	piel	אים
+נהרג	18361	nifal	הרג
+נע	18344	paal	נוע		checked: literary future only: Hspell תנוענה
+פיקד	18226	piel	פקד
+המתין	18210	hifil	מתן
+תכנן	18014	piel	תכנן
+בטח	17630	paal	בטח
+בזבז	17536	piel	בזבז
+גדל	17502	paal	גדל	{"presentShort":true,"futureVowel":"a"}
+הסתיים	17363	hitpael	סים
+עסק	17356	paal	עסק		by hand: no Wiktionary table
+שרד	17327	paal	שׂרד
+רשם	17245	paal	רשם
+קשר	17172	paal	קשר
+נפטר	17136	nifal	פטר
+בנה	17001	paal	בנה
+הציג	16992	hifil	יצג	{"assim":true}
+טס	16975	paal	טוס
+שתק	16955	paal	שתק
+דמיין	16923	piel	דמין		inf: לְדַמְיֵן // לדמיין
+נישק	16851	piel	נשק
+לחץ	16822	paal	לחץ
+חתם	16712	paal	חתם
+הסתיר	16614	hifil	סתר
+דיווח	16476	piel	דוח
+הרוויח	16270	hifil	רוח	{"strong":true}	by hand: no Wiktionary table
+פספס	16164	piel	פֿספֿס
+הודאג	16151	hufal	דאג
+נפרד	16148	nifal	פרד
+העלה	15923	hifil	עלה
+חתך	15790	paal	חתך	{"noChataf":true}
+חישב	15776	piel	חשב
+מנע	15733	paal	מנע
+ניחש	15633	piel	נחש
+מילא	15525	piel	מלא
+איתר	15405	piel	אתר
+נפגע	15336	nifal	פגע
+קלט	15067	paal	קלט
+חקר	14949	paal	חקר
+הסתלק	14926	hitpael	סלק
+סיפק	14901	piel	ספק
+דר	14761	paal	דור
+השתגע	14736	hitpael	שגע
+קבע	14635	paal	קבע
+ציווה	14581	piel	צוה
+נח	14545	paal	נוח
+טען	14541	paal	טען
+התערב	14492	hitpael	ערב
+ספר	14444	paal	ספר
+נשמע	14415	nifal	שמע
+חטף	14244	paal	חטף
+צעק	14189	paal	צעק
+התעסק	14128	hitpael	עסק		by hand: no Wiktionary table
+דחה	14094	paal	דחה
+רכב	14036	paal	רכב	{"futureVowel":"a","override":{"infinitive.inf":"לi1:2a3"}}	checked: infinitive לִרְכַּב
+הגיש	14017	hifil	נגש
+אפשר	13958	piel	אפשר
+דרש	13868	paal	דרש
+העמיד	13792	hifil	עמד
+הפעיל	13785	hifil	פעל
+התייחס	13707	hitpael	יחס
+פתר	13588	paal	פתר
+גידל	13400	piel	גדל
+תבע	13357	paal	תבע
+איחר	13306	piel	אחר
+הורה	13276	hifil	ורה
+סירב	13268	piel	סרב
+חשד	13163	paal	חשד
+חלם	13140	paal	חלם
+הבחין	13136	hifil	בחן		by hand: no Wiktionary table
+התכונן	13088	hitpael	כון	{"polel":true}
+חש	13080	paal	חוש
+העדיף	13063	hifil	עדף
+הקסים	12943	hifil	קסם
+תקף	12857	paal	תקף
+הצביע	12782	hifil	צבע
+פוצץ	12694	piel	פצץ	{"polel":true}
+פרץ	12689	paal	פרץ
+דמה	12681	paal	דמה
+תיאר	12667	piel	תאר
+ביטל	12666	piel	בטל
+נמאס	12488	nifal	מאס
+העיף	12487	hifil	עוף
+חיסל	12430	piel	חסל
+חגג	12416	paal	חגג
+סיכן	12410	piel	סכן
+כינס	12377	piel	כנס
+ניצל	12367	piel	נצל
+ויתר	12256	piel	ותר
+הזיז	12219	hifil	זוז
+נעשה	12212	nifal	עשׂה
+בגד	12149	paal	בגד
+בירר	12008	piel	ברר		by hand: no Wiktionary table
+הוסיף	11952	hifil	וסף
+הטריד	11907	hifil	טרד		by hand: no Wiktionary table
+ניגש	11866	nifal	נגש	{"manual":true}	by hand: no Wiktionary table
+נאלץ	11854	nifal	אלץ		by hand: no Wiktionary table
+הריח	11841	hifil	רוח
+שפט	11750	paal	שפט
+שרף	11725	paal	שׂרף
+הופתע	11651	hufal	פתע
+קרע	11620	paal	קרע
+נמשך	11493	nifal	משך
+הכריח	11331	hifil	כרח
+מיהר	11284	piel	מהר
+נותר	11255	nifal	ותר
+הגיב	11229	hifil	גוב
+אימן	11199	piel	אמן
+התקדם	11177	hitpael	קדם
+התרחש	11109	hitpael	רחש
+כיבה	11059	piel	כבה
+חשף	11016	paal	חשׂף
+שקל	10918	paal	שקל
+תקשר	10794	piel	תקשר		by hand: no Wiktionary table
+הסתבר	10677	hitpael	סבר		by hand: no Wiktionary table
+העיר	10557	hifil	עור
+האט	10556	hifil	אטט
+שכר	10491	paal	שׂכר
+ניגן	10370	piel	נגן
+שוחח	10321	piel	שׂיח	{"polel":true}
+חנה	10313	paal	חנה	{"patahPrefix":true}
+נכשל	10294	nifal	כשל
+הפיל	10221	hifil	נפל
+נטש	10141	paal	נטש		inf: לנטוש / לִנְטֹשׁ
+השפיע	10077	hifil	שפע
+נעדר	10062	nifal	עדר		by hand: no Wiktionary table
+עישן	10060	piel	עשן
+שיתף	10055	piel	שתף
+ארגן	9998	piel	ארגן
+הוכיח	9924	hifil	וכח
+אישר	9868	piel	אשר
+נתפס	9732	nifal	תפס
+שירת	9691	piel	שרת
+הפתיע	9673	hifil	פתע
+התעלם	9596	hitpael	עלמ
+שעמם	9570	piel	שעמם
+נתקל	9540	nifal	תקל
+התפלל	9418	hitpael	פלל
+עצבן	9345	piel	עצבן		by hand: no Wiktionary table
+העניק	9320	hifil	ענק
+חצה	9284	paal	חצה
+התפוצץ	9245	hitpael	פצץ	{"polel":true}
+השגיח	9234	hifil	שגח
+נעל	9207	paal	נעל
+ריגל	9178	piel	רגל
+הזדקק	9165	hitpael	זקק
+כיבד	9160	piel	כבד
+תמך	9052	paal	תמך
+בחן	9002	paal	בחן
+שכנע	9000	piel	שכנע		by hand: no Wiktionary table
+ארז	8943	paal	ארז
+התחנן	8909	hitpael	חנן
+נמלט	8776	nifal	מלט
+קיים	8491	piel	קים
+שימש	8448	piel	שמש
+השתלט	8427	hitpael	שלט
+התקבל	8420	hitpael	קבל
+השתחרר	8373	hitpael	שחרר
+השקיע	8369	hifil	שקע
+התגבר	8323	hitpael	גבר
+נעצר	8315	nifal	עצר		by hand: no Wiktionary table
+שוחרר	8304	pual	שחרר
+חלף	8210	paal	חלף
+חזה	8131	paal	חזה
+השמיד	8121	hifil	שמד
+כיוון	8095	piel	כון
+פינה	8058	piel	פנה
+הזהיר	8041	hifil	זהר
+חסך	8041	paal	חסך
+ניתק	8038	piel	נתק
+התחמק	8029	hitpael	חמק
+נועד	8018	nifal	ועד
+ציין	7981	piel	צין
+העיד	7980	hifil	עוד
+איחד	7947	piel	אחד
+פרש	7863	paal	פרש
+קבר	7771	paal	קבר
+יידע	7768	piel	ידע
+כיסה	7760	piel	כסה
+סחר	7725	paal	סחר
+הדליק	7709	hifil	דלק
+הרחיק	7702	hifil	רחק
+בוקר	7678	pual	בקר
+התאמן	7674	hitpael	אמן
+השתתף	7633	hitpael	שתף
+בעט	7565	paal	בעט
+פישל	7527	piel	פֿשל
+חל	7468	paal	חול
+זהר	7455	paal	זהר
+תלה	7423	paal	תלה
+דחף	7334	paal	דחף	{"futureVowel":"o"}	checked: future יִדְחֹף as Hspell
+נקרא	7300	nifal	קרא
+הרגיע	7284	hifil	רגע
+נדרש	7277	nifal	דרש		by hand: no Wiktionary table
+התחבא	7273	hitpael	חבא
+נסגר	7257	nifal	סגר
+בישל	7173	piel	בשל
+אילץ	7169	piel	אלץ		by hand: no Wiktionary table
+התרגש	7168	hitpael	רגש
+מחק	7163	paal	מחק
+התרכז	7094	hitpael	רכז
+התבייש	7070	hitpael	ביש		by hand: no Wiktionary table
+חפר	7033	paal	חפר
+הועיל	7017	hifil	ועל
+קרס	7010	paal	קרס
+קישר	6945	piel	קשר
+ריפא	6893	piel	רפא
+דימם	6872	piel	דמם
+רימה	6863	piel	רמה
+התברר	6808	hitpael	ברר		by hand: no Wiktionary table
+נזכר	6780	nifal	זכר
+השלים	6748	hifil	שלם
+השמיע	6708	hifil	שמע
+המציא	6670	hifil	מצא
+גסס	6654	paal	גסס		by hand: no Wiktionary table
+פוטר	6654	pual	פטר
+השתפר	6636	hitpael	שפר
+עורר	6622	piel	עור	{"polel":true}
+התנגד	6549	hitpael	נגד
+הביע	6513	hifil	נבע
+צעד	6499	paal	צעד
+מצץ	6466	paal	מצץ
+התחבר	6465	hitpael	חבר
+נשלח	6451	nifal	שלח
+פירק	6413	piel	פרק
+נפתח	6369	nifal	פתח
+עודד	6341	piel	עדד	{"polel":true}
+העז	6339	hifil	עזז
+בירך	6321	piel	ברך
+שדד	6320	paal	שדד		by hand: no Wiktionary table
+הזיק	6318	hifil	נזק
+סובב	6307	piel	סוב	{"polel":true}
+העריץ	6285	hifil	ערץ
+צלצל	6269	piel	צלצל
+הסתתר	6264	hitpael	סתר
+הזדרז	6238	hitpael	זרז
+ראיין	6232	piel	ראין		by hand: no Wiktionary table
+היווה	6213	piel	הוה
+תרם	6213	paal	תרם
+תקע	6178	paal	תקע
+הקל	6177	hifil	קלל
+התאהב	6172	hitpael	אהב
+נכנע	6165	nifal	כנע
+התמקד	6129	hitpael	מקד		by hand: no Wiktionary table
+שחה	6077	paal	שׂחה
+התלבש	6057	hitpael	לבש
+קינא	6053	piel	קנא
+ייצג	6050	piel	יצג
+הרביץ	6020	hifil	רבץ
+נלקח	5992	nifal	לקח
+נרדם	5992	nifal	רדם
+הסתבך	5988	hitpael	סבך
+נרצח	5988	nifal	רצח
+אימץ	5972	piel	אמץ
+פרסם	5958	piel	פרסם
+טעם	5919	paal	טעם
+גיבה	5899	piel	גבה
+ניתח	5852	piel	נתח
+התעקש	5837	hitpael	עקש
+טיפס	5799	piel	טפס
+גרר	5790	paal	גרר
+הסיע	5780	hifil	נסע
+צייר	5765	piel	ציר
+נהיה	5758	nifal	היה	{"noChataf":true,"omit":["future","literary","infinitive"]}
+חילק	5734	piel	חלק
+הימר	5672	piel	המר
+הלם	5666	paal	הלם
+נשרף	5640	nifal	שׂרף
+ניתן	5608	nifal	נתן	{"assimT":true}
+התלונן	5595	hitpael	לון	{"polel":true}
+הקיא	5577	hifil	קיא
+צרח	5562	paal	צרח
+נמנע	5556	nifal	מנע
+העליב	5547	hifil	עלב
+החביא	5495	hifil	חבא	{"noChataf":true}
+החליק	5459	hifil	חלק
+נשבר	5455	nifal	שבר
+קירב	5405	piel	קרב		by hand: no Wiktionary table
+לכד	5404	paal	לכד
+אכזב	5328	piel	אכזב
+האכיל	5304	hifil	אכל		by hand: no Wiktionary table
+זרם	5284	paal	זרם
+חיזק	5221	piel	חזק
+התחרט	5193	hitpael	חרט
+ביאס	5193	piel	באס
+כינה	5192	piel	כנה
+נישא	5149	nifal	נשׂא		by hand: no Wiktionary table
+הכריז	5147	hifil	כרז
+הריץ	5139	hifil	רוץ
+עדכן	5136	piel	עדכן		by hand: no Wiktionary table
+כיסח	5091	piel	כסח		by hand: no Wiktionary table
+התכופף	5072	hitpael	כפף	{"polel":true}
+פיצה	5058	piel	פצה
+ריגש	5051	piel	רגש
+טבע	5047	paal	טבע
+התפטר	5033	hitpael	פטר
+התקיים	5020	hitpael	קים		by hand: no Wiktionary table
+חווה	5005	paal	חוה
+התווכח	4997	hitpael	וכח
+שטף	4995	paal	שטף
+התפשט	4956	hitpael	פשט
+הביס	4942	hifil	בוס
+צץ	4938	paal	צוץ
+הסגיר	4923	hifil	סגר
+ייצר	4912	piel	יצר		by hand: no Wiktionary table
+השיב	4882	hifil	שוב
+החמיר	4876	hifil	חמר	{"noChataf":true}	by hand: no Wiktionary table
+טרח	4875	paal	טרח		by hand: no Wiktionary table
+התחרה	4868	hitpael	חרה
+דקר	4852	paal	דקר
+צבע	4841	paal	צבע
+סטר	4829	paal	סטר		by hand: no Wiktionary table
+גירש	4773	piel	גרש
+הלווה	4756	hifil	לוה		by hand: no Wiktionary table
+מינה	4748	piel	מנה
+השתבש	4721	hitpael	שבש		by hand: no Wiktionary table
+הציב	4707	hifil	יצב	{"assim":true}
+הדאיג	4687	hifil	דאג
+החמיץ	4660	hifil	חמץ	{"noChataf":true}
+התבגר	4640	hitpael	בגר		by hand: no Wiktionary table
+חסם	4638	paal	חסם
+נחת	4619	paal	נחת
+הוזמן	4608	hufal	זמן		by hand: no Wiktionary table
+סרק	4591	paal	סרק
+בלע	4581	paal	בלע
+טייל	4540	piel	טיל
+שיגע	4536	piel	שגע
+הפריד	4515	hifil	פרד
+התעניין	4497	hitpael	ענין		by hand: no Wiktionary table
+הבהיר	4472	hifil	בהר
+נשך	4468	paal	נשך	{"futureVowel":"o"}	checked: future יִשֹּׁךְ as Hspell
+הציק	4462	hifil	צוק		by hand: no Wiktionary table
+הסתכן	4460	hitpael	סכן
+התאבד	4376	hitpael	אבד
+הרשים	4371	hifil	רשם
+בלבל	4358	piel	בלבל
+נחשב	4347	nifal	חשב	{"noChataf":true}
+הסיר	4333	hifil	סור
+הקריב	4312	hifil	קרב
+העסיק	4305	hifil	עסק		by hand: no Wiktionary table
+השתין	4293	hifil	שתן
+נקם	4283	paal	נקם		checked: future יִקֹּם as Hspell (יקום), Wiktionary יִקַּם
+עיצב	4265	piel	עצב
+הרכיב	4230	hifil	רכב
+השתדל	4228	hitpael	שדל
+התגנב	4214	hitpael	גנב		by hand: no Wiktionary table
+התחרפן	4101	hitpael	חרפֿן
+מתח	4071	paal	מתח
+נוצר	4043	nifal	וצר
+נפצע	4039	nifal	פצע
+נרשם	4029	nifal	רשם		by hand: no Wiktionary table
+שיטח	4024	piel	שטח
+טיווח	3989	piel	טוח		by hand: no Wiktionary table
+אבטח	3978	piel	אבטח
+בוצע	3976	pual	בצע		by hand: no Wiktionary table
+בער	3970	paal	בער
+נאבק	3934	nifal	אבק
+הכחיש	3919	hifil	כחש
+נתקע	3917	nifal	תקע		by hand: no Wiktionary table
+התנדב	3894	hitpael	נדב
+הגדיר	3881	hifil	גדר
+איחל	3854	piel	אחל
+שהה	3852	paal	שהה
+נחטף	3847	nifal	חטף		by hand: no Wiktionary table
+הפנה	3845	hifil	פנה
+שיפר	3845	piel	שפר
+הכאיב	3842	hifil	כאב
+שילב	3822	piel	שלב
+הועבר	3812	hufal	עבר
+גייס	3799	piel	גיס
+אחז	3794	paal	אחז	{"peAlef":true}
+בישר	3771	piel	בשׂר
+שפך	3760	paal	שפך
+ליווה	3734	piel	לוה
+אפה	3697	paal	אפה	{"peAlef":true}
+ריחם	3690	piel	רחם		by hand: no Wiktionary table
+נגנב	3687	nifal	גנב
+הסיח	3674	hifil	נסח		by hand: no Wiktionary table
+תרגל	3666	piel	תרגל
+חבט	3654	paal	חבט
+רכש	3650	paal	רכש
+נהרס	3640	nifal	הרס
+השליך	3631	hifil	שלך
+עיכב	3593	piel	עכב
+נטה	3587	paal	נטה		inf: לִנְטוֹת
+הגזים	3565	hifil	גזם
+ייצא	3525	piel	יצא
+נדפק	3495	nifal	דפק		by hand: no Wiktionary table
+רמז	3482	paal	רמז
+החלים	3445	hifil	חלם	{"noChataf":true}
+ירש	3444	paal	ירש	{"keepYod":true,"override":{"infinitive.inf":"לA2e3eת"}}	checked: infinitive לָרֶשֶׁת
+הלשין	3429	hifil	לשן
+התקלח	3427	hitpael	קלח
+הפיק	3411	hifil	פוק
+הרגיז	3397	hifil	רגז
+אסר	3380	paal	אסר
+אובטח	3378	pual	אבטח
+הבריח	3378	hifil	ברח
+נגרם	3378	nifal	גרם
+זייף	3359	piel	זיף
+התעצבן	3336	hitpael	עצבן		by hand: no Wiktionary table
+סייע	3321	piel	סיע
+חילץ	3317	piel	חלץ
+סחב	3278	paal	סחב
+נחשף	3266	nifal	חשף		by hand: no Wiktionary table
+שידר	3257	piel	שדר
+פקפק	3256	piel	פקפק		by hand: no Wiktionary table
+יישר	3253	piel	ישר
+תוקן	3232	pual	תקן		by hand: no Wiktionary table
+הותקף	3228	hufal	תקף
+אירח	3196	piel	ארח
+ספג	3192	paal	ספג
+שעשע	3188	piel	שעשע		by hand: no Wiktionary table
+הוטרד	3162	hufal	טרד		by hand: no Wiktionary table
+כבש	3159	paal	כבש
+ענד	3122	paal	ענד	{"futureVowel":"o"}	checked: future יַעֲנֹד as Hspell
+התגרש	3119	hitpael	גרש
+זמם	3093	paal	זמם
+סילק	3078	piel	סלק
+אזל	3076	paal	אזל	{"futureVowel":"a"}
+העניש	3071	hifil	ענש
+חמק	3066	paal	חמק
+נודע	3063	nifal	ודע
+התפרק	3030	hitpael	פרק
+נטל	3009	paal	נטל	{"override":{"infinitive.inf":"לi2*o3"}}	checked: infinitive לִטֹּל
+כיפר	3008	piel	כפר
+התחפף	2992	hitpael	חפף		by hand: no Wiktionary table
+כלא	2984	paal	כלא
+רעד	2984	paal	רעד
+התנקש	2980	hitpael	נקש
+התעלף	2965	hitpael	עלף
+חיפה	2963	piel	חפה
+צלל	2949	paal	צלל
+השתיק	2945	hifil	שתק
+התוודה	2935	hitpael	ודה		by hand: no Wiktionary table
+נמכר	2928	nifal	מכר
+ציית	2924	piel	צית
+בהה	2915	paal	בהה
+הזריק	2898	hifil	זרק
+זומן	2886	pual	זמן		by hand: no Wiktionary table
+חתר	2881	paal	חתר
+חיבק	2879	piel	חבק
+הימם	2862	piel	המם
+סחט	2860	paal	סחט
+המליץ	2833	hifil	מלץ
+הואשם	2813	hufal	אשם		by hand: no Wiktionary table
+עקף	2783	paal	עקף
+שתל	2777	paal	שתל
+צחקק	2747	piel	צחקק
+השפיל	2746	hifil	שפל
+התגלה	2745	hitpael	גלה
+הגביר	2744	hifil	גבר
+התפרץ	2743	hitpael	פרץ		by hand: no Wiktionary table
+גישר	2726	piel	גשר
+פרק	2715	paal	פרק
+שאף	2714	paal	שאף
+התקשה	2706	hitpael	קשה		by hand: no Wiktionary table
+נשף	2706	paal	נשף	{"noAssim":true}
+דיכא	2700	piel	דכא
+התבונן	2694	hitpael	בינ	{"polel":true}
+שלף	2691	paal	שלף
+נדבק	2673	nifal	דבק		by hand: no Wiktionary table
+האזין	2670	hifil	אזן
+הפיץ	2670	hifil	פוץ
+התמוטט	2666	hitpael	מוט	{"polel":true}
+התאמץ	2659	hitpael	אמץ
+שאב	2651	paal	שאב
+השתכר	2644	hitpael	שכר
+הציץ	2632	hifil	צוץ
+נבהל	2625	nifal	בהל
+תפקד	2616	piel	תפקד
+חימם	2615	piel	חמם
+האיר	2610	hifil	אור
+התרשם	2605	hitpael	רשם		by hand: no Wiktionary table
+התפתח	2600	hitpael	פתח
+כבה	2599	paal	כבה		by hand: no Wiktionary table
+התייצב	2581	hitpael	יצב
+התחשב	2579	hitpael	חשב
+זעזע	2560	piel	זעזע
+חנק	2549	paal	חנק
+עיבד	2526	piel	עבד
+הותיר	2513	hifil	ותר
+הטיל	2501	hifil	נטל		by hand: no Wiktionary table
+פיתה	2494	piel	פתה
+הפליל	2489	hifil	פלל	{"strong":true}	by hand: no Wiktionary table
+הטביע	2467	hifil	טבע
+סיכם	2463	piel	סכם
+התחזה	2455	hitpael	חזה		by hand: no Wiktionary table
+לחש	2455	paal	לחש
+הזיע	2436	hifil	יזע	{"assim":true}
+החמיא	2431	hifil	חמא
+גלש	2427	paal	גלש
+חילל	2418	piel	חלל
+התחמם	2415	hitpael	חמם
+הקדיש	2406	hifil	קדש
+התגורר	2382	hitpael	גרר	{"polel":true}
+התגלגל	2377	hitpael	גלגל
+נחנק	2370	nifal	חנק
+התרסק	2370	hitpael	רסק
+מדד	2366	paal	מדד
+הקליט	2350	hifil	קלט
+גירד	2350	piel	גרד
+הקפיץ	2348	hifil	קפץ
+התגשם	2345	hitpael	גשם
+הדביק	2343	hifil	דבק
+גיחך	2341	piel	גחך
+קפא	2335	paal	קפא
+זעם	2333	paal	זעם
+אתגר	2333	piel	אתגר
+ריסק	2330	piel	רסק
+נותק	2322	pual	נתק		by hand: no Wiktionary table
+השווה	2306	hifil	שוה		by hand: no Wiktionary table
+הדיח	2302	hifil	דוח
+התמחה	2299	hitpael	מחה		by hand: no Wiktionary table
+התבצע	2292	hitpael	בצע		by hand: no Wiktionary table
+צולם	2292	pual	צלם		by hand: no Wiktionary table
+צפן	2273	paal	צפן
+התאושש	2269	hitpael	איש	{"polel":true}
+הלחיץ	2256	hifil	לחץ
+החשיב	2254	hifil	חשב	{"noChataf":true}	by hand: no Wiktionary table
+השתוקק	2245	hitpael	שקק	{"polel":true}	by hand: no Wiktionary table
+התחשק	2243	hitpael	חשק		by hand: no Wiktionary table
+התרומם	2201	hitpael	רום	{"polel":true}
+לווה	2199	paal	לוה
+ליקק	2198	piel	לקק
+הפליג	2194	hifil	פלג
+הזדקן	2189	hitpael	זקן
+הזעיק	2185	hifil	זעק		by hand: no Wiktionary table
+התנהל	2185	hitpael	נהל
+התעכב	2175	hitpael	עכב
+שט	2165	paal	שוט
+ניער	2156	piel	נער
+רוקן	2135	piel	רקן	{"polel":true}
+הצית	2128	hifil	נצת
+הובא	2123	hufal	בוא		by hand: no Wiktionary table
+יישב	2120	piel	ישב
+נסחף	2094	nifal	סחף
+הבדיל	2093	hifil	בדל
+שוטט	2072	piel	שוט	{"polel":true}
+התלהב	2068	hitpael	להב		by hand: no Wiktionary table
+הריע	2063	hifil	רוע		by hand: no Wiktionary table
+המריא	2063	hifil	מרא
+פענח	2061	piel	פענח		by hand: no Wiktionary table
+טרק	2057	paal	טרק		by hand: no Wiktionary table
+אבד	2044	paal	אבד	{"peAlef":true}
+השתלב	2028	hitpael	שלב
+הגדיל	2027	hifil	גדל
+השאיל	2023	hifil	שאל
+תרגם	2018	piel	תרגם
+הושמד	2015	hufal	שמד		by hand: no Wiktionary table
+היסס	2014	piel	הסס
+התנשק	2013	hitpael	נשק
+שחזר	2012	piel	שחזר		by hand: no Wiktionary table
+זרח	2009	paal	זרח
+נערך	1999	nifal	ערך		by hand: no Wiktionary table
+ביטא	1998	piel	בטא
+מזג	1986	paal	מזג
+התבדח	1986	hitpael	בדח
+קרקע	1982	piel	קרקע		by hand: no Wiktionary table
+הקריא	1973	hifil	קרא
+כרה	1972	paal	כרה
+ניווט	1971	piel	נוט
+הואיל	1970	hifil	ואל
+מימן	1945	piel	ממן
+נטרל	1938	piel	נטרל		by hand: no Wiktionary table
+תחם	1927	paal	תחם	{"futureVowel":"o"}	checked: future יִתְחֹם as Hspell
+נהפך	1925	nifal	הפך		by hand: no Wiktionary table
+גלגל	1909	piel	גלגל
+תפר	1895	paal	תפר
+איפס	1891	piel	אפס		by hand: no Wiktionary table
+חיבל	1867	piel	חבל
+דילג	1862	piel	דלג		by hand: no Wiktionary table
+הפגין	1862	hifil	פגן
+נזרק	1858	nifal	זרק
+בלם	1855	paal	בלם
+צמצם	1853	piel	צמצם
+הרחיב	1852	hifil	רחב
+נפתר	1845	nifal	פתר		by hand: no Wiktionary table
+נקט	1842	paal	נקט	{"noAssim":true}	by hand: no Wiktionary table
+השתולל	1830	hitpael	שלל	{"polel":true}	by hand: no Wiktionary table
+הרפה	1814	hifil	רפה		by hand: no Wiktionary table
+הנמיך	1812	hifil	נמך	{"noAssim":true}
+התפצל	1808	hitpael	פצל		by hand: no Wiktionary table
+התיישב	1801	hitpael	ישב
+הצטיין	1798	hitpael	צין		by hand: no Wiktionary table
+זחל	1798	paal	זחל
+מחץ	1797	paal	מחץ
+נסוג	1791	nifal	סוג		inf: לְהִסּוֹג // להיסוג
+נצמד	1790	nifal	צמד		by hand: no Wiktionary table
+זלזל	1789	piel	זלזל		by hand: no Wiktionary table
+הובס	1788	hufal	בוס
+חדל	1786	paal	חדל	{"presentShort":true,"futureVowel":"a"}	checked: future יֶחְדַּל as Hspell
+חשמל	1785	piel	חשמל		by hand: no Wiktionary table
+נפסק	1783	nifal	פסק		by hand: no Wiktionary table
+נדחה	1781	nifal	דחה
+התאבל	1777	hitpael	אבל
+התנשף	1741	hitpael	נשף
+פלש	1737	paal	פלש
+פרח	1735	paal	פרח
+הפליא	1732	hifil	פלא
+הקים	1724	hifil	קום
+החריד	1721	hifil	חרד		by hand: no Wiktionary table
+צף	1716	paal	צוף
+דרס	1709	paal	דרס
+צמח	1707	paal	צמח
+הגשים	1685	hifil	גשם		by hand: no Wiktionary table
+מרח	1677	paal	מרח
+הונה	1670	hifil	ינה		by hand: no Wiktionary table
+התמזמז	1670	hitpael	מזמז		by hand: no Wiktionary table
+נעזר	1669	nifal	עזר		by hand: no Wiktionary table
+האיץ	1667	hifil	אוץ
+הבהיל	1660	hifil	בהל		by hand: no Wiktionary table
+הושיט	1658	hifil	ישט		by hand: no Wiktionary table
+ארב	1653	paal	ארב
+לעס	1649	paal	לעס
+חיטט	1647	piel	חטט		by hand: no Wiktionary table
+הדפיס	1641	hifil	דפס
+ערבב	1641	piel	ערבב
+התאגרף	1638	hitpael	אגרף
+ניסח	1630	piel	נסח
+נעלב	1622	nifal	עלב		by hand: no Wiktionary table
+לעג	1620	paal	לעג		by hand: no Wiktionary table
+הקיף	1614	hifil	נקף
+ירק	1604	paal	ירק	{"keepYod":true}
+התעמת	1600	hitpael	עמת		by hand: no Wiktionary table
+שיגר	1596	piel	שגר
+נבדק	1588	nifal	בדק
+הקדים	1584	hifil	קדם
+הטיף	1580	hifil	נטף
+טמן	1579	paal	טמן
+רעה	1578	paal	רעה
+הבריז	1577	hifil	ברז		by hand: no Wiktionary table
+פקח	1577	paal	פקח
+התנשא	1558	hitpael	נשׂא
+התחייב	1534	hitpael	חיב		by hand: no Wiktionary table
+נייד	1533	piel	ניד		by hand: no Wiktionary table
+העלים	1529	hifil	עלם
+קילל	1523	piel	קלל
+קלקל	1522	piel	קלקל		by hand: no Wiktionary table
+סיבך	1518	piel	סבך		by hand: no Wiktionary table
+התהפך	1511	hitpael	הפך		by hand: no Wiktionary table
+נאם	1509	paal	נאם		by hand: no Wiktionary table
+הפציץ	1507	hifil	פצץ	{"strong":true}
+עטף	1504	paal	עטף
+נקבר	1501	nifal	קבר
+חטא	1497	paal	חטא
+הוגש	1489	hufal	נגש		by hand: no Wiktionary table
+העתיק	1488	hifil	עתק
+האריך	1466	hifil	ארך
+ייעץ	1457	piel	יעץ
+התלוצץ	1454	hitpael	ליץ	{"polel":true}	by hand: no Wiktionary table
+התקרר	1445	hitpael	קרר
+התעלל	1442	hitpael	עלל
+ריחף	1441	piel	רחף
+שכן	1440	paal	שכן
+הטעה	1429	hifil	טעה
+נלחץ	1428	nifal	לחץ		by hand: no Wiktionary table
+התקין	1428	hifil	תקן
+התרוצץ	1426	hitpael	רוץ	{"polel":true}	by hand: no Wiktionary table
+נשען	1419	nifal	שען		by hand: no Wiktionary table
+רחרח	1410	piel	רחרח
+כרת	1405	paal	כרת
+צנח	1404	paal	צנח
+התבלבל	1401	hitpael	בלבל
+כייף	1396	piel	כיף
+התנגש	1394	hitpael	נגש
+התאחד	1392	hitpael	אחד
+ציטט	1389	piel	צטט
+פלט	1381	paal	פלט
+נבנה	1371	nifal	בנה
+הרעיל	1370	hifil	רעל
+הצדיק	1359	hifil	צדק		by hand: no Wiktionary table
+קיצר	1357	piel	קצר
+נעץ	1347	paal	נעץ
+הערים	1346	hifil	ערם		by hand: no Wiktionary table
+נאחז	1327	nifal	אחז
+התמשך	1324	hitpael	משך		by hand: no Wiktionary table
+נדלק	1322	nifal	דלק		by hand: no Wiktionary table
+התאסף	1320	hitpael	אסף
+נחתך	1318	nifal	חתך		by hand: no Wiktionary table
+התארגן	1314	hitpael	ארגן
+הסתפק	1308	hitpael	ספק
+ניפץ	1306	piel	נפץ
+טיהר	1301	piel	טהר
+קלע	1298	paal	קלע
+כופף	1297	piel	כפף	{"polel":true}	by hand: no Wiktionary table
+נופף	1296	piel	נוף	{"polel":true}
+עיכל	1296	piel	עכל
+התפנה	1290	hitpael	פנה
+חייג	1285	piel	חיג
+התבקש	1281	hitpael	בקש
+הקפיא	1280	hifil	קפא
+הסתגל	1279	hitpael	סגל
+הצהיר	1271	hifil	צהר
+הוכה	1264	hufal	נכה
+הכפיל	1257	hifil	כפל
+התרגז	1250	hitpael	רגז
+איית	1245	piel	אית
+אירס	1243	piel	ארס		by hand: no Wiktionary table
+הכריע	1243	hifil	כרע
+הפר	1242	hifil	פרר
+נרקב	1237	nifal	רקב		by hand: no Wiktionary table
+הורשע	1224	hufal	רשע
+התגאה	1221	hitpael	גאה
+התאפק	1214	hitpael	אפק
+פירש	1209	piel	פרש
+החיה	1205	hifil	חיה		checked: hifil הֶחֱיָה, מַחֲיֶה; Wiktionary's hand table mixes in piel forms
+נדד	1203	paal	נדד
+קידם	1202	piel	קדם
+בלגן	1198	piel	בלגן		by hand: no Wiktionary table
+שיחד	1198	piel	שחד
+ייחל	1197	piel	יחל		by hand: no Wiktionary table
+איפר	1189	piel	אפר
+פיזר	1188	piel	פזר
+שולם	1182	pual	שלם		by hand: no Wiktionary table
+הידק	1179	piel	הדק
+התגרה	1172	hitpael	גרה		by hand: no Wiktionary table
+פסל	1167	paal	פסל
+הכעיס	1159	hifil	כעס
+חימש	1157	piel	חמש
+הסתער	1154	hitpael	סער		by hand: no Wiktionary table
+התרגל	1151	hitpael	רגל
+ערער	1136	piel	ערער
+התכנס	1129	hitpael	כנס
+הפחית	1120	hifil	פחת
+הזדהה	1109	hitpael	זהה
+ניגב	1105	piel	נגב
+חולל	1103	piel	חול	{"polel":true}
+נענש	1094	nifal	ענש
+התכבד	1091	hitpael	כבד		by hand: no Wiktionary table
+גזר	1090	paal	גזר
+צירף	1078	piel	צרף
+ייבש	1076	piel	יבש
+התעלה	1074	hitpael	עלה
+תיעב	1072	piel	תעב
+התעדכן	1070	hitpael	עדכן		by hand: no Wiktionary table
+רחץ	1067	paal	רחץ
+הדגים	1064	hifil	דגם
+חיקה	1061	piel	חקה
+נקלע	1060	nifal	קלע		by hand: no Wiktionary table
+נשפך	1059	nifal	שפך		by hand: no Wiktionary table
+פטפט	1056	piel	פטפט
+נבע	1053	paal	נבע	{"noAssim":true}
+שגשג	1046	piel	שׂגשׂג
+קיטר	1041	piel	קטר
+התחלף	1040	hitpael	חלף		by hand: no Wiktionary table
+אירע	1040	piel	ארע	{"omit":["future","literary"]}
+התניע	1034	hifil	תנע
+שיבש	1031	piel	שבש		by hand: no Wiktionary table
+הסתמך	1028	hitpael	סמך
+שפשף	1019	piel	שפשף
+הצטלם	1012	hitpael	צלם
+התקלקל	1011	hitpael	קלקל
+הסיק	1010	hifil	נסק
+נענע	1010	piel	נענע
+השתווה	1002	hitpael	שוה		by hand: no Wiktionary table
+נקרע	1002	nifal	קרע		by hand: no Wiktionary table
+תסכל	1001	piel	תסכל
+יילל	998	piel	ילל		by hand: no Wiktionary table
+רענן	995	piel	רענן		by hand: no Wiktionary table
+נשלט	994	nifal	שלט
+לכלך	992	piel	לכלך
+ביים	991	piel	בים
+דלף	985	paal	דלף

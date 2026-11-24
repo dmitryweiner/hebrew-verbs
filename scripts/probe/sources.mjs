@@ -44,7 +44,8 @@ export function loadHspell() {
     }
     if (line.startsWith('#') || line.includes('+') || line.includes('כינוי')) continue;
     const [raw, tag] = line.trim().split(' ');
-    if (!raw || !tag || tag.includes('סמיכות')) continue;
+    // B: an infinitive with ב- (בנפול).
+    if (!raw || !tag || tag.includes('סמיכות') || raw.startsWith('B')) continue;
     const word = raw.replace(/^L/, 'ל');
     if (!block) {
       block = {};
@@ -89,6 +90,64 @@ export function wiktionarySlots(entry) {
   return out;
 }
 
+/** The Hspell block of a verb: of the blocks under its lemma, the one agreeing most with Wiktionary. */
+export function hspellBlock(hspell, lemma, wslots) {
+  const keys = slotKeys();
+  const blocks = hspell.get(lemma) ?? [];
+  const score = (b) => keys.filter((k) => wslots?.[k]?.some((f) => b[k]?.includes(f.plain))).length;
+  return blocks.toSorted((a, b) => score(b) - score(a))[0] ?? null;
+}
+
 export function loadWiktionary() {
   return JSON.parse(readFileSync(resolve(root, '.cache/wiktionary.json'), 'utf8'));
+}
+
+/** Plain spellings the plan prefers to Hspell's, by "lemma slot". */
+const PLAIN = {
+  // Decision 17: the spoken infinitive first; Hspell has only literary לאמור.
+  'אמר infinitive.inf': ['לומר'],
+};
+const HATAF_BEFORE_SHEVA = /[\u05B1-\u05B3](?=[\u05D0-\u05EA]\u05B0)/gu;
+const FULL = { '\u05B1': '\u05B6', '\u05B2': '\u05B7', '\u05B3': '\u05B8' };
+/** Nikud the plan takes over Wiktionary's, by "lemma slot". */
+const NIKUD = {
+  // As spoken and Hspell (נסוגתי); Wiktionary has the classical נְסוּגוֹתִי.
+  'נסוג past.1s': ['נָסוֹגְתִּי'],
+  'נסוג past.2ms': ['נָסוֹגְתָּ'],
+  'נסוג past.2fs': ['נָסוֹגְתְּ'],
+  'נסוג past.1p': ['נָסוֹגְנוּ'],
+  'נסוג past.2mp': ['נָסוֹגְתֶּם'],
+  'נסוג past.2fp': ['נָסוֹגְתֶּן'],
+  // Like the paal נָתַתִּי (Hspell: ניתתי); Wiktionary has נִתַּנְתִּי.
+  'ניתן past.1s': ['נִתַּתִּי'],
+  'ניתן past.2ms': ['נִתַּתָּ'],
+  'ניתן past.2fs': ['נִתַּתְּ'],
+  'ניתן past.2mp': ['נִתַּתֶּם'],
+  'ניתן past.2fp': ['נִתַּתֶּן'],
+  // Wiktionary has the regular מוּכֶנֶת; Hspell (only for this verb) and speech מוכנה.
+  'הוכן present.fs': ['מוּכָנָה'],
+};
+
+/**
+ * The expected forms of a verb, slot -> { nikud: [...], plain: [...] }:
+ * Wiktionary's nikud, Hspell's spelling (Wiktionary's where Hspell has none),
+ * with the plan's decisions applied. `flags.noPresent` drops the present.
+ */
+export function expectedForms(verb, wslots, hblock) {
+  const out = {};
+  for (const key of slotKeys()) {
+    if (verb.flags?.noPresent && key.startsWith('present.')) continue;
+    // An empty cell: no such form (the infinitive of pual and hufal).
+    const forms = wslots?.[key]?.filter((f) => f.nikud);
+    if (!forms?.length) continue;
+    // Decision 21, classical: a hataf before a vocal sheva is a full vowel
+    // (הֶעֶלְתָה, הָעָבְרָה); Wiktionary keeps the hataf.
+    const full = (n) => n.replace(HATAF_BEFORE_SHEVA, (h) => FULL[h]);
+    let nikud = NIKUD[`${verb.lemma} ${key}`] ?? [...new Set(forms.map((f) => full(f.nikud.normalize('NFC'))))];
+    // Decision 15, classical nikud: 1st person future אֶקַּח, not Wiktionary's אֵקַּח.
+    if (key === 'future.1s') nikud = nikud.map((n) => n.replace(/^א\u05B5(?=.[\u05B0-\u05BB]*\u05BC)/u, 'א\u05B6'));
+    const plain = PLAIN[`${verb.lemma} ${key}`] ?? hblock?.[key] ?? [...new Set(forms.map((f) => strip(f.plain)))];
+    out[key] = { nikud, plain };
+  }
+  return out;
 }

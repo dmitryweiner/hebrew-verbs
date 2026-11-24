@@ -1,0 +1,49 @@
+# Verbs added to the golden test after stage 0, one or two per conjugator
+# rule (from the top of scripts/verb-frequency.mjs). Same columns as
+# sample-50.tsv; flags as scripts/lib/wiktionary-flags.mjs maps them.
+# lemma	binyan	root (שׂ = sin)	flags (JSON, see scripts/lib/conjugate.mjs)
+האמין	hifil	אמן
+העביר	hifil	עבר
+שיער	piel	שער
+הציע	hifil	יצע	{"assim":true}
+חצה	paal	חצה
+חלה	paal	חלה
+נראה	nifal	ראה
+בוקר	pual	בקר
+הוכן	hufal	כון	{"override":{"present.fs":"מוU1A3Aה"}}
+הושלם	hufal	שלם
+התמודד	hitpael	מדד	{"polel":true}
+הסתובב	hitpael	סבב	{"polel":true}
+שחרר	piel	שחרר
+הגן	hifil	גנן
+נוסף	nifal	וסף
+התגעגע	hitpael	געגע
+תכנן	piel	תכנן
+התעורר	hitpael	עור	{"polel":true}
+פוצץ	piel	פצץ	{"polel":true}
+שוחח	piel	שׂיח	{"polel":true}
+פספס	piel	פֿספֿס
+נשם	paal	נשם	{"noAssim":true}
+שנא	paal	שׂנא	{"pastVowel":"E"}
+נשא	paal	נשׂא	{"override":{"infinitive.inf":"לA2E3ת"}}
+העיר	hifil	עור
+יישר	piel	ישר
+התייחס	hitpael	יחס
+נעשה	nifal	עשׂה
+העלה	hifil	עלה
+ניתן	nifal	נתן	{"assimT":true}
+הועבר	hufal	עבר
+הקל	hifil	קלל
+הוכה	hufal	נכה
+נטה	paal	נטה
+אפה	paal	אפה	{"peAlef":true}
+חטא	paal	חטא
+נאחז	nifal	אחז
+הנמיך	hifil	נמך	{"noAssim":true}
+הפציץ	hifil	פצץ	{"strong":true}
+נדד	paal	נדד
+נחשב	nifal	חשב	{"noChataf":true}
+נהיה	nifal	היה	{"noChataf":true,"omit":["future","literary","infinitive"]}
+נסוג	nifal	סוג
+הפר	hifil	פרר
+חנה	paal	חנה	{"patahPrefix":true}

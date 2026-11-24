@@ -13,6 +13,8 @@ The shared conventions behind this setup are in `~/projects/CLAUDE.md` and
 - `plans/2026-11-24-hebrew-verbs.md` — the app plan, decisions, stages 0–9.
 - `plans/2026-11-24-stage0-report.md` — stage 0: data sources checked on
   100 verbs; the conjugator approach.
+- `plans/2026-11-24-stage2-progress.md` — stage 2 (data pipeline): progress
+  and the decisions taken on the way.
 
 ## Commands
 
@@ -34,30 +36,74 @@ push and PR; a push to `main` publishes `dist/` to GitHub Pages.
 
 ## Data scripts
 
-Run with Node, no npm script; each file's header says how. They read the
-downloaded sources in `.cache/` (git-ignored, ~40 MB) and write their results
-there. A fresh clone first runs `sh scripts/fetch-sources.sh` (curl, perl,
-iconv; seconds, network-bound), then `node scripts/verb-frequency.mjs`; Wiktionary pages are
-fetched on demand and cached in `.cache/wikt/`.
+Run with Node, no npm script; each file's header says how. The pipeline, the
+files and the data format: `docs/data.md`. The probes read the downloaded
+sources in `.cache/` (git-ignored, ~40 MB) and write their results there; the
+app's data (`data/` → `src/data/verbs.json`) is committed and builds without
+them. A fresh clone first runs `sh scripts/fetch-sources.sh` (curl, perl,
+iconv; seconds, network-bound), then `node scripts/verb-frequency.mjs`;
+Wiktionary pages are fetched on demand and cached in `.cache/wikt/`;
+`scripts/ru-forms.py` needs a venv with pymorphy3 (its header).
+
+After changing `data/`: `ru-forms.py` (if `ru.tsv` changed), then
+`build-verbs.mjs`, then `npm run check` — it fails on a stale output.
 
 - `scripts/fetch-sources.sh` — downloads FrequencyWords and Hspell, turns
   Hspell's generators into UTF-8 word lists in `.cache/dl/`.
 - `scripts/verb-frequency.mjs` — ranks Hspell's verbs by the OpenSubtitles
   frequencies of their forms; the top needs a manual pass (nouns slip in).
+- `scripts/verb-list.mjs` — drafts and refreshes the verb list `data/verbs.tsv`
+  (the source of truth: lemma, frequency, binyan, root, flags, note) from the
+  ranking and Wiktionary, keeping the lines a person decided (note `by hand:`
+  or `checked:`); skips `data/not-verbs.tsv`. `data/tables.tsv` holds the hand
+  tables of verbs the conjugator does not build (`manual` flag).
+- `scripts/lib/verbs.mjs` — reads the list and the hand tables, gives a listed
+  verb's forms; `verbs.test.mjs` checks the list (part of `npm test`).
+- `scripts/lib/translit.mjs` — Cyrillic transliteration as spoken, from the
+  conjugator's segments (`translit` of every form; hand tables carry their own).
+- `data/ru.tsv` — Russian by hand: translations, the ipf/pf pair for phrases
+  (passives as "быть приглашённым"). `scripts/ru-forms.py` (pymorphy3 in
+  `.cache/venv`, header says how) checks aspects and writes `data/ru-forms.json`
+  (generated, committed, so the build needs no Python; rerun after every
+  change of `ru.tsv` — `verbs.test.mjs` fails on a stale pair).
+- `scripts/probe/translit.mjs` — the transliteration for a person to look
+  over after a rule change: odd forms (`--odd`), a sample table (`--every N`).
+- `scripts/probe/wiktionary-glosses.mjs` — English glosses of the listed verbs
+  from the cached Wiktionary pages, a reference for the translations.
+- `scripts/build-verbs.mjs` — the app's data `src/data/verbs.json` (the
+  `Verb` type of `src/verbs.ts`) from the list, the hand tables, `ru.tsv` and
+  `ru-forms.json`; committed, one verb a line; `--check` fails when it is not
+  up to date (`verbs.test.mjs` runs it). Rerun after any change of `data/`.
+- `scripts/review-list.mjs` — writes the list's review page (HTML, Russian)
+  for a person to approve; `--ru` — the translations' page (translit, pair,
+  three phrases, a comment per marked row).
 - `scripts/lib/conjugate.mjs` — the model conjugator: root + binyan + flags →
-  forms in classical nikud and plene spelling. Its header lists the flags and
-  what is not covered yet. A stage 0 prototype without unit tests: the
-  comparisons below are its tests for now.
+  forms in classical nikud, plene spelling and Cyrillic (`translit.mjs`). Its header lists the flags and
+  what is not covered yet. Tested by `scripts/lib/conjugate.test.mjs` against
+  `conjugate.golden.json` (part of `npm test`); a verb marked `todo` there is a
+  known gap and skipped.
+- `scripts/lib/wiktionary-flags.mjs` — binyan, root and conjugator flags from
+  the parameters of a Wiktionary `{{he-conj}}` table; tested on the golden verbs.
+- `scripts/conjugator-golden.mjs` — writes that golden fixture from the
+  Wiktionary tables (nikud) and Hspell (plain spelling) of the given sample
+  lists, with the plan's decisions applied; keeps the `todo` marks.
 - `scripts/probe/wiktionary.mjs` — fetches and parses the Wiktionary
   `{{he-conj}}` tables of a sample list.
 - `scripts/probe/compare.mjs` — Wiktionary vs Hspell vs the conjugator, form
   by form; `--sample` picks the list (`sample-50.tsv` — the conjugator was
-  written on it, `holdout-50.tsv` — check only).
+  written on it, `holdout-50.tsv` — check only); `--top N` takes the N most
+  frequent verbs with binyan, root and flags from Wiktionary, `--list
+data/verbs.tsv` the verb list (no Wiktionary table: Hspell spelling only);
+  `--summary` prints one line per differing verb; `--snapshot data/hspell.tsv`
+  (with `--list`) rewrites Hspell's spellings that `src/data/verbs.test.ts`
+  checks the data against.
 - `scripts/probe/wiktionary-coverage.mjs` — how many of the top verbs have a
   Wiktionary table.
 
 What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` ~0.5 s;
-`wiktionary.mjs` ~0.5 s per uncached page (a polite delay); `compare.mjs` ~0.3 s.
+`wiktionary.mjs` ~0.5 s per cached page, ~2.5 s per lemma uncached (up to three
+titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
+(`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s; `review-list.mjs` ~0.3 s; `ru-forms.py` ~1.5 s; `build-verbs.mjs` ~0.2 s; `probe/translit.mjs` ~0.2 s.
 
 ## Test-driven development is mandatory
 
@@ -79,6 +125,9 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - `src/app.ts` — DOM wiring and rendering.
 - `src/texts.ts` — every interface text (Russian).
 - `src/storage.ts` — versioned, validated settings in localStorage.
+- `src/verbs.ts` — the verb data's types and `parseVerbs` (a shape check, so
+  the data is read without casts); `src/data/verbs.json` — the data (~3 MB,
+  ~410 KB gzip), `src/data/verbs.test.ts` — its test.
 - `src/sw-plugin.ts` — Vite plugin emitting `sw.js` that precaches the build;
   `src/pwa.ts` — its registration, an update check on every return to the
   page and a reload when a new version takes control (`_conventions/pwa.md`).
@@ -86,7 +135,11 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - `public/` — manifest, icons (`icon.svg` is the source).
 - `scripts/lib/harness.mjs` — Playwright plumbing; `scripts/smoke.mjs` — the
   smoke; `scripts/icons.mjs` — icon rendering.
-- `docs/` — user and design docs; `plans/` — plans and reports (Russian).
+- `data/` — the hand-curated verb list, its exclusions, hand tables and
+  Russian (TSV), `ru-forms.json` (generated) and `hspell.tsv` (a test
+  fixture); the app's generated data is in `src/data/`.
+- `docs/` — user and design docs (`docs/data.md` — the verb data); `plans/` —
+  plans and reports (Russian).
 
 ## Invariants
 
@@ -99,8 +152,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - Hebrew inside Russian text is isolated (`dir`/`unicode-bidi`), see the RTL
   lessons in `~/projects/CLAUDE.md`.
 - The verb data is CC BY-SA 4.0 (Wiktionary, FrequencyWords), the code
-  GPL-3.0-or-later; Hspell (AGPL) is used by build scripts only and nothing of
-  it ships.
+  GPL-3.0-or-later; Hspell (AGPL) is used by build scripts and as a test
+  fixture (`data/hspell.tsv`) only; nothing of it ships.
 
 ## Conventions
 
