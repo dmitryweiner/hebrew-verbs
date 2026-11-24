@@ -17,3 +17,17 @@
 שחרר	piel	שחרר
 הגן	hifil	גנן
 נוסף	nifal	וסף
+התגעגע	hitpael	געגע
+תכנן	piel	תכנן
+התעורר	hitpael	עור	{"polel":true}
+פוצץ	piel	פצץ	{"polel":true}
+שוחח	piel	שׂיח	{"polel":true}
+פספס	piel	פֿספֿס
+נשם	paal	נשם	{"noAssim":true}
+שנא	paal	שׂנא	{"pastVowel":"E"}
+נשא	paal	נשׂא	{"override":{"infinitive.inf":"לA2E3ת"}}
+העיר	hifil	עור
+יישר	piel	ישר
+התייחס	hitpael	יחס
+נעשה	nifal	עשׂה
+העלה	hifil	עלה

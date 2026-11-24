@@ -47,7 +47,12 @@ function topSample(n) {
   return lemmas.map((lemma, i) => {
     const entry = wikt[lemma];
     if (entry?.loose) return { lemma, rank: i + 1, binyan: '?', missing: `loose match: ${entry.title}` };
-    const mapped = entry ? fromWiktionary(entry.params) : null;
+    let mapped = null;
+    try {
+      mapped = entry ? fromWiktionary(entry.params) : null;
+    } catch (error) {
+      return { lemma, rank: i + 1, binyan: '?', missing: `parameters: ${error.message}` };
+    }
     if (!mapped) return { lemma, rank: i + 1, binyan: '?', missing: entry ? 'manual table' : 'no wiktionary' };
     return Object.assign(mapped, { lemma, rank: i + 1 });
   });

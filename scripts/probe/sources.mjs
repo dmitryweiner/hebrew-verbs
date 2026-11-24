@@ -107,8 +107,10 @@ const PLAIN = {
   // Decision 17: the spoken infinitive first; Hspell has only literary לאמור.
   'אמר infinitive.inf': ['לומר'],
 };
-/** Forms where the sources disagree and the plan takes Hspell's, by "lemma slot". */
+/** Nikud the plan takes over Wiktionary's, by "lemma slot". */
 const NIKUD = {
+  // Classical הֶעֶלְתָה (hataf before a vocal sheva -> full vowel); Wiktionary has הֶעֱלְתָה.
+  'העלה past.3fs': ['הֶעֶלְתָה'],
   // Wiktionary has the regular מוּכֶנֶת; Hspell (only for this verb) and speech מוכנה.
   'הוכן present.fs': ['מוּכָנָה'],
 };

@@ -24,7 +24,7 @@
 //   assimT         C3 נ assimilates to the suffix ת: נָתַתִּי (assim_t)
 //   futureVowel    paal future stem vowel: 'o' | 'a' | 'E' (fut_char);
 //                  hollow verbs: 'o' (יָבוֹא), default u (יָמוּת), ע"י i (יָשִׂים)
-//   pastVowel      hollow paal past/present vowel: 'E' (מֵת) (past_char)
+//   pastVowel      paal past vowel 'E': hollow מֵת, stative שָׂנֵא (past_char)
 //   keepYod        paal פ"י keeping the yod: יִישַׁן, לִישֹׁן (elide=-); future
 //                  vowel a; פ"י ל"ה (יִירֶה) keeps it without the flag
 //   presentShort   paal present on the adjective pattern: יָשֵׁן, יְשֵׁנָה (pres_short)
@@ -35,12 +35,14 @@
 //   noPresent      no present tense (היה)
 //   segolateInfinitive  לָקַחַת-type infinitive
 //   hollow         treat as ע"ו/ע"י even if C2 is not ו/י
-//   polel          hitpael on the polel stem: הִתְמוֹדֵד, הִסְתּוֹבֵב (Wiktionary hitpo)
+//   noAssim        paal פ"נ keeping its נ: יִנְשֹׁם (assim=-)
+//   polel          piel and hitpael on the polel stem: פּוֹצֵץ, שׂוֹחֵחַ,
+//                  הִתְמוֹדֵד, הִתְעוֹרֵר (Wiktionary po, hitpo)
 //   override       { 'infinitive.inf': pattern, ... } for single forms (inf)
 // Pual and hufal have no infinitive. A four-letter root (שחרר) takes the
 // piel, pual and hitpael patterns with the doubled C2 split in two.
 // Not covered yet: pual and hufal ל"ה, geminates outside hifil (paal סַבּוֹתִי,
-// nifal נָסַב), polel outside hitpael (כּוֹנֵן).
+// nifal נָסַב), five-letter roots.
 
 const MARK = {
   ':': '\u05B0',
@@ -59,6 +61,7 @@ const MARK = {
 const DAGESH = '\u05BC';
 const SHIN_DOT = '\u05C1';
 const SIN_DOT = '\u05C2';
+const RAFE = '\u05BF';
 const GUTTURALS = new Set(['א', 'ה', 'ח', 'ע']);
 const NO_DOUBLING = new Set(['א', 'ה', 'ח', 'ע', 'ר']);
 const BEGEDKEFET = new Set(['ב', 'ג', 'ד', 'כ', 'פ', 'ת']);
@@ -103,7 +106,7 @@ function rules(segs, opts) {
   for (let k = 0; k < segs.length - 1; k++) {
     const a = segs[k];
     const b = segs[k + 1];
-    if (a.root !== 3 || b.root !== 0 || !(a.v === ':' || a.v === '')) continue;
+    if (a.root !== opts.last || b.root !== 0 || !(a.v === ':' || a.v === '')) continue;
     if (a.l === b.l || (opts.assimT && a.l === 'נ' && b.l === 'ת')) {
       b.forte = true;
       segs.splice(k, 1);
@@ -164,6 +167,13 @@ function rules(segs, opts) {
     if (s.v !== '%' || !GUTTURALS.has(s.l)) continue;
     s.v = segs[k - 1]?.v === 'e' || (k === 0 && opts.hatafSegol) ? '~e' : '~a';
   }
+  // Hifil: the prefix hataf patah before a guttural with patah is patah: הַעַרְתֶּם, הַאַטְתֶּם.
+  for (let k = 0; k < segs.length - 1; k++) {
+    const s = segs[k];
+    const n = segs[k + 1];
+    if (opts.binyan !== 'hifil' || s.root !== 0 || s.v !== '~a') continue;
+    if (n.root === 1 && GUTTURALS.has(n.l) && n.v === 'a') s.v = 'a';
+  }
   // Hataf before a vocal sheva becomes a full vowel: תַּעֲבְדִי -> תַּעַבְדִי.
   for (let k = 0; k < segs.length - 1; k++) {
     const s = segs[k];
@@ -179,7 +189,7 @@ function rules(segs, opts) {
   // segol (תּוֹצֶאנָה).
   for (let k = 1; k < segs.length; k++) {
     const s = segs[k];
-    if (s.l !== 'א' || s.root !== 3) continue;
+    if (s.l !== 'א' || s.root !== opts.last) continue;
     const last = k === segs.length - 1;
     if (s.v === ':' || (s.v === '' && last)) {
       s.v = '';
@@ -193,13 +203,13 @@ function rules(segs, opts) {
   // Tsere/hiriq/holam before a closing ח/ע: תַּגֵּעְנָה -> תַּגַּעְנָה.
   for (let k = 1; k < segs.length; k++) {
     const s = segs[k];
-    if (s.root !== 3 || (s.l !== 'ח' && s.l !== 'ע') || s.v !== ':') continue;
+    if (s.root !== opts.last || (s.l !== 'ח' && s.l !== 'ע') || s.v !== ':') continue;
     const p = segs[k - 1];
     if (p.v === 'E' || p.v === 'o') p.v = 'a';
   }
   // Dagesh lene: בגדכפת at the start or after a silent sheva.
   segs.forEach((s, k) => {
-    if (!BEGEDKEFET.has(s.l) || s.forte) return;
+    if (!BEGEDKEFET.has(s.l) || s.forte || s.dot === RAFE) return;
     const p = segs[k - 1];
     if (k === 0 || (p.v === ':' && !p.medium)) s.lene = true;
   });
@@ -218,7 +228,7 @@ function render(segs) {
   segs.forEach((s, k) => {
     const isLast = k === segs.length - 1;
     let l = isLast && FINAL[s.l] ? FINAL[s.l] : s.l;
-    if (s.dot) l += s.dot;
+    if (s.dot && s.dot !== RAFE) l += s.dot;
     if (s.forte || s.lene || s.v === 'U') l += DAGESH;
     let v = s.v === 'U' ? '' : (MARK[s.v] ?? '');
     if (isLast && s.v === '' && l.startsWith('ך')) v = MARK[':'];
@@ -251,7 +261,7 @@ function plene(segs, opts) {
     if (s.l === 'י' && s.root !== 0 && k > 0 && !isLast && consonantal && !s.quiet) {
       // Not next to a vowel letter (הָיָה -> היה, הָיוּ -> היו), not after a silent sheva.
       const nearMater = (n && isVowelLetter(n)) || (p && isVowelLetter(p));
-      if (!nearMater && p.v !== ':' && s.v !== 'i') l = 'יי';
+      if (!nearMater && p.l !== 'י' && s.v !== 'i') l = 'יי';
     }
     out += l;
     if (s.v === 'o' && !(s.l === 'ו' && s.root === 0)) {
@@ -377,7 +387,10 @@ function paal(root, f) {
     });
     return P;
   }
-  Object.assign(P, past({ c: '1A2a3', third: '1A2a3', thirdV: '1A2%3', pl2: '1%2a3' }), {
+  // Stative (pastVowel E): שָׂנֵא; before a consonant ending patah, but ל"א keeps tsere.
+  const stative = f.pastVowel === 'E';
+  const tsere = stative && c3 === 'א' ? 'E' : 'a';
+  Object.assign(P, past({ c: `1A2${tsere}3`, third: stative ? '1A2E3' : '1A2a3', thirdV: '1A2%3', pl2: `1%2${tsere}3` }), {
     'present.ms': '1וo2E3',
     'present.fs': `1וo${segolate(root)}`,
     'present.mp': '1וo2%3iים',
@@ -412,13 +425,13 @@ function paal(root, f) {
       }),
     );
     P['infinitive.inf'] = `לA${segolate(root)}`;
-  } else if ((c1 === 'נ' && !guttural(c2)) || f.assim) {
+  } else if ((c1 === 'נ' && !guttural(c2) && !f.noAssim) || f.assim) {
     Object.assign(
       P,
       future({
         base: (p) => `${p}${p === 'א' ? 'e' : 'i'}2*${fv}3`,
         vowelEnd: (p) => `${p}i2*%3`,
-        literary: (p) => `${p}i2*${fv}3:נAה`,
+        literary: (p) => `${p}i2*${c3 === 'א' ? 'e' : fv}3:נAה`,
       }),
     );
   } else {
@@ -435,7 +448,7 @@ function paal(root, f) {
   return P;
 }
 
-function piel(root) {
+function piel(root, f) {
   const c3 = root[2][0];
   if (c3 === 'ה')
     return {
@@ -447,15 +460,23 @@ function piel(root) {
       ...future({ base: (p) => `${p}%1a2*eה`, vowelEnd: (p) => `${p}%1a2*`, literary: (p) => `${p}%1a2*eינAה` }),
       'infinitive.inf': 'ל%1a2*וoת',
     };
+  // The stem 1-2: past דִּבֵּ, elsewhere דַבֵּ; polel פּוֹצֵץ, hollow שׂוֹחֵחַ.
+  const P = f.polel ? polelStem(root) : '1i2*';
+  const S = f.polel ? polelStem(root) : '1a2*';
   return {
-    ...past({ c: '1i2*a3', third: '1i2*E3', thirdV: '1i2*%3' }),
-    'present.ms': 'מ%1a2*E3',
-    'present.fs': `מ%1a${segolate(root).replace('2', '2*')}`,
-    'present.mp': 'מ%1a2*%3iים',
-    'present.fp': 'מ%1a2*%3וoת',
-    ...future({ base: (p) => `${p}%1a2*E3`, vowelEnd: (p) => `${p}%1a2*%3`, literary: (p) => `${p}%1a2*E3:נAה` }),
-    'infinitive.inf': 'ל%1a2*E3',
+    ...past({ c: `${P}a3`, third: `${P}E3`, thirdV: `${P}%3` }),
+    'present.ms': `מ%${S}E3`,
+    'present.fs': `מ%${S.slice(0, -2)}${segolate(root).replace('2', S.slice(-2))}`,
+    'present.mp': `מ%${S}%3iים`,
+    'present.fp': `מ%${S}%3וoת`,
+    ...future({ base: (p) => `${p}%${S}E3`, vowelEnd: (p) => `${p}%${S}%3`, literary: (p) => `${p}%${S}E3:נAה` }),
+    'infinitive.inf': `ל%${S}E3`,
   };
+}
+
+/** The polel stem: 1וֹ2 (מוֹדֵד), for a hollow root 1וֹ3 with C3 twice (כּוֹנֵן). */
+function polelStem(root) {
+  return root[1][0] === 'ו' || root[1][0] === 'י' ? '1וo3' : '1וo2';
 }
 
 function pual(root) {
@@ -548,13 +569,15 @@ function hifil(root, f) {
 
 function nifal(root) {
   const c1 = root[0][0];
+  // ל"ה with ע takes patah: נַעֲשָׂה (but נֶהֱנָה).
+  const L = c1 === 'ע' ? 'נa' : 'נi';
   if (root[2][0] === 'ה')
     return {
-      ...ls.past({ c: 'נi1:2', v12: 'E' }),
-      'present.ms': 'נi1:2eה',
-      'present.fs': 'נi1:2Eית',
-      'present.mp': 'נi1:2iים',
-      'present.fp': 'נi1:2וoת',
+      ...ls.past({ c: `${L}1:2`, v12: 'E' }),
+      'present.ms': `${L}1:2eה`,
+      'present.fs': `${L}1:2Eית`,
+      'present.mp': `${L}1:2iים`,
+      'present.fp': `${L}1:2וoת`,
       ...future({
         base: (p) => `${p}${p === 'א' ? 'e' : 'i'}1*A2eה`,
         vowelEnd: (p) => `${p}i1*A2`,
@@ -597,7 +620,7 @@ function hitpael(root, f) {
       'infinitive.inf': 'ל%הiת:1a2*וoת',
     };
   // The stem 1-2: הִתְפַּעֵל, polel הִתְמוֹדֵד.
-  const S = f.polel ? '1וo2' : '1a2*';
+  const S = f.polel ? polelStem(root) : '1a2*';
   return {
     ...past({ c: `הiת:${S}a3`, third: `הiת:${S}E3`, thirdV: `הiת:${S}%3` }),
     'present.ms': `מiת:${S}E3`,
@@ -628,9 +651,9 @@ function metathesis(segs) {
 
 const BUILD = { paal, nifal, piel, pual, hifil, hufal, hitpael };
 
-/** Root letters with an optional shin/sin dot: 'עשׂה' -> ['ע', 'שׂ', 'ה']. */
+/** Root letters with an optional shin/sin dot or rafe: 'עשׂה' -> ['ע', 'שׂ', 'ה']; פֿ never takes a dagesh. */
 export function splitRoot(root) {
-  const letters = typeof root === 'string' ? root.match(/.[\u05C1\u05C2]?/gu) : root;
+  const letters = typeof root === 'string' ? root.match(/.[\u05C1\u05C2\u05BF]?/gu) : root;
   const plain = { ך: 'כ', ם: 'מ', ן: 'נ', ף: 'פ', ץ: 'צ' };
   return letters.map((r) => (r === 'ש' ? `ש${SHIN_DOT}` : (plain[r] ?? r)));
 }
@@ -648,7 +671,7 @@ export function conjugate({ binyan, root, flags = {} }) {
   // doubled C2 split in two: דִּבֵּר -> שִׁחְרֵר (2* -> 2:3, 3 -> 4).
   const patterns = BUILD[binyan](quad ? [r[0], r[1], r[3]] : r, flags);
   if (quad) for (const k of Object.keys(patterns)) patterns[k] = patterns[k].replaceAll('3', '4').replaceAll('2*', '2:3');
-  const opts = { ...flags, binyan, geminate: !quad && r[1][0] === r[2][0] };
+  const opts = { ...flags, binyan, last: r.length, geminate: !quad && r[1][0] === r[2][0] };
   for (const [k, v] of Object.entries(flags.override ?? {})) patterns[k] = v;
   const out = {};
   for (const [key, pattern] of Object.entries(patterns)) {
