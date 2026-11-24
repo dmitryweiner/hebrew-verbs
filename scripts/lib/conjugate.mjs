@@ -14,6 +14,26 @@
 // letter: '*' dagesh forte, then a vowel — ':' silent sheva, '%' vocal sheva,
 // a patah, A kamatz, e segol, E tsere, i hiriq, o holam, u kubutz,
 // U shuruk (on ו), ~a ~e ~A hataf. ו/י/א/ה without a vowel are vowel letters.
+//
+// Flags (lexical facts the root and binyan do not give; most are the same as
+// Wiktionary's {{he-conj}} parameters, in brackets):
+//   peAlef         paal פ"א with a quiet א: יֹאכַל, אֹמַר (elide)
+//   peYod          paal future and infinitive as פ"י: הלך → יֵלֵךְ, לָלֶכֶת
+//   assim          paal future with C1 assimilated: לקח → יִקַּח (assim)
+//   assimT         C3 נ assimilates to the suffix ת: נָתַתִּי (assim_t)
+//   futureVowel    paal future stem vowel: 'o' | 'a' | 'E' (fut_char);
+//                  hollow verbs: 'o' (יָבוֹא), default u (יָמוּת)
+//   pastVowel      hollow paal past/present vowel: 'E' (מֵת) (past_char)
+//   noChataf       guttural C1 keeps a silent sheva: יַחְשֹׁב (nochataf)
+//   keepPrefix     no guttural change of the prefix: יִהְיֶה
+//   hatafSegol     a word-initial guttural takes hataf segol: הֱיִיתֶם
+//   noPresent      no present tense (היה)
+//   segolateInfinitive  לָקַחַת-type infinitive
+//   hollow         treat as ע"ו/ע"י even if C2 is not ו/י
+//   override       { 'infinitive.inf': pattern, ... } for single forms (inf)
+// Not covered yet (stage 0 report, section 4): pual, hufal, geminates,
+// quadriliterals, hitpael ל"ה, stative paal, ע"י future (יָשִׂים), פ"י with
+// a kept yod (יִירֶה), ל"א outside paal, nifal with a guttural C1/C3.
 
 const MARK = {
   ':': '\u05B0',

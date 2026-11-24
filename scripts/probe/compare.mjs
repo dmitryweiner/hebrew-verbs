@@ -5,7 +5,7 @@
 //   node scripts/probe/compare.mjs [--conjugator] [--verbose] [--sample scripts/probe/holdout-50.tsv]
 //
 // Needs .cache/wiktionary.json (scripts/probe/wiktionary.mjs) and
-// .cache/dl/woo-forms.txt (see scripts/verb-frequency.mjs).
+// .cache/dl/woo-forms.txt (scripts/fetch-sources.sh).
 // Prints per-verb differences and a summary; writes .cache/compare-<sample>.json.
 
 import { writeFileSync } from 'node:fs';

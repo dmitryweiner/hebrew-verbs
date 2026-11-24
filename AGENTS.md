@@ -34,13 +34,20 @@ push and PR; a push to `main` publishes `dist/` to GitHub Pages.
 
 ## Data scripts
 
-Run with Node, no npm script. They read the downloaded sources in `.cache/`
-(git-ignored, ~40 MB) and write their results there.
+Run with Node, no npm script; each file's header says how. They read the
+downloaded sources in `.cache/` (git-ignored, ~40 MB) and write their results
+there. A fresh clone first runs `sh scripts/fetch-sources.sh` (curl, perl,
+iconv; seconds, network-bound), then `node scripts/verb-frequency.mjs`; Wiktionary pages are
+fetched on demand and cached in `.cache/wikt/`.
 
+- `scripts/fetch-sources.sh` — downloads FrequencyWords and Hspell, turns
+  Hspell's generators into UTF-8 word lists in `.cache/dl/`.
 - `scripts/verb-frequency.mjs` — ranks Hspell's verbs by the OpenSubtitles
-  frequencies of their forms. Its header lists how to fetch the inputs.
+  frequencies of their forms; the top needs a manual pass (nouns slip in).
 - `scripts/lib/conjugate.mjs` — the model conjugator: root + binyan + flags →
-  forms in classical nikud and plene spelling.
+  forms in classical nikud and plene spelling. Its header lists the flags and
+  what is not covered yet. A stage 0 prototype without unit tests: the
+  comparisons below are its tests for now.
 - `scripts/probe/wiktionary.mjs` — fetches and parses the Wiktionary
   `{{he-conj}}` tables of a sample list.
 - `scripts/probe/compare.mjs` — Wiktionary vs Hspell vs the conjugator, form
@@ -48,6 +55,9 @@ Run with Node, no npm script. They read the downloaded sources in `.cache/`
   written on it, `holdout-50.tsv` — check only).
 - `scripts/probe/wiktionary-coverage.mjs` — how many of the top verbs have a
   Wiktionary table.
+
+What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` ~0.5 s;
+`wiktionary.mjs` ~0.5 s per uncached page (a polite delay); `compare.mjs` ~0.3 s.
 
 ## Test-driven development is mandatory
 
