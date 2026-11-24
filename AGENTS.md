@@ -44,6 +44,9 @@ fetched on demand and cached in `.cache/wikt/`.
   Hspell's generators into UTF-8 word lists in `.cache/dl/`.
 - `scripts/verb-frequency.mjs` — ranks Hspell's verbs by the OpenSubtitles
   frequencies of their forms; the top needs a manual pass (nouns slip in).
+- `scripts/verb-list.mjs` — drafts and refreshes the verb list `data/verbs.tsv`
+  (the source of truth: lemma, frequency, binyan, root, flags, note) from the
+  ranking and Wiktionary, keeping hand edits; skips `data/not-verbs.tsv`.
 - `scripts/lib/conjugate.mjs` — the model conjugator: root + binyan + flags →
   forms in classical nikud and plene spelling. Its header lists the flags and
   what is not covered yet. Tested by `scripts/lib/conjugate.test.mjs` against
@@ -59,14 +62,16 @@ fetched on demand and cached in `.cache/wikt/`.
 - `scripts/probe/compare.mjs` — Wiktionary vs Hspell vs the conjugator, form
   by form; `--sample` picks the list (`sample-50.tsv` — the conjugator was
   written on it, `holdout-50.tsv` — check only); `--top N` takes the N most
-  frequent verbs with binyan, root and flags from Wiktionary, `--summary`
-  prints one line per differing verb.
+  frequent verbs with binyan, root and flags from Wiktionary, `--list
+data/verbs.tsv` the verb list (no Wiktionary table: Hspell spelling only);
+  `--summary` prints one line per differing verb.
 - `scripts/probe/wiktionary-coverage.mjs` — how many of the top verbs have a
   Wiktionary table.
 
 What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` ~0.5 s;
-`wiktionary.mjs` ~0.5 s per uncached page (a polite delay); `compare.mjs` ~0.3 s;
-`conjugator-golden.mjs` ~0.5 s.
+`wiktionary.mjs` ~0.5 s per cached page, ~2.5 s per lemma uncached (up to three
+titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
+(`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s.
 
 ## Test-driven development is mandatory
 
@@ -95,6 +100,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - `public/` — manifest, icons (`icon.svg` is the source).
 - `scripts/lib/harness.mjs` — Playwright plumbing; `scripts/smoke.mjs` — the
   smoke; `scripts/icons.mjs` — icon rendering.
+- `data/` — the hand-curated verb list and its exclusions (TSV); the app's
+  generated data will go to `src/data/`.
 - `docs/` — user and design docs; `plans/` — plans and reports (Russian).
 
 ## Invariants

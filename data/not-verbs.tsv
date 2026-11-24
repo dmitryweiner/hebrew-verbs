@@ -1,0 +1,87 @@
+# Candidates of scripts/verb-frequency.mjs that are not verbs to learn, with
+# the reason; scripts/verb-list.mjs skips them. Reviewed by hand.
+# lemma	reason
+הוכל	forms of יכול (אוכל, תוכל), which Hspell lacks: יכול is in the list by hand
+כולה	יכולה, a form of יכול
+חייה	piel חִיָּה; its לחיות is mostly paal חי "live", in the list by hand
+נכון	adjective נכון
+קטן	adjective קטן
+אוחר	adjective מאוחר
+גרוע	adjective
+יפה	adjective
+אמור	adjective אמור
+נחמד	adjective
+קשה	adjective
+קל	adjective
+שווה	adjective
+קשור	adjective
+בטוח	adjective
+ידוע	adjective
+תלוי	adjective
+עסוק	adjective
+ראוי	adjective
+תקוע	adjective
+נפלא	adjective
+חסר	adjective חסר (the verb is rare)
+סוגל	adjective מסוגל
+יוחד	adjective מיוחד
+שוגע	adjective משוגע
+גוחך	adjective מגוחך
+הוקדם	adjective מוקדם
+הוגן	adjective הוגן
+נתכן	ייתכן "possibly"
+חייב	modal חייב "must"; the verb לחייב is rare
+הגניב	slang מגניב "cool"; the verb is rare
+בישם	noun בשם
+עניין	noun עניין
+בחור	noun
+הנשים	noun אנשים
+בצור	noun בצורה
+רגע	noun רגע
+הושג	noun מושג
+אושר	noun אושר
+דובר	noun דובר
+עובד	noun עובד
+מונה	noun מונה
+עירב	noun ערב
+עורב	noun ערב
+ערב	noun ערב
+פיעם	noun פעם
+פעם	noun פעם
+כיסף	noun כסף
+זימן	noun זמן
+מימש	adverb ממש
+אימת	noun האמת
+הכיל	הכל
+בז	בזה
+פחת	לפחות
+שב	שוב; literary
+עצם	noun עצם, עצמו
+גבר	noun גבר
+חבר	noun חבר; the verb is חיבר
+שנה	noun שנה; the verb is שינה
+דרך	noun דרך
+סתם	adverb סתם
+זקן	adjective, noun זקן
+בעל	noun בעל
+צד	noun צד
+פשט	adjective פשוט
+רוצה	only a loose Wiktionary match; רצה is the verb
+שימח	rare; loose Wiktionary match
+כיתב	loose Wiktionary match, not a verb
+שיכל	loose Wiktionary match, rare
+עימד	loose Wiktionary match, rare
+ביטח	rare
+יידה	rare
+עיבר	rare
+ארה	not a verb
+הרה	noun הריון
+לפחד	a stray Hspell block; the verb is פחד
+השים	not a verb
+נמס	rare
+תורגם	subtitle credits "תורגם ע"י"
+סונכרן	subtitle credits "סונכרן ע"י"
+הזדיין	vulgar
+זיין	vulgar
+זוין	vulgar
+זנה	vulgar

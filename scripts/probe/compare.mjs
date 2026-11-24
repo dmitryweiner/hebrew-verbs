@@ -5,17 +5,19 @@
 //
 //   node scripts/probe/compare.mjs [--conjugator] [--verbose] [--sample scripts/probe/holdout-50.tsv]
 //   node scripts/probe/compare.mjs --conjugator --top 1000 [--summary]
+//   node scripts/probe/compare.mjs --conjugator --list data/verbs.tsv [--summary]
 //
 // --sample: a hand-made list (lemma, binyan, root, flags). --top N: the N
 // most frequent lemmas of .cache/verb-frequency.json, binyan, root and flags
 // from their Wiktionary parameters (scripts/lib/wiktionary-flags.mjs);
 // lemmas without a Wiktionary table, or with only a loose match, are listed
-// and skipped. --summary
+// and skipped. --list: the verb list (scripts/verb-list.mjs); a verb without
+// a Wiktionary table is checked against Hspell's spelling only. --summary
 // prints only the verbs that differ, one line each.
 //
 // Needs .cache/wiktionary.json (scripts/probe/wiktionary.mjs) and
 // .cache/dl/woo-forms.txt (scripts/fetch-sources.sh).
-// Writes .cache/compare-<sample | top-N>.json.
+// Writes .cache/compare-<sample | top-N | list>.json.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
@@ -31,6 +33,7 @@ const { values: args } = parseArgs({
     summary: { type: 'boolean' },
     sample: { type: 'string' },
     top: { type: 'string' },
+    list: { type: 'string' },
   },
 });
 const conjugate = args.conjugator ? (await import('../lib/conjugate.mjs')).conjugate : null;
@@ -58,8 +61,20 @@ function topSample(n) {
   });
 }
 
-const sample = args.top ? topSample(Number(args.top)) : readSample(args.sample);
-const name = args.top ? `top-${args.top}` : basename(args.sample ?? 'sample-50.tsv', '.tsv');
+/** The verb list's lines as sample entries; a `?` binyan is listed and skipped. */
+function listSample(file) {
+  return readFileSync(file, 'utf8')
+    .split('\n')
+    .filter((l) => l.trim() && !l.startsWith('#'))
+    .map((l, i) => {
+      const [lemma, , binyan, letters, flags, note] = l.split('\t');
+      if (binyan === '?') return { lemma, rank: i + 1, binyan, missing: note || 'binyan not set' };
+      return { lemma, rank: i + 1, binyan, root: letters, flags: flags ? JSON.parse(flags) : {} };
+    });
+}
+
+const sample = args.list ? listSample(resolve(args.list)) : args.top ? topSample(Number(args.top)) : readSample(args.sample);
+const name = args.list ? basename(args.list, '.tsv') : args.top ? `top-${args.top}` : basename(args.sample ?? 'sample-50.tsv', '.tsv');
 
 const stats = {
   verbs: sample.length,
@@ -80,8 +95,17 @@ for (const verb of sample) {
     if (!args.summary) console.log(`${verb.lemma} [${verb.missing}]`);
     continue;
   }
-  const w = wiktionarySlots(wikt[verb.lemma]);
-  const h = hspellBlock(hspell, verb.lemma, w);
+  const w = wikt[verb.lemma]?.loose ? null : wiktionarySlots(wikt[verb.lemma]);
+  let c = null;
+  if (conjugate && !verb.flags?.manual)
+    try {
+      c = conjugate(verb);
+    } catch (error) {
+      entry.conj.push(`error: ${error.message}`);
+    }
+  // Without a Wiktionary table, the Hspell block agreeing most with the conjugator.
+  const asSlots = c && Object.fromEntries(Object.entries(c).map(([k, f]) => [k, [{ plain: f.plain }]]));
+  const h = hspellBlock(hspell, verb.lemma, w ?? asSlots);
   if (w) stats.wiktionary++;
   if (h) stats.hspell++;
 
@@ -100,19 +124,18 @@ for (const verb of sample) {
     if (differ) stats.wiktVsHspell.verbs++;
   }
 
-  if (conjugate && w && !verb.flags?.manual) {
+  if (c && (w || h)) {
     stats.conj.verbsCompared++;
-    let c = {};
-    try {
-      c = conjugate(verb);
-    } catch (error) {
-      entry.conj.push(`error: ${error.message}`);
-    }
-    const expected = expectedForms(verb, w, h);
+    // No table: Hspell's spelling only.
+    const expected = w
+      ? expectedForms(verb, w, h)
+      : Object.fromEntries(
+          keys.filter((k) => h[k] && !(verb.flags.noPresent && k.startsWith('present.'))).map((k) => [k, { nikud: null, plain: h[k] }]),
+        );
     for (const [k, e] of Object.entries(expected)) {
       const mine = c[k];
       stats.conj.slots++;
-      if (!mine || !e.nikud.includes(mine.defective)) {
+      if (e.nikud && (!mine || !e.nikud.includes(mine.defective))) {
         stats.conj.nikud++;
         entry.conj.push(`${k}: nikud ${mine?.defective ?? '—'} ≠ ${e.nikud.join(' / ')}`);
       }
