@@ -34,3 +34,16 @@
 ניתן	nifal	נתן	{"assimT":true}
 הועבר	hufal	עבר
 הקל	hifil	קלל
+הוכה	hufal	נכה
+נטה	paal	נטה
+אפה	paal	אפה	{"peAlef":true}
+חטא	paal	חטא
+נאחז	nifal	אחז
+הנמיך	hifil	נמך	{"noAssim":true}
+הפציץ	hifil	פצץ	{"strong":true}
+נדד	paal	נדד
+נחשב	nifal	חשב	{"noChataf":true}
+נהיה	nifal	היה	{"noChataf":true,"omit":["future","literary","infinitive"]}
+נסוג	nifal	סוג
+הפר	hifil	פרר
+חנה	paal	חנה	{"patahPrefix":true}

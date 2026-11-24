@@ -111,6 +111,13 @@ const HATAF_BEFORE_SHEVA = /[\u05B1-\u05B3](?=[\u05D0-\u05EA]\u05B0)/gu;
 const FULL = { '\u05B1': '\u05B6', '\u05B2': '\u05B7', '\u05B3': '\u05B8' };
 /** Nikud the plan takes over Wiktionary's, by "lemma slot". */
 const NIKUD = {
+  // As spoken and Hspell (נסוגתי); Wiktionary has the classical נְסוּגוֹתִי.
+  'נסוג past.1s': ['נָסוֹגְתִּי'],
+  'נסוג past.2ms': ['נָסוֹגְתָּ'],
+  'נסוג past.2fs': ['נָסוֹגְתְּ'],
+  'נסוג past.1p': ['נָסוֹגְנוּ'],
+  'נסוג past.2mp': ['נָסוֹגְתֶּם'],
+  'נסוג past.2fp': ['נָסוֹגְתֶּן'],
   // Like the paal נָתַתִּי (Hspell: ניתתי); Wiktionary has נִתַּנְתִּי.
   'ניתן past.1s': ['נִתַּתִּי'],
   'ניתן past.2ms': ['נִתַּתָּ'],

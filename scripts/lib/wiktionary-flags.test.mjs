@@ -20,6 +20,13 @@ describe('conjugator input from Wiktionary parameters', () => {
     expect(fromWiktionary({ 1: 'hitpo', 2: 'סבב' })).toMatchObject({ binyan: 'hitpael', flags: { polel: true } });
     expect(fromWiktionary({ 1: 'po', 2: 'פצץ' })).toMatchObject({ binyan: 'piel', flags: { polel: true } });
     expect(fromWiktionary({ 1: 'pa', 2: 'נשם', assim: '-' })?.flags).toEqual({ noAssim: true });
+    expect(fromWiktionary({ 1: 'hif', 2: 'פצץ', geminate: '-' })?.flags).toEqual({ strong: true });
+    expect(fromWiktionary({ 1: 'nif', 2: 'היה', nochataf: '+', fut: '-', imp: '-', inf: '-' })?.flags).toEqual({
+      noChataf: true,
+      omit: ['future', 'literary', 'infinitive'],
+    });
+    // The future's prefix and first letters: patah where the rule gives segol.
+    expect(fromWiktionary({ 1: 'pa', 2: 'חנה', fut_pre_stem: 'ַחֲנ' })?.flags).toEqual({ patahPrefix: true });
     expect(fromWiktionary({ 1: 'pa', 2: 'שׂנא', past_char: 'i' })?.flags).toEqual({ pastVowel: 'E' });
     // A rafe stays (פִסְפֵס has no dagesh); other points go.
     expect(fromWiktionary({ 1: 'pi', 2: 'פֿספֿס' })?.root).toBe('פֿספֿס');
@@ -29,7 +36,6 @@ describe('conjugator input from Wiktionary parameters', () => {
   it('leaves a hand-written table and an explicit infinitive to a person', () => {
     expect(fromWiktionary({ manual: '+' })).toBeNull();
     expect(fromWiktionary({ 1: 'pa', 2: 'אמר', elide: '+', inf: 'לוֹמַר' })?.notes).toEqual(['inf: לוֹמַר']);
-    expect(fromWiktionary({ 1: 'pa', 2: 'חנה', fut_pre_stem: 'ַחֲנ' })?.notes).toEqual(['fut_pre_stem: ַחֲנ']);
   });
 
   // The hand-set flags of the golden verbs are the reference: the mapped

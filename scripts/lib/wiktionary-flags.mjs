@@ -64,8 +64,16 @@ export function fromWiktionary(params) {
   if (root === 'נתן') flags.assimT = true;
   // Wiktionary's module gives this one verb a segol: הֶרְאָה.
   if (binyan === 'hifil' && root === 'ראה') flags.segolPrefix = true;
-  if (params.inf) notes.push(`inf: ${params.inf}`);
-  // The future's prefix vowel and first letters: יַחֲנֶה where the rule gives יֶחֱצֶה.
-  if (params.fut_pre_stem) notes.push(`fut_pre_stem: ${params.fut_pre_stem}`);
+  if (params.geminate === '-') flags.strong = true;
+  // A tense the verb lacks: נהיה has no future and no infinitive of its own.
+  const omit = [];
+  if (params.fut === '-') omit.push('future', 'literary');
+  if (params.inf === '-') omit.push('infinitive');
+  if (omit.length) flags.omit = omit;
+  if (params.inf && params.inf !== '-') notes.push(`inf: ${params.inf}`);
+  // The future's prefix and first letters: patah where the rule gives segol
+  // (יַחֲנֶה); anything else is for a person.
+  if (params.fut_pre_stem?.startsWith('\u05B7')) flags.patahPrefix = true;
+  else if (params.fut_pre_stem) notes.push(`fut_pre_stem: ${params.fut_pre_stem}`);
   return { binyan, root, flags, notes };
 }
