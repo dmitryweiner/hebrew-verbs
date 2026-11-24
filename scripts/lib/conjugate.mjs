@@ -107,7 +107,7 @@ function rules(segs, opts) {
     }
   }
   // Gutturals and ר take no dagesh forte; before them hiriq -> tsere, in piel
-  // only before א/ע/ר (בֵּרֵךְ, נִהֵל), in nifal before all (יֵרָגַע, יֵחָשֵׁב).
+  // only before א/ר (בֵּרֵךְ; נִהֵל, שִׁעֵר), in nifal before all (יֵרָגַע, יֵחָשֵׁב).
   // The Academy writes this tsere with י: בירך, יירגע; in nifal also the
   // segol of the 1st person (אֶרָגַע -> אירגע, as Hspell).
   for (let k = 0; k < segs.length; k++) {
@@ -115,7 +115,7 @@ function rules(segs, opts) {
     if (!s.forte || s.root === 0 || !NO_DOUBLING.has(s.l)) continue;
     s.forte = false;
     const prev = segs[k - 1];
-    if (prev?.v === 'i' && ('אער'.includes(s.l) || opts.binyan === 'nifal')) {
+    if (prev?.v === 'i' && ('אר'.includes(s.l) || opts.binyan === 'nifal')) {
       prev.v = 'E';
       prev.compensatory = true;
     }
@@ -134,10 +134,13 @@ function rules(segs, opts) {
       if (p.v === 'i') p.v = opts.binyan === 'hifil' ? 'e' : 'a';
       continue;
     }
-    if (p.v === 'e' || s.l === 'א' || opts.binyan === 'nifal' || opts.binyan === 'hifil') {
+    if (p.v === 'a') {
+      // Hifil present, future, infinitive: מַאֲמִין, יַעֲבִיר.
+      s.v = '~a';
+    } else if (p.v === 'e' || s.l === 'א' || opts.binyan === 'nifal' || opts.binyan === 'hifil') {
       p.v = 'e';
       s.v = '~e';
-    } else if (p.v === 'i' || p.v === 'a') {
+    } else if (p.v === 'i') {
       p.v = 'a';
       s.v = '~a';
     }
@@ -334,10 +337,11 @@ function paal(root, f) {
       'present.fs': '1וo2Aה',
       'present.mp': '1וo2iים',
       'present.fp': '1וo2וoת',
+      // A ח takes segol in the prefix: יֶחֱצֶה (but יַעֲשֶׂה).
       ...future({
-        base: (p) => `${p}${p === 'א' ? 'e' : 'i'}1:2eה`,
-        vowelEnd: (p) => `${p}i1:2`,
-        literary: (p) => `${p}i1:2eינAה`,
+        base: (p) => `${p}${p === 'א' || c1 === 'ח' ? 'e' : 'i'}1:2eה`,
+        vowelEnd: (p) => `${p}${c1 === 'ח' ? 'e' : 'i'}1:2`,
+        literary: (p) => `${p}${c1 === 'ח' ? 'e' : 'i'}1:2eינAה`,
       }),
       'infinitive.inf': 'לi1:2וoת',
     });
@@ -461,8 +465,9 @@ function hifil(root, f) {
       ...future({ base: (p) => `${p}A1iי3`, vowelEnd: (p) => `${p}A1iי3`, literary: (p) => `${p}A1E3:נAה` }),
       'infinitive.inf': 'ל%הA1iי3',
     };
-  // The stem up to C2: strong הִפְ־ס, פ"נ הִ־גּ, פ"י/ו הוֹ־ד.
-  const stem = (pre, v) => (c1 === 'נ' ? `${pre}${v}2*` : c1 === 'י' || c1 === 'ו' ? `${pre}וo2` : `${pre}${v}1:2`);
+  // The stem up to C2: strong הִפְ־ס, פ"נ (and פ"י with assim) הִ־גּ, פ"י/ו הוֹ־ד.
+  const assimilated = c1 === 'נ' || f.assim;
+  const stem = (pre, v) => (assimilated ? `${pre}${v}2*` : c1 === 'י' || c1 === 'ו' ? `${pre}וo2` : `${pre}${v}1:2`);
   if (c3 === 'ה')
     return {
       'past.1s': `${stem('ה', pastV)}Eיתiי`,

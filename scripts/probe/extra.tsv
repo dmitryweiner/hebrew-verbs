@@ -1,0 +1,10 @@
+# Verbs added to the golden test after stage 0, one or two per conjugator
+# rule (from the top of scripts/verb-frequency.mjs). Same columns as
+# sample-50.tsv; flags as scripts/lib/wiktionary-flags.mjs maps them.
+# lemma	binyan	root (שׂ = sin)	flags (JSON, see scripts/lib/conjugate.mjs)
+האמין	hifil	אמן
+העביר	hifil	עבר
+שיער	piel	שער
+הציע	hifil	יצע	{"assim":true}
+חצה	paal	חצה
+חלה	paal	חלה
