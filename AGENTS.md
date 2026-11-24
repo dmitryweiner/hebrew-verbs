@@ -66,6 +66,8 @@ After changing `data/`: `ru-forms.py` (if `ru.tsv` changed), then
   `.cache/venv`, header says how) checks aspects and writes `data/ru-forms.json`
   (generated, committed, so the build needs no Python; rerun after every
   change of `ru.tsv` — `verbs.test.mjs` fails on a stale pair).
+- `scripts/probe/translit.mjs` — the transliteration for a person to look
+  over after a rule change: odd forms (`--odd`), a sample table (`--every N`).
 - `scripts/probe/wiktionary-glosses.mjs` — English glosses of the listed verbs
   from the cached Wiktionary pages, a reference for the translations.
 - `scripts/build-verbs.mjs` — the app's data `src/data/verbs.json` (the
@@ -101,7 +103,7 @@ data/verbs.tsv` the verb list (no Wiktionary table: Hspell spelling only);
 What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` ~0.5 s;
 `wiktionary.mjs` ~0.5 s per cached page, ~2.5 s per lemma uncached (up to three
 titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
-(`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s; `review-list.mjs` ~0.3 s; `ru-forms.py` ~1.5 s; `build-verbs.mjs` ~0.2 s.
+(`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s; `review-list.mjs` ~0.3 s; `ru-forms.py` ~1.5 s; `build-verbs.mjs` ~0.2 s; `probe/translit.mjs` ~0.2 s.
 
 ## Test-driven development is mandatory
 
