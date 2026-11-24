@@ -12,7 +12,9 @@
 const BINYAN = { pa: 'paal', nif: 'nifal', pi: 'piel', pu: 'pual', hif: 'hifil', huf: 'hufal', hit: 'hitpael' };
 // fut_char: the paal future stem vowel; O is the holam of ע"ו (יָבוֹא).
 const FUTURE_VOWEL = { a: 'a', o: 'o', O: 'o', i: 'E', e: 'E' };
-const SHIN_DOT = 'ׁ';
+const SHIN_DOT = '\u05C1';
+// A switch is on as "+" or "1"; off as "-" or absent.
+const on = (v) => v !== undefined && v !== '-' && v !== '0' && v !== '';
 
 /**
  * @param {Record<string, string>} params
@@ -28,10 +30,10 @@ export function fromWiktionary(params) {
   const c1 = root[0];
   const flags = {};
   const notes = [];
-  if (params.nochataf === '+') flags.noChataf = true;
-  if (params.assim === '+') flags.assim = true;
-  if (params.assim_t === '+') flags.assimT = true;
-  if (params.pres_short === '+') flags.presentShort = true;
+  if (on(params.nochataf)) flags.noChataf = true;
+  if (on(params.assim)) flags.assim = true;
+  if (on(params.assim_t)) flags.assimT = true;
+  if (on(params.pres_short)) flags.presentShort = true;
   if (params.past_char === 'E') flags.pastVowel = 'E';
   if (params.fut_char) {
     if (!FUTURE_VOWEL[params.fut_char]) throw new Error(`unknown fut_char ${params.fut_char}`);

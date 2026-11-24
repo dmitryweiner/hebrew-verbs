@@ -14,6 +14,7 @@ describe('conjugator input from Wiktionary parameters', () => {
       flags: { noChataf: true },
       notes: [],
     });
+    expect(fromWiktionary({ 1: 'hif', 2: 'חלט', nochataf: '1' })?.flags).toEqual({ noChataf: true });
     expect(fromWiktionary({ 1: 'pi', 2: 'ק', 3: 'ו', 4: 'ה' })?.root).toBe('קוה');
     expect(fromWiktionary({ 1: 'pa', 2: 'שׂים' })?.root).toBe('שׂים');
   });

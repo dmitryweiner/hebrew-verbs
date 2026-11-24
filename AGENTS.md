@@ -58,7 +58,9 @@ fetched on demand and cached in `.cache/wikt/`.
   `{{he-conj}}` tables of a sample list.
 - `scripts/probe/compare.mjs` — Wiktionary vs Hspell vs the conjugator, form
   by form; `--sample` picks the list (`sample-50.tsv` — the conjugator was
-  written on it, `holdout-50.tsv` — check only).
+  written on it, `holdout-50.tsv` — check only); `--top N` takes the N most
+  frequent verbs with binyan, root and flags from Wiktionary, `--summary`
+  prints one line per differing verb.
 - `scripts/probe/wiktionary-coverage.mjs` — how many of the top verbs have a
   Wiktionary table.
 

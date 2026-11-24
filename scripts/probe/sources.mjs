@@ -101,3 +101,28 @@ export function hspellBlock(hspell, lemma, wslots) {
 export function loadWiktionary() {
   return JSON.parse(readFileSync(resolve(root, '.cache/wiktionary.json'), 'utf8'));
 }
+
+/** Plain spellings the plan prefers to Hspell's, by "lemma slot". */
+const PLAIN = {
+  // Decision 17: the spoken infinitive first; Hspell has only literary לאמור.
+  'אמר infinitive.inf': ['לומר'],
+};
+
+/**
+ * The expected forms of a verb, slot -> { nikud: [...], plain: [...] }:
+ * Wiktionary's nikud, Hspell's spelling (Wiktionary's where Hspell has none),
+ * with the plan's decisions applied. `flags.noPresent` drops the present.
+ */
+export function expectedForms(verb, wslots, hblock) {
+  const out = {};
+  for (const key of slotKeys()) {
+    if (verb.flags?.noPresent && key.startsWith('present.')) continue;
+    if (!wslots?.[key]) continue;
+    let nikud = [...new Set(wslots[key].map((f) => f.nikud.normalize('NFC')))];
+    // Decision 15, classical nikud: 1st person future אֶקַּח, not Wiktionary's אֵקַּח.
+    if (key === 'future.1s') nikud = nikud.map((n) => n.replace(/^א\u05B5(?=.[\u05B0-\u05BB]*\u05BC)/u, 'א\u05B6'));
+    const plain = PLAIN[`${verb.lemma} ${key}`] ?? hblock?.[key] ?? [...new Set(wslots[key].map((f) => strip(f.plain)))];
+    out[key] = { nikud, plain };
+  }
+  return out;
+}
