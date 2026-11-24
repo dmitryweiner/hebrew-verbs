@@ -12,7 +12,8 @@
 // from their Wiktionary parameters (scripts/lib/wiktionary-flags.mjs);
 // lemmas without a Wiktionary table, or with only a loose match, are listed
 // and skipped. --list: the verb list (scripts/verb-list.mjs); a verb without
-// a Wiktionary table is checked against Hspell's spelling only. --summary
+// a Wiktionary table is checked against Hspell's spelling only, and a
+// difference under a "checked: …" note is counted apart. --summary
 // prints only the verbs that differ, one line each.
 //
 // Needs .cache/wiktionary.json (scripts/probe/wiktionary.mjs) and
@@ -69,7 +70,7 @@ function listSample(file) {
     .map((l, i) => {
       const [lemma, , binyan, letters, flags, note] = l.split('\t');
       if (binyan === '?') return { lemma, rank: i + 1, binyan, missing: note || 'binyan not set' };
-      return { lemma, rank: i + 1, binyan, root: letters, flags: flags ? JSON.parse(flags) : {} };
+      return { lemma, rank: i + 1, binyan, root: letters, flags: flags ? JSON.parse(flags) : {}, note };
     });
 }
 
@@ -81,7 +82,7 @@ const stats = {
   wiktionary: 0,
   hspell: 0,
   wiktVsHspell: { slots: 0, differ: 0, verbs: 0 },
-  conj: { nikud: 0, plain: 0, slots: 0, verbsExact: 0, verbsCompared: 0 },
+  conj: { nikud: 0, plain: 0, slots: 0, verbsExact: 0, verbsCompared: 0, verbsChecked: 0 },
 };
 const report = [];
 
@@ -146,12 +147,17 @@ for (const verb of sample) {
     }
     for (const k of Object.keys(c)) if (!expected[k] && args.verbose) entry.conj.push(`${k}: ${c[k].defective} (no reference)`);
     if (entry.conj.length === 0) stats.conj.verbsExact++;
+    // A difference a person has looked at and decided (note "checked: …").
+    else if (verb.note?.startsWith('checked:')) {
+      entry.checked = verb.note;
+      stats.conj.verbsChecked++;
+    }
   }
 
   report.push(entry);
   const head = `${verb.rank ? `${verb.rank}. ` : ''}${verb.lemma} (${verb.binyan} ${verb.root ?? ''})`;
   if (args.summary) {
-    if (entry.conj.length) console.log(`${head}: ${entry.conj.length} differences, ${entry.conj[0]}`);
+    if (entry.conj.length && !entry.checked) console.log(`${head}: ${entry.conj.length} differences, ${entry.conj[0]}`);
     continue;
   }
   const lines = [...entry.wiktVsHspell.map((l) => `  W≠H ${l}`), ...entry.conj.map((l) => `  C ${l}`)];
