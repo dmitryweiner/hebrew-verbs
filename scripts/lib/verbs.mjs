@@ -5,7 +5,7 @@
 //   import { readList, readTables, formsOf } from './lib/verbs.mjs';
 //   const tables = readTables();
 //   for (const verb of readList()) formsOf(verb, tables)['past.3ms'];
-//   // -> { defective: 'דִּבֵּר', plain: 'דיבר' }
+//   // -> { defective: 'דִּבֵּר', plain: 'דיבר', translit: 'дибер' }
 
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -33,17 +33,17 @@ export function readList(file = resolve(data, 'verbs.tsv')) {
   }));
 }
 
-/** lemma -> slot -> { defective, plain } */
+/** lemma -> slot -> { defective, plain, translit } */
 export function readTables(file = resolve(data, 'tables.tsv')) {
   const tables = new Map();
-  for (const [lemma, slot, defective, plain] of rows(file)) {
+  for (const [lemma, slot, defective, plain, translit] of rows(file)) {
     if (!tables.has(lemma)) tables.set(lemma, {});
-    tables.get(lemma)[slot] = { defective, plain };
+    tables.get(lemma)[slot] = { defective, plain, translit };
   }
   return tables;
 }
 
-/** The forms of a listed verb, slot -> { defective, plain }. */
+/** The forms of a listed verb, slot -> { defective, plain, translit }. */
 export function formsOf(verb, tables) {
   if (!verb.flags.manual) return conjugate(verb);
   const table = tables.get(verb.lemma);

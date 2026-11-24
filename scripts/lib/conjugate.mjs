@@ -1,6 +1,7 @@
 // Model conjugator for Hebrew verbs: root + binyan (+ a few lexical flags)
 // -> present, past, future and infinitive, each as defective (classical)
-// nikud and as plene spelling without nikud (the Academy's ktiv male).
+// nikud, as plene spelling without nikud (the Academy's ktiv male) and in
+// Cyrillic as spoken (translit.mjs).
 //
 // A form is built from a pattern string over the root, then rewritten by
 // phonological rules (gutturals, weak letters, assimilation, dagesh) and
@@ -9,7 +10,7 @@
 //
 //   import { conjugate } from './lib/conjugate.mjs';
 //   conjugate({ binyan: 'paal', root: ['א','כ','ל'], flags: { peAlef: true } })
-//   // -> { 'past.1s': { defective: 'אָכַלְתִּי', plain: 'אכלתי' }, ... }
+//   // -> { 'past.1s': { defective: 'אָכַלְתִּי', plain: 'אכלתי', translit: 'ахальти' }, ... }
 //
 // Pattern notation: 1 2 3 (4) = root letters; a Hebrew letter = itself; after a
 // letter: '*' dagesh forte, then a vowel — ':' silent sheva, '%' vocal sheva,
@@ -46,6 +47,8 @@
 // piel, pual and hitpael patterns with the doubled C2 split in two.
 // Not covered yet: pual ל"ה, geminates outside hifil (paal סַבּוֹתִי,
 // nifal נָסַב), five-letter roots.
+
+import { translit } from './translit.mjs';
 
 const MARK = {
   ':': '\u05B0',
@@ -719,7 +722,7 @@ export function splitRoot(root) {
 
 /**
  * @param {{ binyan: string, root: string | string[], flags?: Record<string, any> }} verb
- * @returns {Record<string, { defective: string, plain: string }>}
+ * @returns {Record<string, { defective: string, plain: string, translit: string }>}
  */
 export function conjugate({ binyan, root, flags = {} }) {
   const r = splitRoot(root).map((x) => [x[0], x[1]]);
@@ -739,7 +742,7 @@ export function conjugate({ binyan, root, flags = {} }) {
     let segs = parse(pattern, r);
     if (binyan === 'hitpael') segs = metathesis(segs);
     segs = rules(segs, opts);
-    out[key] = { defective: render(segs), plain: plene(segs, opts) };
+    out[key] = { defective: render(segs), plain: plene(segs, opts), translit: translit(segs, { key, binyan }) };
   }
   return out;
 }
