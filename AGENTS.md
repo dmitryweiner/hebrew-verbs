@@ -13,6 +13,8 @@ The shared conventions behind this setup are in `~/projects/CLAUDE.md` and
 - `plans/2026-11-24-hebrew-verbs.md` — the app plan, decisions, stages 0–9.
 - `plans/2026-11-24-stage0-report.md` — stage 0: data sources checked on
   100 verbs; the conjugator approach.
+- `plans/2026-11-24-stage2-progress.md` — stage 2 (data pipeline): progress
+  and the decisions taken on the way.
 
 ## Commands
 
