@@ -1,0 +1,94 @@
+// Loaders shared by the probe scripts: the app's slots, Hspell's verb forms
+// and the parsed Wiktionary tables, all as { slot: [plain spellings] }.
+
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const root = resolve(import.meta.dirname, '../..');
+
+export const SLOTS = {
+  present: ['ms', 'fs', 'mp', 'fp'],
+  past: ['1s', '2ms', '2fs', '3ms', '3fs', '1p', '2mp', '2fp', '3p'],
+  // 2fp/3fp are the spoken forms (= 2mp/3mp); the -נה forms are "literary".
+  future: ['1s', '2ms', '2fs', '3ms', '3fs', '1p', '2mp', '2fp', '3mp', '3fp'],
+  literary: ['2fp', '3fp'],
+  infinitive: ['inf'],
+};
+export const slotKeys = () => Object.entries(SLOTS).flatMap(([tense, slots]) => slots.map((s) => `${tense}.${s}`));
+
+export const strip = (s) => s.replace(/[\u0591-\u05C7]/g, '');
+
+const HSPELL_PERSON = {
+  אני: '1s',
+  אתה: '2ms',
+  את: '2fs',
+  הוא: '3ms',
+  היא: '3fs',
+  אנו: '1p',
+  אתם: '2mp',
+  אתן: '2fp',
+  הם: '3p',
+  הן: '3p',
+};
+
+/** Hspell blocks by past 3ms: lemma -> [{ 'past.1s': ['אכלתי'], ... }]. */
+export function loadHspell() {
+  const text = readFileSync(resolve(root, '.cache/dl/woo-forms.txt'), 'utf8');
+  const byLemma = new Map();
+  let block = null;
+  const add = (key, word) => (block[key] ??= []).includes(word) || block[key].push(word);
+  for (const line of text.split('\n')) {
+    if (line.startsWith('-----')) {
+      block = null;
+      continue;
+    }
+    if (line.startsWith('#') || line.includes('+') || line.includes('כינוי')) continue;
+    const [raw, tag] = line.trim().split(' ');
+    if (!raw || !tag || tag.includes('סמיכות')) continue;
+    const word = raw.replace(/^L/, 'ל');
+    if (!block) {
+      block = {};
+      const list = byLemma.get(word) ?? [];
+      list.push(block);
+      byLemma.set(word, list);
+    }
+    const [, tense, a, b] = tag.split(',');
+    if (tense === 'עבר') add(`past.${HSPELL_PERSON[a]}`, word);
+    if (tense === 'עתיד') {
+      let slot = HSPELL_PERSON[a];
+      if (a === 'הם') slot = '3mp';
+      if (a === 'הן') slot = '3fp';
+      if (slot === '2fp' || slot === '3fp') add(`literary.${slot}`, word);
+      else add(`future.${slot}`, word);
+    }
+    if (tense === 'הווה') add(`present.${b === 'ז' ? 'm' : 'f'}${a === 'יחיד' ? 's' : 'p'}`, word);
+    if (tense === 'מקור') add('infinitive.inf', word);
+  }
+  // Spoken future 2fp/3fp = 2mp/3mp.
+  for (const blocks of byLemma.values())
+    for (const b of blocks) {
+      if (b['future.2mp']) b['future.2fp'] = b['future.2mp'];
+      if (b['future.3mp']) b['future.3fp'] = b['future.3mp'];
+    }
+  return byLemma;
+}
+
+/** Wiktionary entry -> { slot: [{ plain, nikud }] } in the app's slots. */
+export function wiktionarySlots(entry) {
+  if (!entry) return null;
+  const out = {};
+  for (const [s, forms] of Object.entries(entry.present ?? {})) out[`present.${s}`] = forms;
+  for (const [s, forms] of Object.entries(entry.past ?? {})) out[`past.${s}`] = forms;
+  for (const [s, forms] of Object.entries(entry.future ?? {})) {
+    if (s === '2fp' || s === '3fp') out[`literary.${s}`] = forms;
+    else out[`future.${s}`] = forms;
+  }
+  if (out['future.2mp']) out['future.2fp'] = out['future.2mp'];
+  if (out['future.3mp']) out['future.3fp'] = out['future.3mp'];
+  if (entry.infinitive) out['infinitive.inf'] = entry.infinitive;
+  return out;
+}
+
+export function loadWiktionary() {
+  return JSON.parse(readFileSync(resolve(root, '.cache/wiktionary.json'), 'utf8'));
+}

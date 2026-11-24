@@ -1,0 +1,54 @@
+# Stage 0 sample: the top 50 verbs of scripts/verb-frequency.mjs after a
+# manual pass (dropped: נכון, כולה, זימן, בטח… — nouns and adverbs; added:
+# יכל, which Hspell has no verb entry for). lemma = past 3ms, plene spelling.
+# lemma	binyan	root (שׂ = sin)	flags (JSON, see scripts/lib/conjugate.mjs)
+היה	paal	היה	{"keepPrefix":true,"hatafSegol":true,"noPresent":true}
+ידע	paal	ידע
+עשה	paal	עשׂה
+רצה	paal	רצה
+ראה	paal	ראה
+חשב	paal	חשב	{"noChataf":true}
+הלך	paal	הלך	{"peYod":true}
+אמר	paal	אמר	{"peAlef":true,"override":{"infinitive.inf":"לוoמaר"}}
+בא	paal	בוא	{"futureVowel":"o"}
+דיבר	piel	דבר
+לקח	paal	לקח	{"assim":true,"segolateInfinitive":true}
+מצא	paal	מצא
+הגיע	hifil	נגע
+יכל	paal	יכל	{"manual":true}
+נתן	paal	נתן	{"futureVowel":"E","assimT":true,"override":{"infinitive.inf":"לAתEת"}}
+חזר	paal	חזר
+קיבל	piel	קבל
+שמע	paal	שמע
+ניסה	piel	נסה
+סיפר	piel	ספר
+הגיד	hifil	נגד
+אהב	paal	אהב	{"peAlef":true}
+הצטער	hitpael	צער
+הודה	hifil	ידה
+יצא	paal	יצא
+קרה	paal	קרה
+עזר	paal	עזר
+התכוון	hitpael	כון
+התחיל	hifil	תחל
+הרג	paal	הרג
+עבד	paal	עבד
+קרא	paal	קרא
+עזב	paal	עזב
+נשאר	nifal	שאר
+מת	paal	מות	{"pastVowel":"E"}
+הכיר	hifil	נכר
+הבין	hifil	בין
+חיכה	piel	חכה
+נכנס	nifal	כנס
+עבר	paal	עבר
+זכר	paal	זכר
+עמד	paal	עמד
+הרגיש	hifil	רגש
+הפסיק	hifil	פסק
+אכל	paal	אכל	{"peAlef":true}
+הניח	hifil	נוח
+התקשר	hitpael	קשר
+הקשיב	hifil	קשב
+הספיק	hifil	ספק
+עצר	paal	עצר

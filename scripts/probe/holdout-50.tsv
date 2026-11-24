@@ -1,0 +1,54 @@
+# Stage 0 hold-out: 50 verbs from ranks 51–220 of scripts/verb-frequency.mjs,
+# not used while writing the conjugator. Flags set from grammar knowledge
+# before the first run, as the pipeline would have to.
+# lemma	binyan	root (שׂ = sin)	flags (JSON)
+דאג	paal	דאג
+שאל	paal	שאל
+גרם	paal	גרם
+שם	paal	שׂים	{"futureVowel":"i"}
+שמר	paal	שמר
+בדק	paal	בדק
+תפס	paal	תפס
+הפך	paal	הפך
+זז	paal	זוז
+שכח	paal	שכח
+ישן	paal	ישן	{"stative":true}
+קנה	paal	קנה
+ירד	paal	ירד
+שלח	paal	שלח
+למד	paal	למד	{"futureVowel":"a"}
+ישב	paal	ישב
+עלה	paal	עלה
+נסע	paal	נסע
+ירה	paal	ירה
+שתה	paal	שתה
+בחר	paal	בחר
+כתב	paal	כתב
+בנה	paal	בנה
+פתח	paal	פתח
+נפל	paal	נפל
+לבש	paal	לבש	{"futureVowel":"a"}
+רץ	paal	רוץ
+גר	paal	גור
+נהג	paal	נהג
+ענה	paal	ענה
+שילם	piel	שלם
+סיים	piel	סים
+גילה	piel	גלה
+איבד	piel	אבד
+ניצח	piel	נצח
+ניהל	piel	נהל
+קיווה	piel	קוה
+השאיר	hifil	שאר
+הוציא	hifil	יצא
+הראה	hifil	ראה
+הביא	hifil	בוא
+הציל	hifil	נצל
+החזיק	hifil	חזק
+הכין	hifil	כון
+הופיע	hifil	יפע
+נמצא	nifal	מצא
+נרגע	nifal	רגע
+הסתכל	hitpael	סכל
+השתמש	hitpael	שמש
+התראה	hitpael	ראה
