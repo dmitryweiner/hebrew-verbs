@@ -3,7 +3,8 @@
 # lemma: past 3ms in plene spelling, as Hspell has it — the verb's id.
 # freq: scripts/verb-frequency.mjs (by hand for a verb Hspell lacks).
 # binyan, root (שׂ = sin, פֿ = no dagesh), flags: the conjugator's input
-# (scripts/lib/conjugate.mjs); note: "by hand: …" or "checked: …" marks a
+# (scripts/lib/conjugate.mjs), plus variants: other accepted forms of a slot,
+# {"infinitive.inf": ["לנגוע"]} (decision 17); note: "by hand: …" or "checked: …" marks a
 # line a person decided (kept as is), anything else is redrafted.
 # lemma	freq	binyan	root	flags	note
 היה	2874649	paal	היה	{"keepPrefix":true,"hatafSegol":true,"noPresent":true}	by hand: Wiktionary's table is hand-written; flags as in the stage 0 sample
@@ -14,7 +15,7 @@
 ראה	959364	paal	ראה
 חשב	774793	paal	חשב	{"noChataf":true}
 הלך	700730	paal	הלך	{"peYod":true}
-אמר	619476	paal	אמר	{"peAlef":true,"override":{"infinitive.inf":"לוoמaר"}}	checked: spoken infinitive לוֹמַר (decision 17)
+אמר	619476	paal	אמר	{"peAlef":true,"override":{"infinitive.inf":"לוoמaר"},"variants":{"infinitive.inf":["לאמור"]}}	checked: spoken infinitive לוֹמַר (decision 17); second infinitive לאמור (literary)
 בא	571735	paal	בוא	{"futureVowel":"o"}
 דיבר	348587	piel	דבר
 מצא	316588	paal	מצא
@@ -155,7 +156,7 @@
 דן	31820	paal	דון
 שיקר	31768	piel	שקר
 ענה	31585	paal	ענה
-נגע	31368	paal	נגע	{"segolateInfinitive":true}	checked: infinitive לָגַעַת
+נגע	31368	paal	נגע	{"segolateInfinitive":true,"variants":{"infinitive.inf":["לנגוע"]}}	checked: infinitive לָגַעַת; second infinitive לנגוע (spoken)
 הופיע	31177	hifil	ופע
 זכה	30968	paal	זכה
 הסביר	30807	hifil	סבר
@@ -173,7 +174,7 @@
 בילה	28796	piel	בלה
 הסתדר	28673	hitpael	סדר
 הצטרף	28619	hitpael	צרף
-נפל	28371	paal	נפל	{"override":{"infinitive.inf":"לi2*o3"}}
+נפל	28371	paal	נפל	{"override":{"infinitive.inf":"לi2*o3"},"variants":{"infinitive.inf":["לנפול"]}}	checked: second infinitive לנפול
 וידא	27989	piel	ודא
 נהג	27805	paal	נהג
 התגעגע	27643	hitpael	געגע

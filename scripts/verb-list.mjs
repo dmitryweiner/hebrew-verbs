@@ -29,7 +29,8 @@ const HEADER = `# The verb list: the most frequent Hebrew verbs, most frequent f
 # lemma: past 3ms in plene spelling, as Hspell has it — the verb's id.
 # freq: scripts/verb-frequency.mjs (by hand for a verb Hspell lacks).
 # binyan, root (שׂ = sin, פֿ = no dagesh), flags: the conjugator's input
-# (scripts/lib/conjugate.mjs); note: "by hand: …" or "checked: …" marks a
+# (scripts/lib/conjugate.mjs), plus variants: other accepted forms of a slot,
+# {"infinitive.inf": ["לנגוע"]} (decision 17); note: "by hand: …" or "checked: …" marks a
 # line a person decided (kept as is), anything else is redrafted.
 # lemma\tfreq\tbinyan\troot\tflags\tnote`;
 
