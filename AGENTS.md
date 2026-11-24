@@ -46,8 +46,12 @@ fetched on demand and cached in `.cache/wikt/`.
   frequencies of their forms; the top needs a manual pass (nouns slip in).
 - `scripts/lib/conjugate.mjs` — the model conjugator: root + binyan + flags →
   forms in classical nikud and plene spelling. Its header lists the flags and
-  what is not covered yet. A stage 0 prototype without unit tests: the
-  comparisons below are its tests for now.
+  what is not covered yet. Tested by `scripts/lib/conjugate.test.mjs` against
+  `conjugate.golden.json` (part of `npm test`); a verb marked `todo` there is a
+  known gap and skipped.
+- `scripts/conjugator-golden.mjs` — writes that golden fixture from the
+  Wiktionary tables (nikud) and Hspell (plain spelling) of the given sample
+  lists, with the plan's decisions applied; keeps the `todo` marks.
 - `scripts/probe/wiktionary.mjs` — fetches and parses the Wiktionary
   `{{he-conj}}` tables of a sample list.
 - `scripts/probe/compare.mjs` — Wiktionary vs Hspell vs the conjugator, form
@@ -57,7 +61,8 @@ fetched on demand and cached in `.cache/wikt/`.
   Wiktionary table.
 
 What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` ~0.5 s;
-`wiktionary.mjs` ~0.5 s per uncached page (a polite delay); `compare.mjs` ~0.3 s.
+`wiktionary.mjs` ~0.5 s per uncached page (a polite delay); `compare.mjs` ~0.3 s;
+`conjugator-golden.mjs` ~0.5 s.
 
 ## Test-driven development is mandatory
 

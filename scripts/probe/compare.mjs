@@ -12,7 +12,7 @@ import { writeFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { readSample } from './sample.mjs';
-import { loadHspell, loadWiktionary, slotKeys, wiktionarySlots } from './sources.mjs';
+import { hspellBlock, loadHspell, loadWiktionary, slotKeys, wiktionarySlots } from './sources.mjs';
 
 const { values: args } = parseArgs({
   options: { conjugator: { type: 'boolean' }, verbose: { type: 'boolean' }, sample: { type: 'string' } },
@@ -23,13 +23,6 @@ const sample = readSample(args.sample);
 const hspell = loadHspell();
 const wikt = loadWiktionary();
 const keys = slotKeys();
-
-/** The Hspell block of this verb: the one agreeing most with Wiktionary. */
-function hspellBlock(lemma, w) {
-  const blocks = hspell.get(lemma) ?? [];
-  const score = (b) => keys.filter((k) => w?.[k]?.some((f) => b[k]?.includes(f.plain))).length;
-  return blocks.toSorted((a, b) => score(b) - score(a))[0] ?? null;
-}
 
 const stats = {
   verbs: sample.length,
@@ -42,7 +35,7 @@ const report = [];
 
 for (const verb of sample) {
   const w = wiktionarySlots(wikt[verb.lemma]);
-  const h = hspellBlock(verb.lemma, w);
+  const h = hspellBlock(hspell, verb.lemma, w);
   if (w) stats.wiktionary++;
   if (h) stats.hspell++;
   /** @type {{ lemma: string, binyan: string, wiktVsHspell: string[], conj: string[] }} */

@@ -1,3 +1,4 @@
 dist/
 package-lock.json
 shots/
+scripts/lib/conjugate.golden.json

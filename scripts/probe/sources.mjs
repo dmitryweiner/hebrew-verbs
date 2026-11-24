@@ -44,7 +44,8 @@ export function loadHspell() {
     }
     if (line.startsWith('#') || line.includes('+') || line.includes('כינוי')) continue;
     const [raw, tag] = line.trim().split(' ');
-    if (!raw || !tag || tag.includes('סמיכות')) continue;
+    // B: an infinitive with ב- (בנפול).
+    if (!raw || !tag || tag.includes('סמיכות') || raw.startsWith('B')) continue;
     const word = raw.replace(/^L/, 'ל');
     if (!block) {
       block = {};
@@ -87,6 +88,14 @@ export function wiktionarySlots(entry) {
   if (out['future.3mp']) out['future.3fp'] = out['future.3mp'];
   if (entry.infinitive) out['infinitive.inf'] = entry.infinitive;
   return out;
+}
+
+/** The Hspell block of a verb: of the blocks under its lemma, the one agreeing most with Wiktionary. */
+export function hspellBlock(hspell, lemma, wslots) {
+  const keys = slotKeys();
+  const blocks = hspell.get(lemma) ?? [];
+  const score = (b) => keys.filter((k) => wslots?.[k]?.some((f) => b[k]?.includes(f.plain))).length;
+  return blocks.toSorted((a, b) => score(b) - score(a))[0] ?? null;
 }
 
 export function loadWiktionary() {
