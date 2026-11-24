@@ -57,11 +57,14 @@ fetched on demand and cached in `.cache/wikt/`.
   conjugator's segments (`translit` of every form; hand tables carry their own).
 - `data/ru.tsv` — Russian by hand: translations, the ipf/pf pair for phrases
   (passives as "быть приглашённым"). `scripts/ru-forms.py` (pymorphy3 in
-  `.cache/venv`, header says how) checks aspects and writes `data/ru-forms.json`.
+  `.cache/venv`, header says how) checks aspects and writes `data/ru-forms.json`
+  (generated, committed, so the build needs no Python; rerun after every
+  change of `ru.tsv` — `verbs.test.mjs` fails on a stale pair).
 - `scripts/probe/wiktionary-glosses.mjs` — English glosses of the listed verbs
   from the cached Wiktionary pages, a reference for the translations.
 - `scripts/review-list.mjs` — writes the list's review page (HTML, Russian)
-  for a person to approve.
+  for a person to approve; `--ru` — the translations' page (translit, pair,
+  three phrases, a comment per marked row).
 - `scripts/lib/conjugate.mjs` — the model conjugator: root + binyan + flags →
   forms in classical nikud and plene spelling. Its header lists the flags and
   what is not covered yet. Tested by `scripts/lib/conjugate.test.mjs` against
@@ -86,7 +89,7 @@ data/verbs.tsv` the verb list (no Wiktionary table: Hspell spelling only);
 What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` ~0.5 s;
 `wiktionary.mjs` ~0.5 s per cached page, ~2.5 s per lemma uncached (up to three
 titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
-(`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s; `review-list.mjs` ~0.3 s.
+(`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s; `review-list.mjs` ~0.3 s; `ru-forms.py` ~1.5 s.
 
 ## Test-driven development is mandatory
 

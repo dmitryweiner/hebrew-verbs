@@ -8,11 +8,13 @@
 #   .cache/venv/bin/python scripts/ru-forms.py --check  # only report problems
 #
 # Checks: the ipf verb is imperfective, the pf verb perfective, every form
-# exists. A problem is printed and the script exits with 1.
+# exists. A problem is printed and the script exits with 1. pymorphy3 also
+# builds forms Russian lacks (победю): NO_1S below replaces them.
 #
 # Output, by lemma:
 #   verb:    { ipf, pf?, present: {1s..3p}?, past: { ipf: {m, f, pl}, pf? },
-#              future: { ipf: {1s..3p}, pf?: {1s..3p} } }
+#              future: { ipf?: {1s..3p}, pf?: {1s..3p} } }  (no future.ipf:
+#            the app says "буду" + ipf; only быть has its own: буду)
 #   passive: { ipf: "быть приглашённым", short: { m, f, pl } }  (the app adds
 #            был / буду: "она была приглашена")
 
@@ -26,7 +28,8 @@ ROOT = Path(__file__).resolve().parent.parent
 PERSONS = {'1s': ('1per', 'sing'), '2s': ('2per', 'sing'), '3s': ('3per', 'sing'),
            '1p': ('1per', 'plur'), '2p': ('2per', 'plur'), '3p': ('3per', 'plur')}
 GENDERS = {'m': {'masc', 'sing'}, 'f': {'femn', 'sing'}, 'pl': {'plur'}}
-BUDU = {'1s': 'буду', '2s': 'будешь', '3s': 'будет', '1p': 'будем', '2p': 'будете', '3p': 'будут'}
+# Perfectives without a 1st singular future ("победю"): the usual turn instead.
+NO_1S = {'победить': 'одержу победу', 'убедить': 'сумею убедить'}
 
 morph = pymorphy3.MorphAnalyzer()
 problems = []
@@ -106,11 +109,11 @@ def verb(lemma, ipf, pf):
     if present is not None:
         out['present'] = present
     out['past'] = {'ipf': past(p, lemma, rest)}
-    # быть has a simple future: буду, not буду быть.
+    # The compound future (буду есть) is left to the app; быть has a simple
+    # one: буду, not буду быть.
+    out['future'] = {}
     if any('futr' in f.tag for f in p.lexeme):
-        out['future'] = {'ipf': tense(p, 'futr', lemma, rest)}
-    else:
-        out['future'] = {'ipf': {k: f'{v} {ipf}' for k, v in BUDU.items()}}
+        out['future']['ipf'] = tense(p, 'futr', lemma, rest)
     if pf:
         phead, _, ptail = pf.partition(' ')
         q = infinitive(phead, 'perf', lemma)
@@ -118,6 +121,8 @@ def verb(lemma, ipf, pf):
             prest = f' {ptail}' if ptail else ''
             out['past']['pf'] = past(q, lemma, prest)
             out['future']['pf'] = tense(q, 'futr', lemma, prest)
+            if phead in NO_1S:
+                out['future']['pf']['1s'] = NO_1S[phead] + prest
     return out
 
 
@@ -143,8 +148,10 @@ def main():
     for p in problems:
         print(p, file=sys.stderr)
     if '--check' not in sys.argv:
-        text = json.dumps(out, ensure_ascii=False, indent=1)
-        (ROOT / 'data/ru-forms.json').write_text(text + '\n', encoding='utf-8')
+        # One verb a line: small, and a diff shows the verbs that changed.
+        lines = [f'{json.dumps(k, ensure_ascii=False)}: {json.dumps(v, ensure_ascii=False)}' for k, v in out.items()]
+        text = '{\n' + ',\n'.join(lines) + '\n}\n'
+        (ROOT / 'data/ru-forms.json').write_text(text, encoding='utf-8')
     sys.exit(1 if problems else 0)
 
 
