@@ -1,0 +1,12 @@
+{
+"ידע": {"kind":"none","review":"pending"},
+"חשב": {"kind":"emoji","emoji":"🤔","review":"pending"},
+"הלך": {"kind":"emoji","emoji":"🚶","review":"pending"},
+"לקח": {"kind":"svg","review":"pending"},
+"נתן": {"kind":"svg","review":"pending"},
+"קרא": {"kind":"svg","review":"pending"},
+"נכנס": {"kind":"svg","review":"pending"},
+"ישב": {"kind":"svg","review":"pending"},
+"ישן": {"kind":"emoji","emoji":"😴","review":"pending"},
+"שתה": {"kind":"svg","review":"pending"}
+}

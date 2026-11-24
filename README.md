@@ -40,6 +40,9 @@ Russian translations and aspect pairs are written by hand and reviewed;
 their forms are conjugated by [pymorphy3](https://github.com/no-plagiarism/pymorphy3)
 (MIT, build scripts only). How the data is made: [docs/data.md](docs/data.md).
 
+Emoji images for devices without the emoji: [Twemoji](https://github.com/jdecked/twemoji)
+(CC BY 4.0), in `public/emoji/`.
+
 ## License
 
 Code: [GPL-3.0-or-later](LICENSE). The verb data (`src/data/`), derived in

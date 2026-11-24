@@ -86,8 +86,30 @@ Russian person and gender come from the Hebrew pronoun: я (м.) / я (ж.) →
 1s with m / f, ты (м.) / ты (ж.) → 2s, он / она → 3s, мы → 1p, вы → 2p,
 они → 3p; the plural past takes pl.
 
+## Illustrations
+
+Plan 1.4. `src/data/pictures.json` gives a verb, by id, one of: an emoji
+(`{"kind":"emoji","emoji":"🚶"}`), an own drawing (`{"kind":"svg"}`, the file
+`public/pictures/<id>.svg`) or an explicit "no picture" for an abstract verb
+(`{"kind":"none"}`); each with a person's `review` — `pending`, `ok` or
+`redo` (with a `comment`). The app shows only `ok` pictures
+(`pictureOf` in `src/pictures.ts`); an emoji comes with its Twemoji copy
+`public/emoji/<code points>.svg` (`scripts/fetch-emoji.mjs`) for devices
+whose font lacks it.
+
+A drawing: a stick figure and an object, lines in `currentColor` (so it
+follows the theme) 6 wide, an object's lines 4 wide with a `currentColor`
+fill at `fill-opacity=".15"`, `viewBox="0 0 128 128"`, no text or title (it
+must not give the answer away), at most 4 KB; `src/data/pictures.test.ts`
+checks the rules.
+
+Review: `npm run review:pictures` — the cards in order of frequency, a batch
+by `?from=1&to=100`, a status by `?status=pending`. "хорошо" approves,
+"переделать" needs a comment, "убрать картинку" makes the verb an approved
+"no picture" and deletes its drawing.
+
 ## Licences
 
 The verb data is CC BY-SA 4.0 (Wiktionary, FrequencyWords); the app's code
-GPL-3.0-or-later. Hspell (AGPL) and pymorphy3 (MIT) are used by the scripts
+GPL-3.0-or-later. The emoji copies in `public/emoji/` are Twemoji, CC BY 4.0. Hspell (AGPL) and pymorphy3 (MIT) are used by the scripts
 and tests only; nothing of them ships.
