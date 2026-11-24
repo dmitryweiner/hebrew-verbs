@@ -36,11 +36,17 @@ push and PR; a push to `main` publishes `dist/` to GitHub Pages.
 
 ## Data scripts
 
-Run with Node, no npm script; each file's header says how. They read the
-downloaded sources in `.cache/` (git-ignored, ~40 MB) and write their results
-there. A fresh clone first runs `sh scripts/fetch-sources.sh` (curl, perl,
-iconv; seconds, network-bound), then `node scripts/verb-frequency.mjs`; Wiktionary pages are
-fetched on demand and cached in `.cache/wikt/`.
+Run with Node, no npm script; each file's header says how. The pipeline, the
+files and the data format: `docs/data.md`. The probes read the downloaded
+sources in `.cache/` (git-ignored, ~40 MB) and write their results there; the
+app's data (`data/` → `src/data/verbs.json`) is committed and builds without
+them. A fresh clone first runs `sh scripts/fetch-sources.sh` (curl, perl,
+iconv; seconds, network-bound), then `node scripts/verb-frequency.mjs`;
+Wiktionary pages are fetched on demand and cached in `.cache/wikt/`;
+`scripts/ru-forms.py` needs a venv with pymorphy3 (its header).
+
+After changing `data/`: `ru-forms.py` (if `ru.tsv` changed), then
+`build-verbs.mjs`, then `npm run check` — it fails on a stale output.
 
 - `scripts/fetch-sources.sh` — downloads FrequencyWords and Hspell, turns
   Hspell's generators into UTF-8 word lists in `.cache/dl/`.
@@ -70,7 +76,7 @@ fetched on demand and cached in `.cache/wikt/`.
   for a person to approve; `--ru` — the translations' page (translit, pair,
   three phrases, a comment per marked row).
 - `scripts/lib/conjugate.mjs` — the model conjugator: root + binyan + flags →
-  forms in classical nikud and plene spelling. Its header lists the flags and
+  forms in classical nikud, plene spelling and Cyrillic (`translit.mjs`). Its header lists the flags and
   what is not covered yet. Tested by `scripts/lib/conjugate.test.mjs` against
   `conjugate.golden.json` (part of `npm test`); a verb marked `todo` there is a
   known gap and skipped.
@@ -130,7 +136,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - `data/` — the hand-curated verb list, its exclusions, hand tables and
   Russian (TSV), `ru-forms.json` (generated) and `hspell.tsv` (a test
   fixture); the app's generated data is in `src/data/`.
-- `docs/` — user and design docs; `plans/` — plans and reports (Russian).
+- `docs/` — user and design docs (`docs/data.md` — the verb data); `plans/` —
+  plans and reports (Russian).
 
 ## Invariants
 

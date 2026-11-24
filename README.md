@@ -31,9 +31,14 @@ checked against:
 - [English Wiktionary](https://en.wiktionary.org/) conjugation tables
   (CC BY-SA 4.0) — nikud, and the lexical marks of a verb;
 - [Hspell](http://hspell.ivrix.org.il/) (AGPL-3.0) — spelling without nikud;
-  used by the build scripts only, nothing of it ships with the app;
+  used by the build scripts and as a test fixture only, nothing of it ships
+  with the app;
 - [FrequencyWords](https://github.com/hermitdave/FrequencyWords), OpenSubtitles
   2018 Hebrew list (CC BY-SA 4.0) — verb frequency ranks.
+
+Russian translations and aspect pairs are written by hand and reviewed;
+their forms are conjugated by [pymorphy3](https://github.com/no-plagiarism/pymorphy3)
+(MIT, build scripts only). How the data is made: [docs/data.md](docs/data.md).
 
 ## License
 
