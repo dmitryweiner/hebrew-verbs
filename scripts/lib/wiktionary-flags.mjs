@@ -10,6 +10,8 @@
 // null for a hand-written table ({{he-verb-conjugation}}): no parameters.
 
 const BINYAN = { pa: 'paal', nif: 'nifal', pi: 'piel', pu: 'pual', hif: 'hifil', huf: 'hufal', hit: 'hitpael' };
+// Hitpolel is hitpael for the app, with the stem הִתְ־1וֹ2ֵ3: הִסְתּוֹבֵב.
+const POLEL = { hitpo: 'hitpael' };
 // fut_char: the paal future stem vowel; O is the holam of ע"ו (יָבוֹא).
 const FUTURE_VOWEL = { a: 'a', o: 'o', O: 'o', i: 'E', e: 'E' };
 const SHIN_DOT = '\u05C1';
@@ -22,7 +24,7 @@ const on = (v) => v !== undefined && v !== '-' && v !== '0' && v !== '';
  */
 export function fromWiktionary(params) {
   if (params.manual || !params[1]) return null;
-  const binyan = BINYAN[params[1]];
+  const binyan = BINYAN[params[1]] ?? POLEL[params[1]];
   if (!binyan) throw new Error(`unknown binyan ${params[1]}`);
   // The root is one parameter (חשׁב) or one per letter (ק, ו, ה); shin is the default.
   const letters = [params[2], params[3], params[4], params[5]].filter(Boolean).join('');
@@ -30,6 +32,7 @@ export function fromWiktionary(params) {
   const c1 = root[0];
   const flags = {};
   const notes = [];
+  if (POLEL[params[1]]) flags.polel = true;
   if (on(params.nochataf)) flags.noChataf = true;
   if (on(params.assim)) flags.assim = true;
   if (on(params.assim_t)) flags.assimT = true;

@@ -9,7 +9,8 @@
 // --sample: a hand-made list (lemma, binyan, root, flags). --top N: the N
 // most frequent lemmas of .cache/verb-frequency.json, binyan, root and flags
 // from their Wiktionary parameters (scripts/lib/wiktionary-flags.mjs);
-// lemmas without a Wiktionary table are listed and skipped. --summary
+// lemmas without a Wiktionary table, or with only a loose match, are listed
+// and skipped. --summary
 // prints only the verbs that differ, one line each.
 //
 // Needs .cache/wiktionary.json (scripts/probe/wiktionary.mjs) and
@@ -45,6 +46,7 @@ function topSample(n) {
   const lemmas = [...new Set(ranked.map((v) => v.lemma))].slice(0, n);
   return lemmas.map((lemma, i) => {
     const entry = wikt[lemma];
+    if (entry?.loose) return { lemma, rank: i + 1, binyan: '?', missing: `loose match: ${entry.title}` };
     const mapped = entry ? fromWiktionary(entry.params) : null;
     if (!mapped) return { lemma, rank: i + 1, binyan: '?', missing: entry ? 'manual table' : 'no wiktionary' };
     return Object.assign(mapped, { lemma, rank: i + 1 });
@@ -95,7 +97,12 @@ for (const verb of sample) {
 
   if (conjugate && w && !verb.flags?.manual) {
     stats.conj.verbsCompared++;
-    const c = conjugate(verb);
+    let c = {};
+    try {
+      c = conjugate(verb);
+    } catch (error) {
+      entry.conj.push(`error: ${error.message}`);
+    }
     const expected = expectedForms(verb, w, h);
     for (const [k, e] of Object.entries(expected)) {
       const mine = c[k];

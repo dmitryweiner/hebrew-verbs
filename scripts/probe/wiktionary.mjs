@@ -7,10 +7,15 @@
 // is merged into .cache/wiktionary.json:
 //   { [lemma]: { title, params, past: {slot: [{plain, nikud}]}, ... } | null }
 // A page is looked up by the plene lemma, then by its defective spelling
-// (דיבר → דבר); of its tables the one whose past 3ms is the lemma is taken.
+// (דיבר → דבר). Of its tables the one whose past 3ms is the lemma is taken:
+// by Wiktionary's own plain spelling, else by the conjugator's spelling of
+// the table's parameters (Wiktionary writes התכון for התכוון, ערב for both
+// עָרַב and עֵרֵב), else by the letters without ו/י — then marked `loose`.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { conjugate } from '../lib/conjugate.mjs';
+import { fromWiktionary } from '../lib/wiktionary-flags.mjs';
 import { readSample } from './sample.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
@@ -129,6 +134,16 @@ function tables(html) {
   return out;
 }
 
+/** The conjugator's plain past 3ms for a table's parameters, if it can tell. */
+function ownLemma(table) {
+  try {
+    const verb = fromWiktionary(table.params);
+    return verb ? conjugate(verb)['past.3ms']?.plain : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** דיבר → דבר, סיפר → ספר: the defective spelling of a piel lemma. */
 const defective = (lemma) => [lemma.replace(/^(.)י/, '$1'), lemma.replace(/^(.)ו/, '$1')];
 
@@ -139,11 +154,10 @@ for (const { lemma } of sample) {
   out[lemma] = null;
   for (const title of new Set([lemma, ...defective(lemma)])) {
     const all = tables(await page(title));
-    const found =
-      all.find((t) => t.past?.['3ms']?.some((f) => f.plain === lemma)) ??
-      all.find((t) => t.past?.['3ms']?.some((f) => skeleton(f.plain) === skeleton(lemma)));
-    if (found) {
-      out[lemma] = { title, ...found };
+    const loose = all.find((t) => t.past?.['3ms']?.some((f) => skeleton(f.plain) === skeleton(lemma)));
+    const found = all.find((t) => t.past?.['3ms']?.some((f) => f.plain === lemma)) ?? all.find((t) => ownLemma(t) === lemma);
+    if (found || loose) {
+      out[lemma] = found ? { title, ...found } : { title, loose: true, ...loose };
       break;
     }
   }
