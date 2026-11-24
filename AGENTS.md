@@ -49,6 +49,8 @@ fetched on demand and cached in `.cache/wikt/`.
   what is not covered yet. Tested by `scripts/lib/conjugate.test.mjs` against
   `conjugate.golden.json` (part of `npm test`); a verb marked `todo` there is a
   known gap and skipped.
+- `scripts/lib/wiktionary-flags.mjs` — binyan, root and conjugator flags from
+  the parameters of a Wiktionary `{{he-conj}}` table; tested on the golden verbs.
 - `scripts/conjugator-golden.mjs` — writes that golden fixture from the
   Wiktionary tables (nikud) and Hspell (plain spelling) of the given sample
   lists, with the plan's decisions applied; keeps the `todo` marks.

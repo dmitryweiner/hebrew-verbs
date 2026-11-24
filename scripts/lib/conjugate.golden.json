@@ -4,6 +4,7 @@
     "binyan": "paal",
     "root": "היה",
     "flags": {"keepPrefix":true,"hatafSegol":true,"noPresent":true},
+    "wiktionary": {"manual":"+"},
     "forms": {
       "past.1s": ["הָיִיתִי","הייתי"],
       "past.2ms": ["הָיִיתָ","היית"],
@@ -34,6 +35,7 @@
     "binyan": "paal",
     "root": "ידע",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"ידע"},
     "forms": {
       "present.ms": ["יוֹדֵעַ","יודע"],
       "present.fs": ["יוֹדַעַת","יודעת"],
@@ -68,6 +70,7 @@
     "binyan": "paal",
     "root": "עשׂה",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"עשׂה"},
     "forms": {
       "present.ms": ["עוֹשֶׂה","עושה"],
       "present.fs": ["עוֹשָׂה","עושה"],
@@ -102,6 +105,7 @@
     "binyan": "paal",
     "root": "רצה",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"רצה"},
     "forms": {
       "present.ms": ["רוֹצֶה","רוצה"],
       "present.fs": ["רוֹצָה","רוצה"],
@@ -136,6 +140,7 @@
     "binyan": "paal",
     "root": "ראה",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"ראה"},
     "forms": {
       "present.ms": ["רוֹאֶה","רואה"],
       "present.fs": ["רוֹאָה","רואה"],
@@ -170,6 +175,7 @@
     "binyan": "paal",
     "root": "חשב",
     "flags": {"noChataf":true},
+    "wiktionary": {"1":"pa","2":"חשׁב","nochataf":"+"},
     "forms": {
       "present.ms": ["חוֹשֵׁב","חושב"],
       "present.fs": ["חוֹשֶׁבֶת","חושבת"],
@@ -204,6 +210,7 @@
     "binyan": "paal",
     "root": "הלך",
     "flags": {"peYod":true},
+    "wiktionary": {"1":"pa","2":"הלך","elide":"+","pp":"-"},
     "forms": {
       "present.ms": ["הוֹלֵךְ","הולך"],
       "present.fs": ["הוֹלֶכֶת","הולכת"],
@@ -238,6 +245,7 @@
     "binyan": "paal",
     "root": "אמר",
     "flags": {"peAlef":true,"override":{"infinitive.inf":"לוoמaר"}},
+    "wiktionary": {"1":"pa","2":"אמר","elide":"+","inf":"לוֹמַר"},
     "forms": {
       "present.ms": ["אוֹמֵר","אומר"],
       "present.fs": ["אוֹמֶרֶת","אומרת"],
@@ -272,6 +280,7 @@
     "binyan": "paal",
     "root": "בוא",
     "flags": {"futureVowel":"o"},
+    "wiktionary": {"1":"pa","2":"בוא","fut_char":"O"},
     "forms": {
       "present.ms": ["בָּא","בא"],
       "present.fs": ["בָּאָה","באה"],
@@ -306,6 +315,7 @@
     "binyan": "piel",
     "root": "דבר",
     "flags": {},
+    "wiktionary": {"1":"pi","2":"דבר"},
     "forms": {
       "present.ms": ["מְדַבֵּר","מדבר"],
       "present.fs": ["מְדַבֶּרֶת","מדברת"],
@@ -340,6 +350,7 @@
     "binyan": "paal",
     "root": "לקח",
     "flags": {"assim":true,"segolateInfinitive":true},
+    "wiktionary": {"1":"pa","2":"לקח","assim":"+","elide":"+","pp":"-"},
     "forms": {
       "present.ms": ["לוֹקֵחַ","לוקח"],
       "present.fs": ["לוֹקַחַת","לוקחת"],
@@ -374,6 +385,7 @@
     "binyan": "paal",
     "root": "מצא",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"מצא"},
     "forms": {
       "present.ms": ["מוֹצֵא","מוצא"],
       "present.fs": ["מוֹצֵאת","מוצאת"],
@@ -408,6 +420,7 @@
     "binyan": "hifil",
     "root": "נגע",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"נגע"},
     "forms": {
       "present.ms": ["מַגִּיעַ","מגיע"],
       "present.fs": ["מַגִּיעָה","מגיעה"],
@@ -442,6 +455,7 @@
     "binyan": "paal",
     "root": "נתן",
     "flags": {"futureVowel":"E","assimT":true,"override":{"infinitive.inf":"לAתEת"}},
+    "wiktionary": {"1":"pa","2":"נתן","elide":"+","assim_t":"+","fut_char":"i","inf":"לָתֵת"},
     "forms": {
       "present.ms": ["נוֹתֵן","נותן"],
       "present.fs": ["נוֹתֶנֶת","נותנת"],
@@ -476,6 +490,7 @@
     "binyan": "paal",
     "root": "חזר",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"חזר","pp":"-"},
     "forms": {
       "present.ms": ["חוֹזֵר","חוזר"],
       "present.fs": ["חוֹזֶרֶת","חוזרת"],
@@ -510,6 +525,7 @@
     "binyan": "piel",
     "root": "קבל",
     "flags": {},
+    "wiktionary": {"1":"pi","2":"קבל"},
     "forms": {
       "present.ms": ["מְקַבֵּל","מקבל"],
       "present.fs": ["מְקַבֶּלֶת","מקבלת"],
@@ -544,6 +560,7 @@
     "binyan": "paal",
     "root": "שמע",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"שׁמע"},
     "forms": {
       "present.ms": ["שׁוֹמֵעַ","שומע"],
       "present.fs": ["שׁוֹמַעַת","שומעת"],
@@ -578,6 +595,7 @@
     "binyan": "piel",
     "root": "נסה",
     "flags": {},
+    "wiktionary": {"1":"pi","2":"נסה"},
     "forms": {
       "present.ms": ["מְנַסֶּה","מנסה"],
       "present.fs": ["מְנַסָּה","מנסה"],
@@ -612,6 +630,7 @@
     "binyan": "piel",
     "root": "ספר",
     "flags": {},
+    "wiktionary": {"1":"pi","2":"ספר"},
     "forms": {
       "present.ms": ["מְסַפֵּר","מספר"],
       "present.fs": ["מְסַפֶּרֶת","מספרת"],
@@ -646,6 +665,7 @@
     "binyan": "hifil",
     "root": "נגד",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"נגד"},
     "forms": {
       "present.ms": ["מַגִּיד","מגיד"],
       "present.fs": ["מַגִּידָה","מגידה"],
@@ -680,6 +700,7 @@
     "binyan": "paal",
     "root": "אהב",
     "flags": {"peAlef":true},
+    "wiktionary": {"1":"pa","2":"אהב","noun":"אַהֲבָה","elide":"+"},
     "forms": {
       "present.ms": ["אוֹהֵב","אוהב"],
       "present.fs": ["אוֹהֶבֶת","אוהבת"],
@@ -714,6 +735,7 @@
     "binyan": "hitpael",
     "root": "צער",
     "flags": {},
+    "wiktionary": {"1":"hit","2":"צער"},
     "forms": {
       "present.ms": ["מִצְטַעֵר","מצטער"],
       "present.fs": ["מִצְטַעֶרֶת","מצטערת"],
@@ -748,6 +770,7 @@
     "binyan": "hifil",
     "root": "ידה",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"ודה"},
     "forms": {
       "present.ms": ["מוֹדֶה","מודה"],
       "present.fs": ["מוֹדָה","מודה"],
@@ -782,6 +805,7 @@
     "binyan": "paal",
     "root": "יצא",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"יצא","pp":"-"},
     "forms": {
       "present.ms": ["יוֹצֵא","יוצא"],
       "present.fs": ["יוֹצֵאת","יוצאת"],
@@ -816,6 +840,7 @@
     "binyan": "paal",
     "root": "קרה",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"קרה","noun":"-","pp":"-"},
     "forms": {
       "present.ms": ["קוֹרֶה","קורה"],
       "present.fs": ["קוֹרָה","קורה"],
@@ -850,6 +875,7 @@
     "binyan": "paal",
     "root": "עזר",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"עזר","noun":"עֶזְרָה","pp":"-"},
     "forms": {
       "present.ms": ["עוֹזֵר","עוזר"],
       "present.fs": ["עוֹזֶרֶת","עוזרת"],
@@ -884,6 +910,7 @@
     "binyan": "hitpael",
     "root": "כון",
     "flags": {},
+    "wiktionary": {"1":"hit","2":"כון"},
     "forms": {
       "present.ms": ["מִתְכַּוֵּן","מתכוון"],
       "present.fs": ["מִתְכַּוֶּנֶת","מתכוונת"],
@@ -918,6 +945,7 @@
     "binyan": "hifil",
     "root": "תחל",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"תחל"},
     "forms": {
       "present.ms": ["מַתְחִיל","מתחיל"],
       "present.fs": ["מַתְחִילָה","מתחילה"],
@@ -952,6 +980,7 @@
     "binyan": "paal",
     "root": "הרג",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"הרג"},
     "forms": {
       "present.ms": ["הוֹרֵג","הורג"],
       "present.fs": ["הוֹרֶגֶת","הורגת"],
@@ -986,6 +1015,7 @@
     "binyan": "paal",
     "root": "עבד",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"עבד","noun":"עֲבוֹדָה","pp":"-"},
     "forms": {
       "present.ms": ["עוֹבֵד","עובד"],
       "present.fs": ["עוֹבֶדֶת","עובדת"],
@@ -1020,6 +1050,7 @@
     "binyan": "paal",
     "root": "קרא",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"קרא"},
     "forms": {
       "present.ms": ["קוֹרֵא","קורא"],
       "present.fs": ["קוֹרֵאת","קוראת"],
@@ -1054,6 +1085,7 @@
     "binyan": "paal",
     "root": "עזב",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"עזב"},
     "forms": {
       "present.ms": ["עוֹזֵב","עוזב"],
       "present.fs": ["עוֹזֶבֶת","עוזבת"],
@@ -1088,6 +1120,7 @@
     "binyan": "nifal",
     "root": "שאר",
     "flags": {},
+    "wiktionary": {"1":"nif","2":"שׁאר"},
     "forms": {
       "present.ms": ["נִשְׁאָר","נשאר"],
       "present.fs": ["נִשְׁאֶרֶת","נשארת"],
@@ -1122,6 +1155,7 @@
     "binyan": "paal",
     "root": "מות",
     "flags": {"pastVowel":"E"},
+    "wiktionary": {"1":"pa","2":"מות","past_char":"E"},
     "forms": {
       "present.ms": ["מֵת","מת"],
       "present.fs": ["מֵתָה","מתה"],
@@ -1156,6 +1190,7 @@
     "binyan": "hifil",
     "root": "נכר",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"נכר"},
     "forms": {
       "present.ms": ["מַכִּיר","מכיר"],
       "present.fs": ["מַכִּירָה","מכירה"],
@@ -1190,6 +1225,7 @@
     "binyan": "hifil",
     "root": "בין",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"בין"},
     "forms": {
       "present.ms": ["מֵבִין","מבין"],
       "present.fs": ["מְבִינָה","מבינה"],
@@ -1224,6 +1260,7 @@
     "binyan": "piel",
     "root": "חכה",
     "flags": {},
+    "wiktionary": {"1":"pi","2":"חכה","noun":"-"},
     "forms": {
       "present.ms": ["מְחַכֶּה","מחכה"],
       "present.fs": ["מְחַכָּה","מחכה"],
@@ -1258,6 +1295,7 @@
     "binyan": "nifal",
     "root": "כנס",
     "flags": {},
+    "wiktionary": {"1":"nif","2":"כנס"},
     "forms": {
       "present.ms": ["נִכְנָס","נכנס"],
       "present.fs": ["נִכְנֶסֶת","נכנסת"],
@@ -1292,6 +1330,7 @@
     "binyan": "paal",
     "root": "עבר",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"עבר","noun":"-","pp":"-"},
     "forms": {
       "present.ms": ["עוֹבֵר","עובר"],
       "present.fs": ["עוֹבֶרֶת","עוברת"],
@@ -1326,6 +1365,7 @@
     "binyan": "paal",
     "root": "זכר",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"זכר"},
     "forms": {
       "present.ms": ["זוֹכֵר","זוכר"],
       "present.fs": ["זוֹכֶרֶת","זוכרת"],
@@ -1360,6 +1400,7 @@
     "binyan": "paal",
     "root": "עמד",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"עמד","pp":"-"},
     "forms": {
       "present.ms": ["עוֹמֵד","עומד"],
       "present.fs": ["עוֹמֶדֶת","עומדת"],
@@ -1394,6 +1435,7 @@
     "binyan": "hifil",
     "root": "רגש",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"רגשׁ"},
     "forms": {
       "present.ms": ["מַרְגִּישׁ","מרגיש"],
       "present.fs": ["מַרְגִּישָׁה","מרגישה"],
@@ -1428,6 +1470,7 @@
     "binyan": "hifil",
     "root": "פסק",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"פסק"},
     "forms": {
       "present.ms": ["מַפְסִיק","מפסיק"],
       "present.fs": ["מַפְסִיקָה","מפסיקה"],
@@ -1462,6 +1505,7 @@
     "binyan": "paal",
     "root": "אכל",
     "flags": {"peAlef":true},
+    "wiktionary": {"1":"pa","2":"אכל","elide":"+"},
     "forms": {
       "present.ms": ["אוֹכֵל","אוכל"],
       "present.fs": ["אוֹכֶלֶת","אוכלת"],
@@ -1496,6 +1540,7 @@
     "binyan": "hifil",
     "root": "נוח",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"נוח"},
     "forms": {
       "present.ms": ["מֵנִיחַ","מניח"],
       "present.fs": ["מְנִיחָה","מניחה"],
@@ -1530,6 +1575,7 @@
     "binyan": "hitpael",
     "root": "קשר",
     "flags": {},
+    "wiktionary": {"1":"hit","2":"קשׁר"},
     "forms": {
       "present.ms": ["מִתְקַשֵּׁר","מתקשר"],
       "present.fs": ["מִתְקַשֶּׁרֶת","מתקשרת"],
@@ -1564,6 +1610,7 @@
     "binyan": "hifil",
     "root": "קשב",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"קשב"},
     "forms": {
       "present.ms": ["מַקְשִׁיב","מקשיב"],
       "present.fs": ["מַקְשִׁיבָה","מקשיבה"],
@@ -1598,6 +1645,7 @@
     "binyan": "hifil",
     "root": "ספק",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"ספק"},
     "forms": {
       "present.ms": ["מַסְפִּיק","מספיק"],
       "present.fs": ["מַסְפִּיקָה","מספיקה"],
@@ -1632,6 +1680,7 @@
     "binyan": "paal",
     "root": "עצר",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"עצר"},
     "forms": {
       "present.ms": ["עוֹצֵר","עוצר"],
       "present.fs": ["עוֹצֶרֶת","עוצרת"],
@@ -1666,6 +1715,7 @@
     "binyan": "paal",
     "root": "דאג",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"דאג","noun":"-"},
     "forms": {
       "present.ms": ["דּוֹאֵג","דואג"],
       "present.fs": ["דּוֹאֶגֶת","דואגת"],
@@ -1700,6 +1750,7 @@
     "binyan": "paal",
     "root": "שאל",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"שׁאל"},
     "forms": {
       "present.ms": ["שׁוֹאֵל","שואל"],
       "present.fs": ["שׁוֹאֶלֶת","שואלת"],
@@ -1734,6 +1785,7 @@
     "binyan": "paal",
     "root": "גרם",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"גרם"},
     "forms": {
       "present.ms": ["גּוֹרֵם","גורם"],
       "present.fs": ["גּוֹרֶמֶת","גורמת"],
@@ -1768,6 +1820,7 @@
     "binyan": "paal",
     "root": "שׂים",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"שׂים"},
     "forms": {
       "present.ms": ["שָׂם","שם"],
       "present.fs": ["שָׂמָה","שמה"],
@@ -1802,6 +1855,7 @@
     "binyan": "paal",
     "root": "שמר",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"שׁמר"},
     "forms": {
       "present.ms": ["שׁוֹמֵר","שומר"],
       "present.fs": ["שׁוֹמֶרֶת","שומרת"],
@@ -1836,6 +1890,7 @@
     "binyan": "paal",
     "root": "בדק",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"בדק"},
     "forms": {
       "present.ms": ["בּוֹדֵק","בודק"],
       "present.fs": ["בּוֹדֶקֶת","בודקת"],
@@ -1870,6 +1925,7 @@
     "binyan": "paal",
     "root": "תפס",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"תפס"},
     "forms": {
       "present.ms": ["תּוֹפֵס","תופס"],
       "present.fs": ["תּוֹפֶסֶת","תופסת"],
@@ -1904,6 +1960,7 @@
     "binyan": "paal",
     "root": "הפך",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"הפך"},
     "forms": {
       "present.ms": ["הוֹפֵךְ","הופך"],
       "present.fs": ["הוֹפֶכֶת","הופכת"],
@@ -1938,6 +1995,7 @@
     "binyan": "paal",
     "root": "זוז",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"זוז","noun":"תְּזוּזָה"},
     "forms": {
       "present.ms": ["זָז","זז"],
       "present.fs": ["זָזָה","זזה"],
@@ -1972,6 +2030,7 @@
     "binyan": "paal",
     "root": "שכח",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"שׁכח","noun":"-"},
     "forms": {
       "present.ms": ["שׁוֹכֵחַ","שוכח"],
       "present.fs": ["שׁוֹכַחַת","שוכחת"],
@@ -2006,6 +2065,7 @@
     "binyan": "paal",
     "root": "ישן",
     "flags": {"keepYod":true,"presentShort":true},
+    "wiktionary": {"1":"pa","2":"ישן","elide":"-","pres_short":"+","noun":"שֵׁנָה","pp":"-"},
     "forms": {
       "present.ms": ["יָשֵׁן","ישן"],
       "present.fs": ["יְשֵׁנָה","ישנה"],
@@ -2040,6 +2100,7 @@
     "binyan": "paal",
     "root": "קנה",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"קנה"},
     "forms": {
       "present.ms": ["קוֹנֶה","קונה"],
       "present.fs": ["קוֹנָה","קונה"],
@@ -2074,6 +2135,7 @@
     "binyan": "paal",
     "root": "ירד",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"ירד"},
     "forms": {
       "present.ms": ["יוֹרֵד","יורד"],
       "present.fs": ["יוֹרֶדֶת","יורדת"],
@@ -2108,6 +2170,7 @@
     "binyan": "paal",
     "root": "שלח",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"שׁלח"},
     "forms": {
       "present.ms": ["שׁוֹלֵחַ","שולח"],
       "present.fs": ["שׁוֹלַחַת","שולחת"],
@@ -2142,6 +2205,7 @@
     "binyan": "paal",
     "root": "למד",
     "flags": {"futureVowel":"a"},
+    "wiktionary": {"1":"pa","2":"למד","fut_char":"a"},
     "forms": {
       "present.ms": ["לוֹמֵד","לומד"],
       "present.fs": ["לוֹמֶדֶת","לומדת"],
@@ -2176,6 +2240,7 @@
     "binyan": "paal",
     "root": "ישב",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"ישב"},
     "forms": {
       "present.ms": ["יוֹשֵׁב","יושב"],
       "present.fs": ["יוֹשֶׁבֶת","יושבת"],
@@ -2210,6 +2275,7 @@
     "binyan": "paal",
     "root": "עלה",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"עלה","pp":"-"},
     "forms": {
       "present.ms": ["עוֹלֶה","עולה"],
       "present.fs": ["עוֹלָה","עולה"],
@@ -2244,6 +2310,7 @@
     "binyan": "paal",
     "root": "נסע",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"נסע","inf":"לנסוע / לִנְסֹעַ","pp":"-","elide":"+"},
     "forms": {
       "present.ms": ["נוֹסֵעַ","נוסע"],
       "present.fs": ["נוֹסַעַת","נוסעת"],
@@ -2278,6 +2345,7 @@
     "binyan": "paal",
     "root": "ירה",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"ירה"},
     "forms": {
       "present.ms": ["יוֹרֶה","יורה"],
       "present.fs": ["יוֹרָה","יורה"],
@@ -2312,6 +2380,7 @@
     "binyan": "paal",
     "root": "שתה",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"שׁתה"},
     "forms": {
       "present.ms": ["שׁוֹתֶה","שותה"],
       "present.fs": ["שׁוֹתָה","שותה"],
@@ -2346,6 +2415,7 @@
     "binyan": "paal",
     "root": "בחר",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"בחר"},
     "forms": {
       "present.ms": ["בּוֹחֵר","בוחר"],
       "present.fs": ["בּוֹחֶרֶת","בוחרת"],
@@ -2380,6 +2450,7 @@
     "binyan": "paal",
     "root": "כתב",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"כתב"},
     "forms": {
       "present.ms": ["כּוֹתֵב","כותב"],
       "present.fs": ["כּוֹתֶבֶת","כותבת"],
@@ -2414,6 +2485,7 @@
     "binyan": "paal",
     "root": "בנה",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"בנה"},
     "forms": {
       "present.ms": ["בּוֹנֶה","בונה"],
       "present.fs": ["בּוֹנָה","בונה"],
@@ -2448,6 +2520,7 @@
     "binyan": "paal",
     "root": "פתח",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"פתח"},
     "forms": {
       "present.ms": ["פּוֹתֵחַ","פותח"],
       "present.fs": ["פּוֹתַחַת","פותחת"],
@@ -2482,6 +2555,7 @@
     "binyan": "paal",
     "root": "נפל",
     "flags": {"override":{"infinitive.inf":"לi2*o3"}},
+    "wiktionary": {"1":"pa","2":"נפל","elide":"-"},
     "forms": {
       "present.ms": ["נוֹפֵל","נופל"],
       "present.fs": ["נוֹפֶלֶת","נופלת"],
@@ -2516,6 +2590,7 @@
     "binyan": "paal",
     "root": "לבש",
     "flags": {"futureVowel":"a"},
+    "wiktionary": {"1":"pa","2":"לבשׁ","fut_char":"a"},
     "forms": {
       "present.ms": ["לוֹבֵשׁ","לובש"],
       "present.fs": ["לוֹבֶשֶׁת","לובשת"],
@@ -2550,6 +2625,7 @@
     "binyan": "paal",
     "root": "רוץ",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"רוץ"},
     "forms": {
       "present.ms": ["רָץ","רץ"],
       "present.fs": ["רָצָה","רצה"],
@@ -2584,6 +2660,7 @@
     "binyan": "paal",
     "root": "גור",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"גור","noun":"-"},
     "forms": {
       "present.ms": ["גָּר","גר"],
       "present.fs": ["גָּרָה","גרה"],
@@ -2618,6 +2695,7 @@
     "binyan": "paal",
     "root": "נהג",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"נהג"},
     "forms": {
       "present.ms": ["נוֹהֵג","נוהג"],
       "present.fs": ["נוֹהֶגֶת","נוהגת"],
@@ -2652,6 +2730,7 @@
     "binyan": "paal",
     "root": "ענה",
     "flags": {},
+    "wiktionary": {"1":"pa","2":"ענה","noun":"-","pp":"-"},
     "forms": {
       "present.ms": ["עוֹנֶה","עונה"],
       "present.fs": ["עוֹנָה","עונה"],
@@ -2686,6 +2765,7 @@
     "binyan": "piel",
     "root": "שלם",
     "flags": {},
+    "wiktionary": {"1":"pi","2":"שלם"},
     "forms": {
       "present.ms": ["מְשַׁלֵּם","משלם"],
       "present.fs": ["מְשַׁלֶּמֶת","משלמת"],
@@ -2720,6 +2800,7 @@
     "binyan": "piel",
     "root": "סים",
     "flags": {},
+    "wiktionary": {"1":"pi","2":"סים"},
     "forms": {
       "present.ms": ["מְסַיֵּם","מסיים"],
       "present.fs": ["מְסַיֶּמֶת","מסיימת"],
@@ -2754,6 +2835,7 @@
     "binyan": "piel",
     "root": "גלה",
     "flags": {},
+    "wiktionary": {"1":"pi","2":"גלה"},
     "forms": {
       "present.ms": ["מְגַלֶּה","מגלה"],
       "present.fs": ["מְגַלָּה","מגלה"],
@@ -2788,6 +2870,7 @@
     "binyan": "piel",
     "root": "אבד",
     "flags": {},
+    "wiktionary": {"1":"pi","2":"אבד"},
     "forms": {
       "present.ms": ["מְאַבֵּד","מאבד"],
       "present.fs": ["מְאַבֶּדֶת","מאבדת"],
@@ -2822,6 +2905,7 @@
     "binyan": "piel",
     "root": "נצח",
     "flags": {},
+    "wiktionary": {"1":"pi","2":"נצח"},
     "forms": {
       "present.ms": ["מְנַצֵּחַ","מנצח"],
       "present.fs": ["מְנַצַּחַת","מנצחת"],
@@ -2856,6 +2940,7 @@
     "binyan": "piel",
     "root": "נהל",
     "flags": {},
+    "wiktionary": {"1":"pi","2":"נהל"},
     "forms": {
       "present.ms": ["מְנַהֵל","מנהל"],
       "present.fs": ["מְנַהֶלֶת","מנהלת"],
@@ -2890,6 +2975,7 @@
     "binyan": "piel",
     "root": "קוה",
     "flags": {},
+    "wiktionary": {"1":"pi","2":"ק","3":"ו","4":"ה","noun":"תִּקְוָה"},
     "forms": {
       "present.ms": ["מְקַוֶּה","מקווה"],
       "present.fs": ["מְקַוָּה","מקווה"],
@@ -2924,6 +3010,7 @@
     "binyan": "hifil",
     "root": "שאר",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"שׁאר"},
     "forms": {
       "present.ms": ["מַשְׁאִיר","משאיר"],
       "present.fs": ["מַשְׁאִירָה","משאירה"],
@@ -2958,6 +3045,7 @@
     "binyan": "hifil",
     "root": "יצא",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"וצא"},
     "forms": {
       "present.ms": ["מוֹצִיא","מוציא"],
       "present.fs": ["מוֹצִיאָה","מוציאה"],
@@ -2992,6 +3080,7 @@
     "binyan": "hifil",
     "root": "ראה",
     "flags": {"segolPrefix":true},
+    "wiktionary": {"1":"hif","2":"ראה"},
     "forms": {
       "present.ms": ["מַרְאֶה","מראה"],
       "present.fs": ["מַרְאָה","מראה"],
@@ -3026,6 +3115,7 @@
     "binyan": "hifil",
     "root": "בוא",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"בוא"},
     "forms": {
       "present.ms": ["מֵבִיא","מביא"],
       "present.fs": ["מְבִיאָה","מביאה"],
@@ -3060,6 +3150,7 @@
     "binyan": "hifil",
     "root": "נצל",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"נצל"},
     "forms": {
       "present.ms": ["מַצִּיל","מציל"],
       "present.fs": ["מַצִּילָה","מצילה"],
@@ -3094,6 +3185,7 @@
     "binyan": "hifil",
     "root": "חזק",
     "flags": {"noChataf":true},
+    "wiktionary": {"1":"hif","2":"חזק","nochataf":"+"},
     "forms": {
       "present.ms": ["מַחְזִיק","מחזיק"],
       "present.fs": ["מַחְזִיקָה","מחזיקה"],
@@ -3128,6 +3220,7 @@
     "binyan": "hifil",
     "root": "כון",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"כון"},
     "forms": {
       "present.ms": ["מֵכִין","מכין"],
       "present.fs": ["מְכִינָה","מכינה"],
@@ -3162,6 +3255,7 @@
     "binyan": "hifil",
     "root": "יפע",
     "flags": {},
+    "wiktionary": {"1":"hif","2":"ופע"},
     "forms": {
       "present.ms": ["מוֹפִיעַ","מופיע"],
       "present.fs": ["מוֹפִיעָה","מופיעה"],
@@ -3196,6 +3290,7 @@
     "binyan": "nifal",
     "root": "מצא",
     "flags": {},
+    "wiktionary": {"1":"nif","2":"מצא"},
     "forms": {
       "present.ms": ["נִמְצָא","נמצא"],
       "present.fs": ["נִמְצֵאת","נמצאת"],
@@ -3230,6 +3325,7 @@
     "binyan": "nifal",
     "root": "רגע",
     "flags": {},
+    "wiktionary": {"1":"nif","2":"רגע"},
     "forms": {
       "present.ms": ["נִרְגָּע","נרגע"],
       "present.fs": ["נִרְגַּעַת","נרגעת"],
@@ -3264,6 +3360,7 @@
     "binyan": "hitpael",
     "root": "סכל",
     "flags": {},
+    "wiktionary": {"1":"hit","2":"סכל"},
     "forms": {
       "present.ms": ["מִסְתַּכֵּל","מסתכל"],
       "present.fs": ["מִסְתַּכֶּלֶת","מסתכלת"],
@@ -3298,6 +3395,7 @@
     "binyan": "hitpael",
     "root": "שמש",
     "flags": {},
+    "wiktionary": {"1":"hit","2":"שׁמשׁ"},
     "forms": {
       "present.ms": ["מִשְׁתַּמֵּשׁ","משתמש"],
       "present.fs": ["מִשְׁתַּמֶּשֶׁת","משתמשת"],
@@ -3332,6 +3430,7 @@
     "binyan": "hitpael",
     "root": "ראה",
     "flags": {},
+    "wiktionary": {"1":"hit","2":"ראה"},
     "forms": {
       "present.ms": ["מִתְרָאֶה","מתראה"],
       "present.fs": ["מִתְרָאָה","מתראה"],

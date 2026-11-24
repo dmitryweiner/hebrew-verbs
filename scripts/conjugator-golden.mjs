@@ -2,7 +2,8 @@
 // for each verb of the given sample lists, the expected form of every slot —
 // nikud from the English Wiktionary table, spelling without nikud from
 // Hspell (Wiktionary's own plain spellings are unreliable, stage 0 report),
-// with the plan's decisions applied (see `decide` below).
+// with the plan's decisions applied (see `decide` below); and the verb's
+// {{he-conj}} parameters, the test of scripts/lib/wiktionary-flags.mjs.
 //
 //   node scripts/conjugator-golden.mjs scripts/probe/sample-50.tsv scripts/probe/holdout-50.tsv
 //
@@ -53,7 +54,8 @@ for (const verb of files.flatMap((f) => readSample(resolve(f)))) {
     const d = decide(verb, key, nikud, plain);
     forms[key] = [d.nikud.join(' / '), d.plain.join(' / ')];
   }
-  const entry = { lemma: verb.lemma, binyan: verb.binyan, root: verb.root, flags: verb.flags };
+  const { params } = wikt[verb.lemma];
+  const entry = { lemma: verb.lemma, binyan: verb.binyan, root: verb.root, flags: verb.flags, wiktionary: params };
   if (todo.has(verb.lemma)) entry.todo = todo.get(verb.lemma);
   verbs.set(verb.lemma, { ...entry, forms });
 }
