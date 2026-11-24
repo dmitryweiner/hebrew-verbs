@@ -1767,8 +1767,7 @@
     "lemma": "שם",
     "binyan": "paal",
     "root": "שׂים",
-    "flags": {"futureVowel":"i"},
-    "todo": "ע\"י future יָשִׂים",
+    "flags": {},
     "forms": {
       "present.ms": ["שָׂם","שם"],
       "present.fs": ["שָׂמָה","שמה"],
@@ -2006,8 +2005,7 @@
     "lemma": "ישן",
     "binyan": "paal",
     "root": "ישן",
-    "flags": {"stative":true},
-    "todo": "stative paal: יָשֵׁן, יִישַׁן",
+    "flags": {"keepYod":true,"presentShort":true},
     "forms": {
       "present.ms": ["יָשֵׁן","ישן"],
       "present.fs": ["יְשֵׁנָה","ישנה"],
@@ -2280,7 +2278,6 @@
     "binyan": "paal",
     "root": "ירה",
     "flags": {},
-    "todo": "פ\"י keeping its yod: יִירֶה",
     "forms": {
       "present.ms": ["יוֹרֶה","יורה"],
       "present.fs": ["יוֹרָה","יורה"],
@@ -2484,8 +2481,7 @@
     "lemma": "נפל",
     "binyan": "paal",
     "root": "נפל",
-    "flags": {},
-    "todo": "infinitive לִפֹּל",
+    "flags": {"override":{"infinitive.inf":"לi2*o3"}},
     "forms": {
       "present.ms": ["נוֹפֵל","נופל"],
       "present.fs": ["נוֹפֶלֶת","נופלת"],
@@ -2724,7 +2720,6 @@
     "binyan": "piel",
     "root": "סים",
     "flags": {},
-    "todo": "piel of a י-medial root: סִיַּמְתִּי",
     "forms": {
       "present.ms": ["מְסַיֵּם","מסיים"],
       "present.fs": ["מְסַיֶּמֶת","מסיימת"],
@@ -2963,7 +2958,6 @@
     "binyan": "hifil",
     "root": "יצא",
     "flags": {},
-    "todo": "ל\"א outside paal",
     "forms": {
       "present.ms": ["מוֹצִיא","מוציא"],
       "present.fs": ["מוֹצִיאָה","מוציאה"],
@@ -2997,8 +2991,7 @@
     "lemma": "הראה",
     "binyan": "hifil",
     "root": "ראה",
-    "flags": {},
-    "todo": "hifil ל\"ה with a guttural C1: הֶרְאָה",
+    "flags": {"segolPrefix":true},
     "forms": {
       "present.ms": ["מַרְאֶה","מראה"],
       "present.fs": ["מַרְאָה","מראה"],
@@ -3033,7 +3026,6 @@
     "binyan": "hifil",
     "root": "בוא",
     "flags": {},
-    "todo": "ל\"א outside paal",
     "forms": {
       "present.ms": ["מֵבִיא","מביא"],
       "present.fs": ["מְבִיאָה","מביאה"],
@@ -3101,8 +3093,7 @@
     "lemma": "החזיק",
     "binyan": "hifil",
     "root": "חזק",
-    "flags": {},
-    "todo": "noChataf in hifil",
+    "flags": {"noChataf":true},
     "forms": {
       "present.ms": ["מַחְזִיק","מחזיק"],
       "present.fs": ["מַחְזִיקָה","מחזיקה"],
@@ -3205,7 +3196,6 @@
     "binyan": "nifal",
     "root": "מצא",
     "flags": {},
-    "todo": "ל\"א outside paal",
     "forms": {
       "present.ms": ["נִמְצָא","נמצא"],
       "present.fs": ["נִמְצֵאת","נמצאת"],
@@ -3240,7 +3230,6 @@
     "binyan": "nifal",
     "root": "רגע",
     "flags": {},
-    "todo": "nifal with a guttural C3",
     "forms": {
       "present.ms": ["נִרְגָּע","נרגע"],
       "present.fs": ["נִרְגַּעַת","נרגעת"],
@@ -3343,7 +3332,6 @@
     "binyan": "hitpael",
     "root": "ראה",
     "flags": {},
-    "todo": "hitpael ל\"ה",
     "forms": {
       "present.ms": ["מִתְרָאֶה","מתראה"],
       "present.fs": ["מִתְרָאָה","מתראה"],

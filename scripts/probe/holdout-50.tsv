@@ -5,14 +5,14 @@
 דאג	paal	דאג
 שאל	paal	שאל
 גרם	paal	גרם
-שם	paal	שׂים	{"futureVowel":"i"}
+שם	paal	שׂים
 שמר	paal	שמר
 בדק	paal	בדק
 תפס	paal	תפס
 הפך	paal	הפך
 זז	paal	זוז
 שכח	paal	שכח
-ישן	paal	ישן	{"stative":true}
+ישן	paal	ישן	{"keepYod":true,"presentShort":true}
 קנה	paal	קנה
 ירד	paal	ירד
 שלח	paal	שלח
@@ -26,7 +26,7 @@
 כתב	paal	כתב
 בנה	paal	בנה
 פתח	paal	פתח
-נפל	paal	נפל
+נפל	paal	נפל	{"override":{"infinitive.inf":"לi2*o3"}}
 לבש	paal	לבש	{"futureVowel":"a"}
 רץ	paal	רוץ
 גר	paal	גור
@@ -41,10 +41,10 @@
 קיווה	piel	קוה
 השאיר	hifil	שאר
 הוציא	hifil	יצא
-הראה	hifil	ראה
+הראה	hifil	ראה	{"segolPrefix":true}
 הביא	hifil	בוא
 הציל	hifil	נצל
-החזיק	hifil	חזק
+החזיק	hifil	חזק	{"noChataf":true}
 הכין	hifil	כון
 הופיע	hifil	יפע
 נמצא	nifal	מצא
