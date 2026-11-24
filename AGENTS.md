@@ -53,6 +53,13 @@ fetched on demand and cached in `.cache/wikt/`.
   tables of verbs the conjugator does not build (`manual` flag).
 - `scripts/lib/verbs.mjs` — reads the list and the hand tables, gives a listed
   verb's forms; `verbs.test.mjs` checks the list (part of `npm test`).
+- `scripts/lib/translit.mjs` — Cyrillic transliteration as spoken, from the
+  conjugator's segments (`translit` of every form; hand tables carry their own).
+- `data/ru.tsv` — Russian by hand: translations, the ipf/pf pair for phrases
+  (passives as "быть приглашённым"). `scripts/ru-forms.py` (pymorphy3 in
+  `.cache/venv`, header says how) checks aspects and writes `data/ru-forms.json`.
+- `scripts/probe/wiktionary-glosses.mjs` — English glosses of the listed verbs
+  from the cached Wiktionary pages, a reference for the translations.
 - `scripts/review-list.mjs` — writes the list's review page (HTML, Russian)
   for a person to approve.
 - `scripts/lib/conjugate.mjs` — the model conjugator: root + binyan + flags →
