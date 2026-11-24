@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#16725f"/>
+  <!-- פ, the first letter of פועל (verb), drawn with strokes: no font needed -->
+  <path d="M148 150H352V362H148M148 150V236H232" fill="none" stroke="#fff" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
