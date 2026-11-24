@@ -27,3 +27,43 @@ describe('conjugator against the golden forms', () => {
     });
   }
 });
+
+/** Forms of these slots as "nikud plain". */
+const forms = (verb, keys) => {
+  const c = conjugate(verb);
+  return keys.map((k) => `${c[k].defective} ${c[k].plain}`);
+};
+
+describe('conjugator on roots that only look weak', () => {
+  const keys = ['past.3ms', 'past.1s', 'present.ms', 'future.3ms', 'infinitive.inf'];
+
+  it('takes a consonantal ו with the strong flag: הִרְוִיחַ', () => {
+    expect(forms({ binyan: 'hifil', root: 'רוח', flags: { strong: true } }, keys)).toEqual([
+      'הִרְוִיחַ הרוויח',
+      'הִרְוַחְתִּי הרווחתי',
+      'מַרְוִיחַ מרוויח',
+      'יַרְוִיחַ ירוויח',
+      'לְהַרְוִיחַ להרוויח',
+    ]);
+  });
+
+  it('takes C2 = C3 as strong with the strong flag: הִפְלִיל', () => {
+    expect(forms({ binyan: 'hifil', root: 'פלל', flags: { strong: true } }, keys)).toEqual([
+      'הִפְלִיל הפליל',
+      'הִפְלַלְתִּי הפללתי',
+      'מַפְלִיל מפליל',
+      'יַפְלִיל יפליל',
+      'לְהַפְלִיל להפליל',
+    ]);
+  });
+
+  it('takes ו before a final ה as ל"ה, not hollow: הִלְוָה', () => {
+    expect(forms({ binyan: 'hifil', root: 'לוה' }, keys)).toEqual([
+      'הִלְוָה הלווה',
+      'הִלְוֵיתִי הלוויתי',
+      'מַלְוֶה מלווה',
+      'יַלְוֶה ילווה',
+      'לְהַלְווֹת להלוות',
+    ]);
+  });
+});

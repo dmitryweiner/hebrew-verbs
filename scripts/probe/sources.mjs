@@ -107,10 +107,16 @@ const PLAIN = {
   // Decision 17: the spoken infinitive first; Hspell has only literary לאמור.
   'אמר infinitive.inf': ['לומר'],
 };
+const HATAF_BEFORE_SHEVA = /[\u05B1-\u05B3](?=[\u05D0-\u05EA]\u05B0)/gu;
+const FULL = { '\u05B1': '\u05B6', '\u05B2': '\u05B7', '\u05B3': '\u05B8' };
 /** Nikud the plan takes over Wiktionary's, by "lemma slot". */
 const NIKUD = {
-  // Classical הֶעֶלְתָה (hataf before a vocal sheva -> full vowel); Wiktionary has הֶעֱלְתָה.
-  'העלה past.3fs': ['הֶעֶלְתָה'],
+  // Like the paal נָתַתִּי (Hspell: ניתתי); Wiktionary has נִתַּנְתִּי.
+  'ניתן past.1s': ['נִתַּתִּי'],
+  'ניתן past.2ms': ['נִתַּתָּ'],
+  'ניתן past.2fs': ['נִתַּתְּ'],
+  'ניתן past.2mp': ['נִתַּתֶּם'],
+  'ניתן past.2fp': ['נִתַּתֶּן'],
   // Wiktionary has the regular מוּכֶנֶת; Hspell (only for this verb) and speech מוכנה.
   'הוכן present.fs': ['מוּכָנָה'],
 };
@@ -127,7 +133,10 @@ export function expectedForms(verb, wslots, hblock) {
     // An empty cell: no such form (the infinitive of pual and hufal).
     const forms = wslots?.[key]?.filter((f) => f.nikud);
     if (!forms?.length) continue;
-    let nikud = NIKUD[`${verb.lemma} ${key}`] ?? [...new Set(forms.map((f) => f.nikud.normalize('NFC')))];
+    // Decision 21, classical: a hataf before a vocal sheva is a full vowel
+    // (הֶעֶלְתָה, הָעָבְרָה); Wiktionary keeps the hataf.
+    const full = (n) => n.replace(HATAF_BEFORE_SHEVA, (h) => FULL[h]);
+    let nikud = NIKUD[`${verb.lemma} ${key}`] ?? [...new Set(forms.map((f) => full(f.nikud.normalize('NFC'))))];
     // Decision 15, classical nikud: 1st person future אֶקַּח, not Wiktionary's אֵקַּח.
     if (key === 'future.1s') nikud = nikud.map((n) => n.replace(/^א\u05B5(?=.[\u05B0-\u05BB]*\u05BC)/u, 'א\u05B6'));
     const plain = PLAIN[`${verb.lemma} ${key}`] ?? hblock?.[key] ?? [...new Set(forms.map((f) => strip(f.plain)))];

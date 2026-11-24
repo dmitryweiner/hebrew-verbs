@@ -59,6 +59,9 @@ export function fromWiktionary(params) {
     if (c1 === 'י') flags.keepYod = true;
     if (c1 === 'נ') flags.override = { 'infinitive.inf': 'לi2*o3' };
   }
+  // נתן assimilates its נ in every binyan (נָתַתִּי, נִתַּתִּי, as Hspell);
+  // Wiktionary marks it on the paal only.
+  if (root === 'נתן') flags.assimT = true;
   // Wiktionary's module gives this one verb a segol: הֶרְאָה.
   if (binyan === 'hifil' && root === 'ראה') flags.segolPrefix = true;
   if (params.inf) notes.push(`inf: ${params.inf}`);

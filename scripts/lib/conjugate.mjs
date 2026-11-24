@@ -13,7 +13,7 @@
 //
 // Pattern notation: 1 2 3 (4) = root letters; a Hebrew letter = itself; after a
 // letter: '*' dagesh forte, then a vowel — ':' silent sheva, '%' vocal sheva,
-// a patah, A kamatz, e segol, E tsere, i hiriq, o holam, u kubutz,
+// a patah, A kamatz, Q kamatz katan, e segol, E tsere, i hiriq, o holam, u kubutz,
 // U shuruk (on ו), ~a ~e ~A hataf. ו/י/א/ה without a vowel are vowel letters.
 //
 // Flags (lexical facts the root and binyan do not give; most are the same as
@@ -36,6 +36,7 @@
 //   segolateInfinitive  לָקַחַת-type infinitive
 //   hollow         treat as ע"ו/ע"י even if C2 is not ו/י
 //   noAssim        paal פ"נ keeping its נ: יִנְשֹׁם (assim=-)
+//   strong         a root that looks hollow or geminate is strong: הִרְוִיחַ, הִפְלִיל
 //   polel          piel and hitpael on the polel stem: פּוֹצֵץ, שׂוֹחֵחַ,
 //                  הִתְמוֹדֵד, הִתְעוֹרֵר (Wiktionary po, hitpo)
 //   override       { 'infinitive.inf': pattern, ... } for single forms (inf)
@@ -55,6 +56,7 @@ const MARK = {
   e: '\u05B6',
   a: '\u05B7',
   A: '\u05B8',
+  Q: '\u05B8',
   o: '\u05B9',
   u: '\u05BB',
 };
@@ -92,7 +94,7 @@ function parse(pattern, root) {
     if (pattern[i] === '~') {
       seg.v = pattern.slice(i, i + 2);
       i += 2;
-    } else if (pattern[i] && /[:%aAeEiouU]/.test(pattern[i])) seg.v = pattern[i++];
+    } else if (pattern[i] && /[:%aAeEiouUQ]/.test(pattern[i])) seg.v = pattern[i++];
     segs.push(seg);
   }
   return segs;
@@ -140,7 +142,11 @@ function rules(segs, opts) {
       if (p.v === 'i') p.v = opts.binyan === 'hifil' ? 'e' : 'a';
       continue;
     }
-    if (p.v === 'a') {
+    if (p.v === 'u') {
+      // Hufal: הָעֳבַר (kamatz katan, hataf kamatz).
+      p.v = 'Q';
+      s.v = '~A';
+    } else if (p.v === 'a') {
       // Hifil present, future, infinitive: מַאֲמִין, יַעֲבִיר.
       s.v = '~a';
     } else if (p.v === 'e' || s.l === 'א' || opts.binyan === 'nifal' || opts.binyan === 'hifil') {
@@ -179,6 +185,7 @@ function rules(segs, opts) {
     const s = segs[k];
     const n = segs[k + 1];
     if (s.v.startsWith('~') && n.v === '%') {
+      // ~A -> A: the same sign, written without ו (הָעָבְרָה -> הועברה).
       s.v = s.v[1];
       n.v = ':';
       n.medium = true;
@@ -268,7 +275,7 @@ function plene(segs, opts) {
       const quietAlef = n && n.l === 'א' && n.v === '' && n.root === 1;
       if (!quietAlef) out += 'ו';
     }
-    if (s.v === 'u') out += 'ו';
+    if (s.v === 'u' || s.v === 'Q') out += 'ו';
     if (s.compensatory) out += 'י';
     // Nifal 1st person before a doubled ו: אֶוָּסֵף -> איווסף (as Hspell).
     if (s.v === 'e' && s.root === 0 && opts.binyan === 'nifal' && n?.l === 'ו' && n.forte) out += 'י';
@@ -363,7 +370,7 @@ function paal(root, f) {
     });
     return P;
   }
-  if (f.hollow || c2 === 'ו' || c2 === 'י') {
+  if (f.hollow || ((c2 === 'ו' || c2 === 'י') && !f.strong)) {
     const pv = f.pastVowel ?? 'A';
     // ע"י: יָשִׂים; ע"ו: יָקוּם, with futureVowel o: יָבוֹא.
     const iFuture = c2 === 'י' && !f.futureVowel;
@@ -495,7 +502,13 @@ function hufal(root, f) {
   // The stem up to the consonant before C3: strong הֻשְׁ־ל, hollow הוּ־כ,
   // פ"י/ו הוּ־ר, פ"נ (and assim) הֻ־גּ.
   const stem = (pre) =>
-    c2 === 'ו' || c2 === 'י' ? `${pre}וU1` : c1 === 'נ' || f.assim ? `${pre}u2*` : c1 === 'י' || c1 === 'ו' ? `${pre}וU2` : `${pre}u1:2`;
+    (c2 === 'ו' || c2 === 'י') && !f.strong
+      ? `${pre}וU1`
+      : c1 === 'נ' || f.assim
+        ? `${pre}u2*`
+        : c1 === 'י' || c1 === 'ו'
+          ? `${pre}וU2`
+          : `${pre}u1:2`;
   const last = stem('').at(-1) === '*' ? '2*' : stem('').at(-1);
   return {
     ...past({ c: `${stem('ה')}a3`, third: `${stem('ה')}a3`, thirdV: `${stem('ה')}%3` }),
@@ -509,7 +522,7 @@ function hufal(root, f) {
 
 function hifil(root, f) {
   const [c1, c2, c3] = root.map((r) => r[0]);
-  if (c2 === c3)
+  if (c2 === c3 && !f.strong)
     // Geminate: הֵגֵן, מֵגֵן / מְגִנָּה, יָגֵן, לְהָגֵן.
     return {
       ...past({ c: 'הE1a3', third: 'הE1E3', thirdV: 'הE1E3*', pl2: 'ה%1a3' }),
@@ -521,7 +534,8 @@ function hifil(root, f) {
       'infinitive.inf': 'ל%הA1E3',
     };
   const pastV = f.segolPrefix ? 'e' : 'i';
-  if (c2 === 'ו' || c2 === 'י')
+  // Hollow, unless ל"ה (הִלְוָה) or strong (הִרְוִיחַ).
+  if ((c2 === 'ו' || c2 === 'י') && c3 !== 'ה' && !f.strong)
     return {
       ...past({ c: 'הE1a3', third: 'הE1iי3', thirdV: 'הE1iי3', pl2: 'ה%1a3' }),
       'present.ms': 'מE1iי3',
@@ -588,13 +602,14 @@ function nifal(root) {
   // Before a final ח/ע the stem tsere is patah: יֵרָגַע, לְהִשָּׁמַע.
   const v2 = root[2][0] === 'ח' || root[2][0] === 'ע' ? 'a' : 'E';
   // Past and present נִכְנַס, פ"ו/פ"י נוֹסַף; the future has ו for both: יִוָּסֵף, יִוָּלֵד.
-  const N = c1 === 'ו' || c1 === 'י' ? 'נוo' : 'נi1:';
+  // Up to C2: נִכְ־נ, פ"נ נִ־תּ (נִתַּן), פ"ו/פ"י נוֹ־ס.
+  const N = c1 === 'נ' ? 'נi2*' : c1 === 'ו' || c1 === 'י' ? 'נוo2' : 'נi1:2';
   return {
-    ...past({ c: `${N}2a3`, third: `${N}2a3`, thirdV: `${N}2%3` }),
-    'present.ms': `${N}2A3`,
-    'present.fs': `${N}${segolate(root)}`,
-    'present.mp': `${N}2A3iים`,
-    'present.fp': `${N}2A3וoת`,
+    ...past({ c: `${N}a3`, third: `${N}a3`, thirdV: `${N}%3` }),
+    'present.ms': `${N}A3`,
+    'present.fs': `${N}${segolate(root).slice(1)}`,
+    'present.mp': `${N}A3iים`,
+    'present.fp': `${N}A3וoת`,
     ...future({
       base: (p) => `${p}${p === 'א' ? 'e' : 'i'}1*A2${v2}3`,
       vowelEnd: (p) => `${p}i1*A2%3`,
@@ -671,7 +686,7 @@ export function conjugate({ binyan, root, flags = {} }) {
   // doubled C2 split in two: דִּבֵּר -> שִׁחְרֵר (2* -> 2:3, 3 -> 4).
   const patterns = BUILD[binyan](quad ? [r[0], r[1], r[3]] : r, flags);
   if (quad) for (const k of Object.keys(patterns)) patterns[k] = patterns[k].replaceAll('3', '4').replaceAll('2*', '2:3');
-  const opts = { ...flags, binyan, last: r.length, geminate: !quad && r[1][0] === r[2][0] };
+  const opts = { ...flags, binyan, last: r.length, geminate: !quad && !flags.strong && r[1][0] === r[2][0] };
   for (const [k, v] of Object.entries(flags.override ?? {})) patterns[k] = v;
   const out = {};
   for (const [key, pattern] of Object.entries(patterns)) {

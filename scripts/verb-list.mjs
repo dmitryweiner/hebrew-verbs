@@ -3,8 +3,9 @@
 // binyan, root and flags from their Wiktionary parameters
 // (scripts/lib/wiktionary-flags.mjs). Lines already in the list keep their
 // hand edits (binyan, root, flags, note) and get the new frequency; a verb
-// Hspell does not have (יכול) keeps its hand-written one. The list is
-// ordered by frequency: the line number is the rank.
+// Hspell does not have (יכול) keeps its hand-written frequency; a line still
+// at `?` is drafted again; a lemma moved to not-verbs.tsv leaves the list.
+// The list is ordered by frequency: the line number is the rank.
 //
 //   node scripts/verb-list.mjs [--count 1000]
 //
@@ -49,7 +50,10 @@ for (const v of ranked) if (!freq.has(v.lemma)) freq.set(v.lemma, v.freq);
 /** @type {Map<string, { lemma: string, freq: number, binyan: string, root: string, flags: string, note: string }>} */
 const list = new Map();
 for (const [lemma, f, binyan, rootLetters, flags = '', note = ''] of rows(LIST))
-  list.set(lemma, { lemma, freq: freq.get(lemma) ?? Number(f), binyan, root: rootLetters, flags, note });
+  if (notVerbs.has(lemma)) console.log(`- ${lemma}`);
+  else list.set(lemma, { lemma, freq: freq.get(lemma) ?? Number(f), binyan, root: rootLetters, flags, note });
+// A line nobody has decided yet (`?`) is drafted again: the table may be there now.
+for (const [lemma, v] of list) if (v.binyan === '?') list.delete(lemma);
 
 /** A new line from the lemma's Wiktionary table, or `?` fields and why. */
 function draft(lemma) {
