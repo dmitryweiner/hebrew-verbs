@@ -6,7 +6,7 @@
 # (scripts/lib/conjugate.mjs); note: "by hand: …" or "checked: …" marks a
 # line a person decided (kept as is), anything else is redrafted.
 # lemma	freq	binyan	root	flags	note
-היה	2874649	paal	היה	{"keepPrefix":true,"hatafSegol":true,"noPresent":true}	by hand: no Wiktionary table
+היה	2874649	paal	היה	{"keepPrefix":true,"hatafSegol":true,"noPresent":true}	by hand: Wiktionary's table is hand-written; flags as in the stage 0 sample
 ידע	1257007	paal	ידע
 עשה	1201100	paal	עשׂה
 יכול	1100000	paal	יכל	{"manual":true}	by hand: Hspell lacks it; frequency estimated from יכול, יכולה, יכולים, תוכל, נוכל

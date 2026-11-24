@@ -48,7 +48,13 @@ fetched on demand and cached in `.cache/wikt/`.
   frequencies of their forms; the top needs a manual pass (nouns slip in).
 - `scripts/verb-list.mjs` — drafts and refreshes the verb list `data/verbs.tsv`
   (the source of truth: lemma, frequency, binyan, root, flags, note) from the
-  ranking and Wiktionary, keeping hand edits; skips `data/not-verbs.tsv`.
+  ranking and Wiktionary, keeping the lines a person decided (note `by hand:`
+  or `checked:`); skips `data/not-verbs.tsv`. `data/tables.tsv` holds the hand
+  tables of verbs the conjugator does not build (`manual` flag).
+- `scripts/lib/verbs.mjs` — reads the list and the hand tables, gives a listed
+  verb's forms; `verbs.test.mjs` checks the list (part of `npm test`).
+- `scripts/review-list.mjs` — writes the list's review page (HTML, Russian)
+  for a person to approve.
 - `scripts/lib/conjugate.mjs` — the model conjugator: root + binyan + flags →
   forms in classical nikud and plene spelling. Its header lists the flags and
   what is not covered yet. Tested by `scripts/lib/conjugate.test.mjs` against
@@ -73,7 +79,7 @@ data/verbs.tsv` the verb list (no Wiktionary table: Hspell spelling only);
 What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` ~0.5 s;
 `wiktionary.mjs` ~0.5 s per cached page, ~2.5 s per lemma uncached (up to three
 titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
-(`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s.
+(`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s; `review-list.mjs` ~0.3 s.
 
 ## Test-driven development is mandatory
 
