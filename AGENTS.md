@@ -123,7 +123,10 @@ What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` 
 titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
 (`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s; `review-list.mjs` ~0.3 s; `ru-forms.py` ~1.5 s; `build-verbs.mjs` ~0.2 s; `probe/translit.mjs` ~0.2 s;
 `fetch-emoji.mjs` ~0.3 s per new emoji (network); `set-pictures.mjs` ~0.1 s;
-`review:pictures` starts in ~1 s.
+`review:pictures` starts in ~1 s. The app: a task (`makeQuestion`) ~0.2 ms for
+`he-ru`/`ru-he` (distractors scan all verbs), ~0.005 ms for a tense game;
+`npm run check` ~3 s, of it the whole-data task test ~1 s — CI's runner is
+~2.5× slower and vitest's timeout is 5 s, so keep a test well under 2 s.
 
 ## Test-driven development is mandatory
 
@@ -153,7 +156,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   verb pools; `src/stats.ts` — a game's statistics and weights;
   `src/selection.ts` — the open verbs, the frontier and the round;
   `src/questions.ts` — the tasks, exactly one right option in the spelling
-  shown (decision 37); `src/answer.ts` — a typed headword.
+  shown (decision 37); `src/answer.ts` — a typed headword. The rules:
+  `docs/games.md`.
 - `src/testing.ts` — the real verb data for unit tests (node only).
 - `src/pictures.ts` — the illustrations' types, `parsePictures` and
   `pictureOf` (only approved pictures reach the app).
@@ -171,7 +175,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - `data/` — the hand-curated verb list, its exclusions, hand tables and
   Russian (TSV), `ru-forms.json` (generated) and `hspell.tsv` (a test
   fixture); the app's generated data is in `src/data/`.
-- `docs/` — user and design docs (`docs/data.md` — the verb data); `plans/` —
+- `docs/` — user and design docs (`docs/data.md` — the verb data,
+  `docs/games.md` — the games' rules as the core implements them); `plans/` —
   plans and reports (Russian).
 
 ## Invariants
