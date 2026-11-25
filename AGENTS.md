@@ -144,7 +144,17 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   production.
 - `src/app.ts` — DOM wiring and rendering.
 - `src/texts.ts` — every interface text (Russian).
-- `src/storage.ts` — versioned, validated settings in localStorage.
+- `src/storage.ts` — versioned, validated settings and statistics in
+  localStorage (version 2; version 1's settings are kept).
+- The core without the DOM (stage 3): `src/hebrew.ts` — nikud, final
+  letters, typed input; `src/persons.ts` — pronouns and the persons of each
+  tense (я (м.) / я (ж.) everywhere, decision 35); `src/phrases.ts` — the
+  Russian phrase after an answer; `src/games.ts` — the nine games and their
+  verb pools; `src/stats.ts` — a game's statistics and weights;
+  `src/selection.ts` — the open verbs, the frontier and the round;
+  `src/questions.ts` — the tasks, exactly one right option in the spelling
+  shown (decision 37); `src/answer.ts` — a typed headword.
+- `src/testing.ts` — the real verb data for unit tests (node only).
 - `src/pictures.ts` — the illustrations' types, `parsePictures` and
   `pictureOf` (only approved pictures reach the app).
 - `src/verbs.ts` — the verb data's types and `parseVerbs` (a shape check, so
