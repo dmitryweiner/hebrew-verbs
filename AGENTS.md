@@ -114,7 +114,8 @@ Illustrations (plan 1.4, `docs/data.md` "Illustrations"):
   on the dev server; a decision is written to `pictures.json` at once.
 - `scripts/set-pictures.mjs` — sets a batch's entries from `<id> <emoji | svg
 | none>` lines on stdin, approved (`--review pending` to ask for a review).
-- `scripts/fetch-emoji.mjs` — Twemoji copies of the emoji into `public/emoji/`
+- `scripts/fetch-emoji.mjs` — Twemoji copies of the emoji into one file,
+  `public/twemoji.json`
   (network), deletes the unused ones; rerun after changing emoji.
 
 What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` ~0.5 s;
@@ -154,7 +155,7 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   page and a reload when a new version takes control (`_conventions/pwa.md`).
 - `src/style.css` — mobile first, logical properties, light and dark.
 - `public/` — manifest, icons (`icon.svg` is the source); `pictures/` — own
-  drawings, `emoji/` — Twemoji copies.
+  drawings, `twemoji.json` — Twemoji copies.
 - `scripts/lib/harness.mjs` — Playwright plumbing; `scripts/smoke.mjs` — the
   smoke; `scripts/icons.mjs` — icon rendering.
 - `data/` — the hand-curated verb list, its exclusions, hand tables and
@@ -176,7 +177,7 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - The verb data is CC BY-SA 4.0 (Wiktionary, FrequencyWords), the code
   GPL-3.0-or-later; Hspell (AGPL) is used by build scripts and as a test
   fixture (`data/hspell.tsv`) only; nothing of it ships. The Twemoji copies in
-  `public/emoji/` are CC BY 4.0 (attribution in README).
+  `public/twemoji.json` are CC BY 4.0 (attribution in README).
 
 ## Conventions
 

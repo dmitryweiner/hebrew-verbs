@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { emojiFile, emojiParts, parsePictures } from '../pictures.ts';
@@ -12,7 +12,7 @@ const pictures = parsePictures(JSON.parse(read('pictures.json')));
 const verbs = parseVerbs(JSON.parse(read('verbs.json')));
 const entries = Object.entries(pictures);
 const drawings = resolve(import.meta.dirname, '../../public/pictures');
-const emojiDir = resolve(import.meta.dirname, '../../public/emoji');
+const twemoji: Record<string, unknown> = JSON.parse(read('../../public/twemoji.json'));
 
 const MAX_BYTES = 4096;
 const BANNED = new Set(['text', 'tspan', 'title', 'desc', 'script', 'style', 'foreignObject', 'image', 'a', 'use']);
@@ -50,20 +50,16 @@ describe('the pictures', () => {
     expect(entries.filter(([, e]) => e.review === 'redo' && !e.comment).map(([id]) => id)).toEqual([]);
   });
 
-  it('have a Twemoji copy of every emoji', () => {
-    const missing = entries.flatMap(([id, e]) =>
-      e.kind === 'emoji'
-        ? emojiParts(e.emoji)
-            .filter((part) => !existsSync(resolve(emojiDir, emojiFile(part))))
-            .map((part) => `${id} ${part}`)
-        : [],
-    );
-    expect(missing).toEqual([]);
-  });
-
-  it('ship no Twemoji copy that no entry uses', () => {
+  it('have a Twemoji copy of every emoji in one file, and no copy no entry uses', () => {
     const used = new Set(entries.flatMap(([, e]) => (e.kind === 'emoji' ? emojiParts(e.emoji).map(emojiFile) : [])));
-    expect(readdirSync(emojiDir).filter((f) => !used.has(f))).toEqual([]);
+    const copies = Object.keys(twemoji);
+    expect([...used].filter((f) => !copies.includes(f))).toEqual([]);
+    expect(copies.filter((f) => !used.has(f))).toEqual([]);
+    expect(
+      Object.entries(twemoji)
+        .filter(([, svg]) => typeof svg !== 'string' || !svg.startsWith('<svg'))
+        .map(([f]) => f),
+    ).toEqual([]);
   });
 
   it('have a drawing for every svg entry and no drawing without one', () => {

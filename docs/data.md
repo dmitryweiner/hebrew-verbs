@@ -93,9 +93,10 @@ pair of them (`{"kind":"emoji","emoji":"🚶"}`, `"🧠💭"`), an own drawing (
 `public/pictures/<id>.svg`) or an explicit "no picture" for an abstract verb
 (`{"kind":"none"}`); each with a person's `review` — `pending`, `ok` or
 `redo` (with a `comment`). The app shows only `ok` pictures
-(`pictureOf` in `src/pictures.ts`); each emoji comes with its Twemoji copy
-`public/emoji/<code points>.svg` (`scripts/fetch-emoji.mjs`) for devices
-whose font lacks it.
+(`pictureOf` in `src/pictures.ts`); each emoji comes with the name of its Twemoji
+copy (`<code points>.svg`) in `public/twemoji.json` — all copies in one
+precached file (decision 34; `scripts/fetch-emoji.mjs`) — for devices whose
+font lacks it.
 
 A drawing: a stick figure and an object, lines in `currentColor` (so it
 follows the theme) 6 wide, an object's lines 4 wide with a `currentColor`
@@ -113,5 +114,5 @@ by `?from=1&to=100`, a status by `?status=pending`. "хорошо" approves,
 ## Licences
 
 The verb data is CC BY-SA 4.0 (Wiktionary, FrequencyWords); the app's code
-GPL-3.0-or-later. The emoji copies in `public/emoji/` are Twemoji, CC BY 4.0. Hspell (AGPL) and pymorphy3 (MIT) are used by the scripts
+GPL-3.0-or-later. The emoji copies in `public/twemoji.json` are Twemoji, CC BY 4.0. Hspell (AGPL) and pymorphy3 (MIT) are used by the scripts
 and tests only; nothing of them ships.

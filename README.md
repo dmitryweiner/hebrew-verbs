@@ -41,7 +41,7 @@ their forms are conjugated by [pymorphy3](https://github.com/no-plagiarism/pymor
 (MIT, build scripts only). How the data is made: [docs/data.md](docs/data.md).
 
 Emoji images for devices without the emoji: [Twemoji](https://github.com/jdecked/twemoji)
-(CC BY 4.0), in `public/emoji/`.
+(CC BY 4.0), in `public/twemoji.json`.
 
 ## License
 

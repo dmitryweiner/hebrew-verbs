@@ -49,8 +49,8 @@ describe('pictureOf', () => {
   });
 
   it('gives an approved emoji with a fallback copy of each, an approved drawing with its file', () => {
-    expect(pictureOf(pictures, 'הלך')).toEqual({ kind: 'emoji', emoji: '🚶', fallbacks: ['emoji/1f6b6.svg'] });
-    expect(pictureOf(pictures, 'זכר')).toEqual({ kind: 'emoji', emoji: '🧠💭', fallbacks: ['emoji/1f9e0.svg', 'emoji/1f4ad.svg'] });
+    expect(pictureOf(pictures, 'הלך')).toEqual({ kind: 'emoji', emoji: '🚶', twemoji: ['1f6b6.svg'] });
+    expect(pictureOf(pictures, 'זכר')).toEqual({ kind: 'emoji', emoji: '🧠💭', twemoji: ['1f9e0.svg', '1f4ad.svg'] });
     expect(pictureOf(pictures, 'ישב')).toEqual({ kind: 'svg', src: 'pictures/ישב.svg' });
   });
 

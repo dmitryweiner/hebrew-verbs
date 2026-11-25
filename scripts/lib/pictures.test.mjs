@@ -85,7 +85,8 @@ describe('reviewPage', () => {
     ישב: { kind: 'svg', review: 'redo', comment: 'стул "ниже"' },
   };
   const drawings = new Map([['ישב', '<svg viewBox="0 0 128 128"><path d="M0 0"/></svg>']]);
-  const page = (query) => reviewPage({ verbs, pictures, drawings, query: new URLSearchParams(query) });
+  const twemoji = { '1f6b6.svg': '<svg id="walk"/>' };
+  const page = (query) => reviewPage({ verbs, pictures, drawings, twemoji, query: new URLSearchParams(query) });
 
   it('shows the verbs with a picture entry in order of frequency', () => {
     expect(cards(page(''))).toEqual(['ידע', 'הלך', 'ישב']);
@@ -100,7 +101,7 @@ describe('reviewPage', () => {
   it('shows a drawing inline, an emoji with its Twemoji copy, escapes the texts', () => {
     const html = page('');
     expect(html).toContain('<path d="M0 0"/>');
-    expect(html).toContain('emoji/1f6b6.svg');
+    expect(html).toContain(`data:image/svg+xml,${encodeURIComponent('<svg id="walk"/>')}`);
     expect(html).toContain('&lt;садиться&gt;');
     expect(html).toContain('стул &quot;ниже&quot;');
   });

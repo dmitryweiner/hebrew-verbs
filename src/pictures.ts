@@ -14,8 +14,12 @@ export type PictureEntry = ({ kind: 'emoji'; emoji: string } | { kind: 'svg' } |
 /** Entries by verb id. */
 export type Pictures = Record<string, PictureEntry>;
 
-/** What the app shows: emoji (one or a pair, 🧠💭) with a Twemoji copy of each for devices without it, or a drawing. */
-export type Picture = { kind: 'emoji'; emoji: string; fallbacks: string[] } | { kind: 'svg'; src: string };
+/**
+ * What the app shows: emoji (one or a pair, 🧠💭) or a drawing. twemoji names
+ * each emoji's copy in public/twemoji.json (one file, file name → SVG) for a
+ * device whose font lacks it.
+ */
+export type Picture = { kind: 'emoji'; emoji: string; twemoji: string[] } | { kind: 'svg'; src: string };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 const isString = (value: unknown): value is string => typeof value === 'string' && value !== '';
@@ -62,7 +66,7 @@ export function pictureOf(pictures: Pictures, id: string): Picture | undefined {
   const entry = pictures[id];
   if (!entry || entry.review !== 'ok') return undefined;
   if (entry.kind === 'emoji') {
-    return { kind: 'emoji', emoji: entry.emoji, fallbacks: emojiParts(entry.emoji).map((e) => `emoji/${emojiFile(e)}`) };
+    return { kind: 'emoji', emoji: entry.emoji, twemoji: emojiParts(entry.emoji).map(emojiFile) };
   }
   if (entry.kind === 'svg') return { kind: 'svg', src: `pictures/${id}.svg` };
   return undefined;

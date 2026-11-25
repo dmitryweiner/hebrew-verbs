@@ -7,12 +7,13 @@
 //   npm run review:pictures   → http://localhost:5398/review-pictures
 //   …/review-pictures?from=1&to=100&status=pending   (a batch, a status)
 //
-// Reads src/data/verbs.json, src/data/pictures.json, public/pictures/.
+// Reads src/data/verbs.json, src/data/pictures.json, public/pictures/,
+// public/twemoji.json.
 
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createServer } from 'vite';
-import { applyReview, DRAWINGS_DIR, PICTURES_FILE, readPictures, reviewPage, serializePictures } from './lib/pictures.mjs';
+import { applyReview, DRAWINGS_DIR, PICTURES_FILE, readPictures, readTwemoji, reviewPage, serializePictures } from './lib/pictures.mjs';
 
 const PORT = 5398;
 const PATH = '/review-pictures';
@@ -58,7 +59,7 @@ async function handle(req, res) {
     );
     const query = new URL(req.url ?? '', 'http://localhost').searchParams;
     res.setHeader('content-type', 'text/html; charset=utf-8');
-    res.end(reviewPage({ verbs, pictures, drawings, query }));
+    res.end(reviewPage({ verbs, pictures, drawings, twemoji: readTwemoji(), query }));
   } catch (error) {
     res.statusCode = 400;
     res.end(String(error instanceof Error ? error.message : error));

@@ -1,49 +1,47 @@
-// Downloads the Twemoji SVG of every emoji (each of a pair) in src/data/pictures.json into
-// public/emoji/: the app shows it instead of an emoji the device's font
-// lacks (old phones). Twemoji graphics are CC BY 4.0 (jdecked/twemoji).
-// Files already there are kept, copies no entry uses any more are deleted.
-// Rerun after changing emoji in pictures.json;
-// src/data/pictures.test.ts fails while a copy is missing.
+// Keeps public/twemoji.json — the Twemoji SVG of every emoji (each of a pair)
+// in src/data/pictures.json, one file (Twemoji file name → SVG), precached
+// by the service worker: the app shows a copy instead of an emoji the
+// device's font lacks (old phones). Twemoji graphics are CC BY 4.0
+// (jdecked/twemoji). Downloads the missing copies, drops the ones no entry
+// uses any more. Rerun after changing emoji in pictures.json;
+// src/data/pictures.test.ts fails while the file is not up to date.
 //
 //   node scripts/fetch-emoji.mjs
 
-import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, writeFileSync } from 'node:fs';
 import { emojiFile, emojiParts } from '../src/pictures.ts';
-import { readPictures } from './lib/pictures.mjs';
+import { readPictures, readTwemoji, serializeTwemoji, TWEMOJI_FILE } from './lib/pictures.mjs';
 
 const BASE = 'https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/';
-const OUT = resolve(import.meta.dirname, '../public/emoji');
 
 const codePoints = (emoji) => [...emoji].map((ch) => ch.codePointAt(0).toString(16));
 
-mkdirSync(OUT, { recursive: true });
+const old = existsSync(TWEMOJI_FILE) ? readTwemoji() : {};
 const emoji = [...new Set(Object.values(readPictures()).flatMap((e) => (e.kind === 'emoji' ? emojiParts(e.emoji) : [])))];
-const used = new Set(emoji.map(emojiFile));
-for (const file of readdirSync(OUT).filter((f) => !used.has(f))) {
-  rmSync(resolve(OUT, file));
-  console.log('del ', file);
-}
+const copies = {};
 let failed = 0;
 for (const e of emoji) {
-  const target = resolve(OUT, emojiFile(e));
-  if (existsSync(target)) continue;
+  const name = emojiFile(e);
+  if (old[name]) {
+    copies[name] = old[name];
+    continue;
+  }
   // Twemoji keeps ZWJ sequences with FE0F, single emoji without.
-  const candidates = [emojiFile(e), `${codePoints(e).join('-')}.svg`];
-  let svg;
-  for (const name of candidates) {
-    const res = await fetch(BASE + name);
+  const candidates = [name, `${codePoints(e).join('-')}.svg`];
+  for (const file of candidates) {
+    const res = await fetch(BASE + file);
     if (res.ok) {
-      svg = await res.text();
+      copies[name] = (await res.text()).trim();
       break;
     }
   }
-  if (svg) {
-    writeFileSync(target, svg);
-    console.log('ok  ', e, emojiFile(e));
-  } else {
+  if (copies[name]) console.log('ok  ', e, name);
+  else {
     failed++;
     console.error('FAIL', e, candidates.join(' / '));
   }
 }
+for (const name of Object.keys(old).filter((n) => !copies[n])) console.log('del ', name);
+writeFileSync(TWEMOJI_FILE, serializeTwemoji(copies));
+console.log(`${Object.keys(copies).length} copies`);
 process.exit(failed ? 1 : 0);

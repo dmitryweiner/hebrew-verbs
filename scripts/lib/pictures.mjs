@@ -9,8 +9,19 @@ import { emojiFile, emojiParts } from '../../src/pictures.ts';
 
 export const PICTURES_FILE = resolve(import.meta.dirname, '../../src/data/pictures.json');
 export const DRAWINGS_DIR = resolve(import.meta.dirname, '../../public/pictures');
+/** The Twemoji copies, one file: Twemoji file name → SVG (scripts/fetch-emoji.mjs). */
+export const TWEMOJI_FILE = resolve(import.meta.dirname, '../../public/twemoji.json');
 
 export const readPictures = () => JSON.parse(readFileSync(PICTURES_FILE, 'utf8'));
+export const readTwemoji = () => JSON.parse(readFileSync(TWEMOJI_FILE, 'utf8'));
+
+/** The Twemoji file's text: one copy a line, by file name. */
+export function serializeTwemoji(copies) {
+  const lines = Object.keys(copies)
+    .toSorted()
+    .map((name) => `${JSON.stringify(name)}: ${JSON.stringify(copies[name])}`);
+  return `{\n${lines.join(',\n')}\n}\n`;
+}
 
 /** The file's text; ranks maps a verb id to its rank. */
 export function serializePictures(pictures, ranks) {
@@ -70,9 +81,9 @@ const escape = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', 
  * The review page (Russian, like the app): a card per verb with a picture
  * entry, in order of frequency, the picture on a light and a dark ground, the
  * status, a comment and the decisions. query: from, to (ranks), status.
- * drawings maps a verb id to its SVG source.
+ * drawings maps a verb id to its SVG source, twemoji is public/twemoji.json.
  */
-export function reviewPage({ verbs, pictures, drawings, query }) {
+export function reviewPage({ verbs, pictures, drawings, twemoji, query }) {
   const from = Number(query.get('from') ?? 1);
   const to = Number(query.get('to') ?? Infinity);
   const status = query.get('status');
@@ -82,7 +93,7 @@ export function reviewPage({ verbs, pictures, drawings, query }) {
       ? (drawings.get(v.id) ?? '<p>нет файла</p>')
       : e.kind === 'emoji'
         ? `<span class="emoji">${e.emoji}</span><span class="twemoji">${emojiParts(e.emoji)
-            .map((part) => `<img src="emoji/${emojiFile(part)}" alt="">`)
+            .map((part) => `<img src="data:image/svg+xml,${encodeURIComponent(twemoji[emojiFile(part)] ?? '')}" alt="">`)
             .join('')}</span>`
         : '<p>без картинки</p>';
   const card = (v) => {
