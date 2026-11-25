@@ -34,10 +34,21 @@ export type Question =
 export const spell = (form: { nikud: string; plain: string }, spelling: Spelling): string => form[spelling];
 
 const normalizeRu = (text: string) => text.toLowerCase().replaceAll('ё', 'е');
+/** A verb's translations, normalized once: distractors compare a verb with every other. */
+const translations = new WeakMap<Verb, string[]>();
+
+function translationsOf(verb: Verb): string[] {
+  let ru = translations.get(verb);
+  if (!ru) {
+    ru = verb.ru.map(normalizeRu);
+    translations.set(verb, ru);
+  }
+  return ru;
+}
 
 export function sharesTranslation(a: Verb, b: Verb): boolean {
-  const ru = new Set(a.ru.map(normalizeRu));
-  return b.ru.some((t) => ru.has(normalizeRu(t)));
+  const ru = translationsOf(b);
+  return translationsOf(a).some((t) => ru.includes(t));
 }
 
 const pick = <T>(items: readonly T[], rng: Random): T | undefined => items[Math.floor(rng() * items.length)];
