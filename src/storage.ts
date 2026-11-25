@@ -1,3 +1,6 @@
+import { isGameId, type GameId } from './games';
+import { START_OPEN, type GameStats, type VerbStat } from './stats';
+
 export interface Settings {
   /** Show verb forms with nikud (else the plene spelling without it). */
   nikud: boolean;
@@ -5,38 +8,87 @@ export interface Settings {
   translit: boolean;
 }
 
+/** Statistics by game; a game never played is absent. */
+export type Stats = Partial<Record<GameId, GameStats>>;
+
+export interface SavedState {
+  settings: Settings;
+  stats: Stats;
+}
+
 export type KeyValueStorage = Pick<Storage, 'getItem' | 'setItem'>;
 
 export const STORAGE_KEY = __APP_ID__;
-const VERSION = 1;
+/** 2: statistics added; version 1 held the settings only, they are kept. */
+const VERSION = 2;
 
 export const DEFAULT_SETTINGS: Settings = { nikud: true, translit: true };
 
+export function emptyState(): SavedState {
+  return { settings: { ...DEFAULT_SETTINGS }, stats: {} };
+}
+
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 const isBoolean = (value: unknown): value is boolean => typeof value === 'boolean';
+const isCount = (value: unknown): value is number => Number.isInteger(value) && typeof value === 'number' && value >= 0;
 
-/** Saved settings; unreadable data is replaced with defaults, field by field. */
-export function loadSettings(storage: KeyValueStorage | null): Settings {
+function parseSettings(value: unknown): Settings {
+  if (!isRecord(value)) return { ...DEFAULT_SETTINGS };
+  const { nikud, translit } = value;
+  return {
+    nikud: isBoolean(nikud) ? nikud : DEFAULT_SETTINGS.nikud,
+    translit: isBoolean(translit) ? translit : DEFAULT_SETTINGS.translit,
+  };
+}
+
+function parseVerbStat(value: unknown): VerbStat | undefined {
+  if (!isRecord(value)) return undefined;
+  const { shown, correct, wrong, streak, lastSeen } = value;
+  if (!isCount(shown) || !isCount(correct) || !isCount(wrong) || !isCount(streak)) return undefined;
+  if (correct + wrong !== shown || streak > correct) return undefined;
+  if (lastSeen !== null && !(typeof lastSeen === 'number' && Number.isFinite(lastSeen))) return undefined;
+  return { shown, correct, wrong, streak, lastSeen };
+}
+
+function parseStats(value: unknown): Stats {
+  if (!isRecord(value)) return {};
+  const stats: Stats = {};
+  for (const [game, entry] of Object.entries(value)) {
+    if (!isGameId(game) || !isRecord(entry)) continue;
+    const verbs: Record<string, VerbStat> = {};
+    if (isRecord(entry.verbs))
+      for (const [id, raw] of Object.entries(entry.verbs)) {
+        const stat = parseVerbStat(raw);
+        if (stat) verbs[id] = stat;
+      }
+    stats[game] = { open: isCount(entry.open) && entry.open > 0 ? entry.open : START_OPEN, verbs };
+  }
+  return stats;
+}
+
+/** The saved state; unreadable data is replaced with defaults, field by field. */
+export function loadState(storage: KeyValueStorage | null): SavedState {
   try {
     const raw = storage?.getItem(STORAGE_KEY);
-    if (!raw) return { ...DEFAULT_SETTINGS };
+    if (!raw) return emptyState();
     const data: unknown = JSON.parse(raw);
-    if (!isRecord(data) || data.version !== VERSION || !isRecord(data.settings)) return { ...DEFAULT_SETTINGS };
-    const { nikud, translit } = data.settings;
-    return {
-      nikud: isBoolean(nikud) ? nikud : DEFAULT_SETTINGS.nikud,
-      translit: isBoolean(translit) ? translit : DEFAULT_SETTINGS.translit,
-    };
+    if (!isRecord(data)) return emptyState();
+    if (data.version === 1) return { settings: parseSettings(data.settings), stats: {} };
+    if (data.version !== VERSION || !isRecord(data.settings)) return emptyState();
+    return { settings: parseSettings(data.settings), stats: parseStats(data.stats) };
   } catch {
-    return { ...DEFAULT_SETTINGS };
+    return emptyState();
   }
 }
 
-export function saveSettings(storage: KeyValueStorage | null, settings: Settings): void {
+/** Saves the state; false when storage is unavailable or full (the app keeps working without saving). */
+export function saveState(storage: KeyValueStorage | null, state: SavedState): boolean {
+  if (!storage) return false;
   try {
-    storage?.setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, settings }));
+    storage.setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, ...state }));
+    return true;
   } catch {
-    // Private mode or full storage: the app keeps working without saving.
+    return false;
   }
 }
 
