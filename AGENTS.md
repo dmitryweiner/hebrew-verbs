@@ -115,8 +115,8 @@ Illustrations (plan 1.4, `docs/data.md` "Illustrations"):
 - `scripts/set-pictures.mjs` — sets a batch's entries from `<id> <emoji | svg
 | none>` lines on stdin, approved (`--review pending` to ask for a review).
 - `scripts/fetch-emoji.mjs` — Twemoji copies of the emoji into one file,
-  `public/twemoji.json`
-  (network), deletes the unused ones; rerun after changing emoji.
+  `public/twemoji.json` (network), drops the unused ones; rerun after
+  changing emoji.
 
 What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` ~0.5 s;
 `wiktionary.mjs` ~0.5 s per cached page, ~2.5 s per lemma uncached (up to three
@@ -190,6 +190,10 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - Do not change the stored format without bumping `VERSION` in
   `src/storage.ts` and a test for the reset or migration.
 - No `as` casts in app code; a disabled lint rule carries its reason.
+- Scripts import the app's pure modules straight from `src/*.ts` (Node 24
+  strips the types: `scripts/lib/pictures.mjs` uses `src/pictures.ts`), so
+  the logic is not copied; such a module keeps to erasable TypeScript (no
+  `enum`, no parameter properties).
 - A helper script that may be needed again goes to `scripts/` with a header
   comment and a line in this file. A new browser check is a step or a flag in
   `scripts/smoke.mjs`, not a new file.

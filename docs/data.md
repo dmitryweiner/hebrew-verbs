@@ -89,12 +89,12 @@ Russian person and gender come from the Hebrew pronoun: я (м.) / я (ж.) →
 ## Illustrations
 
 Plan 1.4. `src/data/pictures.json` gives a verb, by id, one of: an emoji or a
-pair of them (`{"kind":"emoji","emoji":"🚶"}`, `"🧠💭"`), an own drawing (`{"kind":"svg"}`, the file
-`public/pictures/<id>.svg`) or an explicit "no picture" for an abstract verb
+pair of them (`{"kind":"emoji","emoji":"🚶"}`, `"🧠💭"`), an own drawing
+(`{"kind":"svg"}`, the file `public/pictures/<id>.svg`) or an explicit "no picture" for an abstract verb
 (`{"kind":"none"}`); each with a person's `review` — `pending`, `ok` or
 `redo` (with a `comment`). The app shows only `ok` pictures
-(`pictureOf` in `src/pictures.ts`); each emoji comes with the name of its Twemoji
-copy (`<code points>.svg`) in `public/twemoji.json` — all copies in one
+(`pictureOf` in `src/pictures.ts`); each emoji comes with the name of its
+Twemoji copy (`<code points>.svg`) in `public/twemoji.json` — all copies in one
 precached file (decision 34; `scripts/fetch-emoji.mjs`) — for devices whose
 font lacks it.
 
@@ -106,13 +106,14 @@ checks the rules.
 
 A batch is set with `scripts/set-pictures.mjs` and goes in approved (decision
 32: a picture is an aid, no review needed); the review page is for a spot
-check. Review: `npm run review:pictures` — the cards in order of frequency, a batch
-by `?from=1&to=100`, a status by `?status=pending`. "хорошо" approves,
+check. Review: `npm run review:pictures` — the cards in order of frequency,
+a batch by `?from=1&to=100`, a status by `?status=pending`. "хорошо" approves,
 "переделать" needs a comment, "убрать картинку" makes the verb an approved
 "no picture" and deletes its drawing.
 
 ## Licences
 
 The verb data is CC BY-SA 4.0 (Wiktionary, FrequencyWords); the app's code
-GPL-3.0-or-later. The emoji copies in `public/twemoji.json` are Twemoji, CC BY 4.0. Hspell (AGPL) and pymorphy3 (MIT) are used by the scripts
-and tests only; nothing of them ships.
+GPL-3.0-or-later. The emoji copies in `public/twemoji.json` are Twemoji, CC
+BY 4.0. Hspell (AGPL) and pymorphy3 (MIT) are used by the scripts and tests
+only; nothing of them ships.

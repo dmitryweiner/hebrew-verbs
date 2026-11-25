@@ -77,6 +77,7 @@
 
 ## Дальше
 
-PR этапа 2а. Показ картинок в приложении — этапы 4 и 6 (`pictureOf`;
+PR этапа 2а — https://github.com/dmitryweiner/hebrew-verbs/pull/2, CI
+зелёный, ждёт слияния (слияние публикует сайт). Показ картинок в приложении — этапы 4 и 6 (`pictureOf`;
 эмодзи, которого нет в шрифте, — копией из `twemoji.json`, проверка шрифта
 как в `hebrew-train/src/utils/emojiSupport.ts`).
