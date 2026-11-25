@@ -143,12 +143,23 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 
 ## Layout
 
-- `src/main.ts` — entry: starts the app, registers the service worker in
-  production.
-- `src/app.ts` — DOM wiring and rendering.
+- `src/main.ts` — entry: fetches the data files (`?url` imports of
+  `src/data/*.json`), starts the app with the browser's storage, speech and
+  emoji support, registers the service worker in production.
+- `src/app.ts` — loads and checks the data, keeps the saved state, shows the
+  view of the hash route; `src/routes.ts` — the routes (`#/`, `#/settings`,
+  `#/part/1/he-ru`, `#/part/2/form`).
+- `src/views/` — `home.ts` (the parts and each game's progress), `game.ts`
+  (a round, its feedback and results), `settings.ts`, `picture.ts` (emoji,
+  Twemoji copy or drawing); `context.ts` — what a view gets from the app;
+  `src/dom.ts` — element builder and an isolated Hebrew word.
+- `src/round.ts` — a round: its tasks, the answers, the round of mistakes.
+- `src/speech.ts` — the Hebrew voice of `speechSynthesis`; `src/emoji.ts` —
+  the canvas test whether the font draws an emoji, the Twemoji copies.
 - `src/texts.ts` — every interface text (Russian).
 - `src/storage.ts` — versioned, validated settings and statistics in
-  localStorage (version 2; version 1's settings are kept).
+  localStorage (version 3: the `autoNext` setting; version 2 is read as it
+  is, version 1's settings are kept).
 - The core without the DOM (stage 3): `src/hebrew.ts` — nikud, final
   letters, typed input; `src/persons.ts` — pronouns and the persons of each
   tense (я (м.) / я (ж.) everywhere, decision 35); `src/phrases.ts` — the
