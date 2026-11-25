@@ -16,6 +16,9 @@ describe('texts', () => {
   });
 
   it('are all non-empty Russian strings', () => {
-    for (const [key, text] of Object.entries(texts)) expect({ key, ok: /[а-яё]/i.test(text) }).toEqual({ key, ok: true });
+    const strings = (value: unknown, key: string): [string, unknown][] =>
+      typeof value === 'object' && value !== null ? Object.entries(value).flatMap(([k, v]) => strings(v, `${key}.${k}`)) : [[key, value]];
+    for (const [key, text] of strings(texts, 'texts'))
+      expect({ key, ok: typeof text === 'string' && /[а-яё]/i.test(text) }).toEqual({ key, ok: true });
   });
 });
