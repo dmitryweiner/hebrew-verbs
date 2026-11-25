@@ -15,6 +15,8 @@ The shared conventions behind this setup are in `~/projects/CLAUDE.md` and
   100 verbs; the conjugator approach.
 - `plans/2026-11-24-stage2-progress.md` — stage 2 (data pipeline): progress
   and the decisions taken on the way.
+- `plans/2026-11-24-stage2a-progress.md` — stage 2a (illustrations): the
+  style, the batches and their review.
 
 ## Commands
 
@@ -30,6 +32,8 @@ Node.js — the version in `.node-version` (`fnm use`; check `node -v`).
 - `npm run build` — typecheck and build into `dist/`.
 - `npm run format` — prettier.
 - `npm run icons` — render the PWA PNG icons from `public/icon.svg`.
+- `npm run review:pictures` — the illustrations' review page on a dev server
+  (port 5398): http://localhost:5398/review-pictures.
 
 CI (`.github/workflows/ci.yml`) runs `check` and the preview smoke on every
 push and PR; a push to `main` publishes `dist/` to GitHub Pages.
@@ -100,10 +104,26 @@ data/verbs.tsv` the verb list (no Wiktionary table: Hspell spelling only);
 - `scripts/probe/wiktionary-coverage.mjs` — how many of the top verbs have a
   Wiktionary table.
 
+Illustrations (plan 1.4, `docs/data.md` "Illustrations"):
+
+- `src/data/pictures.json` — a verb's picture (emoji, own drawing
+  `public/pictures/<id>.svg`, or none) and its review; one verb a line,
+  written by `scripts/lib/pictures.mjs`; `src/data/pictures.test.ts` holds
+  the drawing rules.
+- `scripts/review-pictures.mjs` (`npm run review:pictures`) — the review page
+  on the dev server; a decision is written to `pictures.json` at once.
+- `scripts/set-pictures.mjs` — sets a batch's entries from `<id> <emoji | svg
+| none>` lines on stdin, approved (`--review pending` to ask for a review).
+- `scripts/fetch-emoji.mjs` — Twemoji copies of the emoji into one file,
+  `public/twemoji.json` (network), drops the unused ones; rerun after
+  changing emoji.
+
 What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` ~0.5 s;
 `wiktionary.mjs` ~0.5 s per cached page, ~2.5 s per lemma uncached (up to three
 titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
-(`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s; `review-list.mjs` ~0.3 s; `ru-forms.py` ~1.5 s; `build-verbs.mjs` ~0.2 s; `probe/translit.mjs` ~0.2 s.
+(`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s; `review-list.mjs` ~0.3 s; `ru-forms.py` ~1.5 s; `build-verbs.mjs` ~0.2 s; `probe/translit.mjs` ~0.2 s;
+`fetch-emoji.mjs` ~0.3 s per new emoji (network); `set-pictures.mjs` ~0.1 s;
+`review:pictures` starts in ~1 s.
 
 ## Test-driven development is mandatory
 
@@ -125,6 +145,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - `src/app.ts` — DOM wiring and rendering.
 - `src/texts.ts` — every interface text (Russian).
 - `src/storage.ts` — versioned, validated settings in localStorage.
+- `src/pictures.ts` — the illustrations' types, `parsePictures` and
+  `pictureOf` (only approved pictures reach the app).
 - `src/verbs.ts` — the verb data's types and `parseVerbs` (a shape check, so
   the data is read without casts); `src/data/verbs.json` — the data (~3 MB,
   ~410 KB gzip), `src/data/verbs.test.ts` — its test.
@@ -132,7 +154,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   `src/pwa.ts` — its registration, an update check on every return to the
   page and a reload when a new version takes control (`_conventions/pwa.md`).
 - `src/style.css` — mobile first, logical properties, light and dark.
-- `public/` — manifest, icons (`icon.svg` is the source).
+- `public/` — manifest, icons (`icon.svg` is the source); `pictures/` — own
+  drawings, `twemoji.json` — Twemoji copies.
 - `scripts/lib/harness.mjs` — Playwright plumbing; `scripts/smoke.mjs` — the
   smoke; `scripts/icons.mjs` — icon rendering.
 - `data/` — the hand-curated verb list, its exclusions, hand tables and
@@ -153,7 +176,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   lessons in `~/projects/CLAUDE.md`.
 - The verb data is CC BY-SA 4.0 (Wiktionary, FrequencyWords), the code
   GPL-3.0-or-later; Hspell (AGPL) is used by build scripts and as a test
-  fixture (`data/hspell.tsv`) only; nothing of it ships.
+  fixture (`data/hspell.tsv`) only; nothing of it ships. The Twemoji copies in
+  `public/twemoji.json` are CC BY 4.0 (attribution in README).
 
 ## Conventions
 
@@ -166,6 +190,10 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - Do not change the stored format without bumping `VERSION` in
   `src/storage.ts` and a test for the reset or migration.
 - No `as` casts in app code; a disabled lint rule carries its reason.
+- Scripts import the app's pure modules straight from `src/*.ts` (Node 24
+  strips the types: `scripts/lib/pictures.mjs` uses `src/pictures.ts`), so
+  the logic is not copied; such a module keeps to erasable TypeScript (no
+  `enum`, no parameter properties).
 - A helper script that may be needed again goes to `scripts/` with a header
   comment and a line in this file. A new browser check is a step or a flag in
   `scripts/smoke.mjs`, not a new file.
