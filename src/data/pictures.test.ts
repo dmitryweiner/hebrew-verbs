@@ -42,6 +42,10 @@ describe('the pictures', () => {
     expect(entries.filter(([id]) => !ids.has(id)).map(([id]) => id)).toEqual([]);
   });
 
+  it('cover every verb', () => {
+    expect(verbs.filter((v) => !pictures[v.id]).map((v) => v.id)).toEqual([]);
+  });
+
   it('carry a comment where a drawing is to be redone', () => {
     expect(entries.filter(([, e]) => e.review === 'redo' && !e.comment).map(([id]) => id)).toEqual([]);
   });
