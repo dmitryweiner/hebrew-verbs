@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { applyReview, PICTURES_FILE, readPictures, reviewPage, serializePictures } from './pictures.mjs';
+import { applyReview, parseBatch, PICTURES_FILE, readPictures, reviewPage, serializePictures } from './pictures.mjs';
 
 const ranks = new Map([
   ['היה', 1],
@@ -103,5 +103,22 @@ describe('reviewPage', () => {
     expect(html).toContain('emoji/1f6b6.svg');
     expect(html).toContain('&lt;садиться&gt;');
     expect(html).toContain('стул &quot;ниже&quot;');
+  });
+});
+
+describe('parseBatch', () => {
+  it('reads "<id> <emoji | svg | none>" lines, skipping blanks and # comments', () => {
+    const text = '# batch\nהלך 🚶\n\nזכר 🧠💭\nישב svg\nהיה none\n';
+    expect(parseBatch(text, 'ok')).toEqual({
+      הלך: { kind: 'emoji', emoji: '🚶', review: 'ok' },
+      זכר: { kind: 'emoji', emoji: '🧠💭', review: 'ok' },
+      ישב: { kind: 'svg', review: 'ok' },
+      היה: { kind: 'none', review: 'ok' },
+    });
+  });
+
+  it('fails on a line without a picture and on a verb given twice', () => {
+    expect(() => parseBatch('הלך', 'ok')).toThrow('הלך');
+    expect(() => parseBatch('הלך 🚶\nהלך svg', 'ok')).toThrow('twice');
   });
 });

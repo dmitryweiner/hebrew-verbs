@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { emojiFile, parsePictures, pictureOf } from './pictures.ts';
+import { emojiFile, emojiParts, parsePictures, pictureOf } from './pictures.ts';
 
 describe('parsePictures', () => {
   it('reads the three kinds with a review status and an optional comment', () => {
@@ -29,17 +29,28 @@ describe('emojiFile', () => {
   });
 });
 
+describe('emojiParts', () => {
+  it('splits a pair of emoji, keeping ZWJ sequences and variation selectors whole', () => {
+    expect(emojiParts('🧠💭')).toEqual(['🧠', '💭']);
+    expect(emojiParts('🫳📦')).toEqual(['🫳', '📦']);
+    expect(emojiParts('❤️‍🩹')).toEqual(['❤️‍🩹']);
+    expect(emojiParts('▶️')).toEqual(['▶️']);
+  });
+});
+
 describe('pictureOf', () => {
   const pictures = parsePictures({
     הלך: { kind: 'emoji', emoji: '🚶', review: 'ok' },
     ישב: { kind: 'svg', review: 'ok' },
     שתה: { kind: 'svg', review: 'pending' },
     לקח: { kind: 'emoji', emoji: '🫴', review: 'redo', comment: 'непонятно' },
+    זכר: { kind: 'emoji', emoji: '🧠💭', review: 'ok' },
     ידע: { kind: 'none', review: 'ok' },
   });
 
-  it('gives an approved emoji with its fallback copy, an approved drawing with its file', () => {
-    expect(pictureOf(pictures, 'הלך')).toEqual({ kind: 'emoji', emoji: '🚶', fallback: 'emoji/1f6b6.svg' });
+  it('gives an approved emoji with a fallback copy of each, an approved drawing with its file', () => {
+    expect(pictureOf(pictures, 'הלך')).toEqual({ kind: 'emoji', emoji: '🚶', fallbacks: ['emoji/1f6b6.svg'] });
+    expect(pictureOf(pictures, 'זכר')).toEqual({ kind: 'emoji', emoji: '🧠💭', fallbacks: ['emoji/1f9e0.svg', 'emoji/1f4ad.svg'] });
     expect(pictureOf(pictures, 'ישב')).toEqual({ kind: 'svg', src: 'pictures/ישב.svg' });
   });
 

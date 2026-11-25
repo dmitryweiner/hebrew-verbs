@@ -88,12 +88,12 @@ Russian person and gender come from the Hebrew pronoun: я (м.) / я (ж.) →
 
 ## Illustrations
 
-Plan 1.4. `src/data/pictures.json` gives a verb, by id, one of: an emoji
-(`{"kind":"emoji","emoji":"🚶"}`), an own drawing (`{"kind":"svg"}`, the file
+Plan 1.4. `src/data/pictures.json` gives a verb, by id, one of: an emoji or a
+pair of them (`{"kind":"emoji","emoji":"🚶"}`, `"🧠💭"`), an own drawing (`{"kind":"svg"}`, the file
 `public/pictures/<id>.svg`) or an explicit "no picture" for an abstract verb
 (`{"kind":"none"}`); each with a person's `review` — `pending`, `ok` or
 `redo` (with a `comment`). The app shows only `ok` pictures
-(`pictureOf` in `src/pictures.ts`); an emoji comes with its Twemoji copy
+(`pictureOf` in `src/pictures.ts`); each emoji comes with its Twemoji copy
 `public/emoji/<code points>.svg` (`scripts/fetch-emoji.mjs`) for devices
 whose font lacks it.
 
@@ -103,7 +103,9 @@ fill at `fill-opacity=".15"`, `viewBox="0 0 128 128"`, no text or title (it
 must not give the answer away), at most 4 KB; `src/data/pictures.test.ts`
 checks the rules.
 
-Review: `npm run review:pictures` — the cards in order of frequency, a batch
+A batch is set with `scripts/set-pictures.mjs` and goes in approved (decision
+32: a picture is an aid, no review needed); the review page is for a spot
+check. Review: `npm run review:pictures` — the cards in order of frequency, a batch
 by `?from=1&to=100`, a status by `?status=pending`. "хорошо" approves,
 "переделать" needs a comment, "убрать картинку" makes the verb an approved
 "no picture" and deletes its drawing.

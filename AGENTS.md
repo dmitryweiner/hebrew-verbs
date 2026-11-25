@@ -112,14 +112,17 @@ Illustrations (plan 1.4, `docs/data.md` "Illustrations"):
   the drawing rules.
 - `scripts/review-pictures.mjs` (`npm run review:pictures`) — the review page
   on the dev server; a decision is written to `pictures.json` at once.
+- `scripts/set-pictures.mjs` — sets a batch's entries from `<id> <emoji | svg
+| none>` lines on stdin, approved (`--review pending` to ask for a review).
 - `scripts/fetch-emoji.mjs` — Twemoji copies of the emoji into `public/emoji/`
-  (network); rerun after adding emoji.
+  (network), deletes the unused ones; rerun after changing emoji.
 
 What costs what: `fetch-sources.sh` — seconds (network); `verb-frequency.mjs` ~0.5 s;
 `wiktionary.mjs` ~0.5 s per cached page, ~2.5 s per lemma uncached (up to three
 titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
 (`--list` ~1 s); `conjugator-golden.mjs` ~0.5 s; `verb-list.mjs` ~0.3 s; `review-list.mjs` ~0.3 s; `ru-forms.py` ~1.5 s; `build-verbs.mjs` ~0.2 s; `probe/translit.mjs` ~0.2 s;
-`fetch-emoji.mjs` ~0.3 s per new emoji (network); `review:pictures` starts in ~1 s.
+`fetch-emoji.mjs` ~0.3 s per new emoji (network); `set-pictures.mjs` ~0.1 s;
+`review:pictures` starts in ~1 s.
 
 ## Test-driven development is mandatory
 

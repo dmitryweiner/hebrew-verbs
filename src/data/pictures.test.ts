@@ -2,7 +2,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { emojiFile, parsePictures } from '../pictures.ts';
+import { emojiFile, emojiParts, parsePictures } from '../pictures.ts';
 import { parseVerbs } from '../verbs.ts';
 
 // The illustrations (plan 1.4) as the app will read them, and their files.
@@ -47,8 +47,19 @@ describe('the pictures', () => {
   });
 
   it('have a Twemoji copy of every emoji', () => {
-    const missing = entries.flatMap(([id, e]) => (e.kind === 'emoji' && !existsSync(resolve(emojiDir, emojiFile(e.emoji))) ? [id] : []));
+    const missing = entries.flatMap(([id, e]) =>
+      e.kind === 'emoji'
+        ? emojiParts(e.emoji)
+            .filter((part) => !existsSync(resolve(emojiDir, emojiFile(part))))
+            .map((part) => `${id} ${part}`)
+        : [],
+    );
     expect(missing).toEqual([]);
+  });
+
+  it('ship no Twemoji copy that no entry uses', () => {
+    const used = new Set(entries.flatMap(([, e]) => (e.kind === 'emoji' ? emojiParts(e.emoji).map(emojiFile) : [])));
+    expect(readdirSync(emojiDir).filter((f) => !used.has(f))).toEqual([]);
   });
 
   it('have a drawing for every svg entry and no drawing without one', () => {

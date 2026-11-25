@@ -5,7 +5,7 @@
 
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { emojiFile } from '../../src/pictures.ts';
+import { emojiFile, emojiParts } from '../../src/pictures.ts';
 
 export const PICTURES_FILE = resolve(import.meta.dirname, '../../src/data/pictures.json');
 export const DRAWINGS_DIR = resolve(import.meta.dirname, '../../public/pictures');
@@ -20,6 +20,22 @@ export function serializePictures(pictures, ranks) {
     .toSorted(([a], [b]) => ranks.get(a) - ranks.get(b))
     .map(([id, entry]) => `${JSON.stringify(id)}: ${JSON.stringify(entry)}`);
   return `{\n${lines.join(',\n')}\n}\n`;
+}
+
+/**
+ * Entries from "<id> <what>" lines, what = an emoji (or a pair), "svg" or
+ * "none"; blank lines and "#" comments are skipped. All get the given review.
+ */
+export function parseBatch(text, review) {
+  const entries = {};
+  for (const line of text.split('\n')) {
+    const [id, what] = line.trim().split(/\s+/);
+    if (!id || id.startsWith('#')) continue;
+    if (!what) throw new Error(`no picture for ${id}`);
+    if (entries[id]) throw new Error(`${id} is given twice`);
+    entries[id] = what === 'svg' || what === 'none' ? { kind: what, review } : { kind: 'emoji', emoji: what, review };
+  }
+  return entries;
 }
 
 /**
@@ -65,7 +81,9 @@ export function reviewPage({ verbs, pictures, drawings, query }) {
     e.kind === 'svg'
       ? (drawings.get(v.id) ?? '<p>нет файла</p>')
       : e.kind === 'emoji'
-        ? `<span class="emoji">${e.emoji}</span><img class="twemoji" src="emoji/${emojiFile(e.emoji)}" alt="">`
+        ? `<span class="emoji">${e.emoji}</span><span class="twemoji">${emojiParts(e.emoji)
+            .map((part) => `<img src="emoji/${emojiFile(part)}" alt="">`)
+            .join('')}</span>`
         : '<p>без картинки</p>';
   const card = (v) => {
     const e = pictures[v.id];
@@ -97,8 +115,8 @@ nav { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-block-end: 12px; }
 .art { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .art > div { display: grid; place-items: center; block-size: 128px; border-radius: 6px; position: relative; }
 .light { background: #fff; color: #142821; outline: 1px solid #dde; } .dark { background: #182823; color: #e4f0eb; }
-.art svg { inline-size: 112px; block-size: 112px; } .emoji { font-size: 72px; line-height: 1; }
-.twemoji { position: absolute; inset-block-end: 4px; inset-inline-end: 4px; inline-size: 24px; }
+.art svg { inline-size: 112px; block-size: 112px; } .emoji { font-size: 60px; line-height: 1; white-space: nowrap; }
+.twemoji { position: absolute; inset-block-end: 4px; inset-inline-end: 4px; } .twemoji img { inline-size: 24px; }
 textarea { box-sizing: border-box; inline-size: 100%; margin-block: 8px 4px; font: inherit; }
 .buttons { display: flex; gap: 6px; flex-wrap: wrap; } button { font: inherit; padding: 4px 10px; }
 .error { color: #c0392b; margin: 4px 0 0; min-block-size: 1em; }

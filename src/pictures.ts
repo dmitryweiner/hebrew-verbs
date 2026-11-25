@@ -14,8 +14,8 @@ export type PictureEntry = ({ kind: 'emoji'; emoji: string } | { kind: 'svg' } |
 /** Entries by verb id. */
 export type Pictures = Record<string, PictureEntry>;
 
-/** What the app shows: an emoji with its Twemoji copy for devices without it, or a drawing. */
-export type Picture = { kind: 'emoji'; emoji: string; fallback: string } | { kind: 'svg'; src: string };
+/** What the app shows: emoji (one or a pair, 🧠💭) with a Twemoji copy of each for devices without it, or a drawing. */
+export type Picture = { kind: 'emoji'; emoji: string; fallbacks: string[] } | { kind: 'svg'; src: string };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 const isString = (value: unknown): value is string => typeof value === 'string' && value !== '';
@@ -50,11 +50,20 @@ export function emojiFile(emoji: string): string {
   return `${points.join('-')}.svg`;
 }
 
+const graphemes = new Intl.Segmenter('en', { granularity: 'grapheme' });
+
+/** The single emoji of an entry's emoji: 🧠💭 is two, ❤️‍🩹 one. */
+export function emojiParts(emoji: string): string[] {
+  return Array.from(graphemes.segment(emoji), (s) => s.segment);
+}
+
 /** The approved picture of a verb, if it has one; paths are relative to the page. */
 export function pictureOf(pictures: Pictures, id: string): Picture | undefined {
   const entry = pictures[id];
   if (!entry || entry.review !== 'ok') return undefined;
-  if (entry.kind === 'emoji') return { kind: 'emoji', emoji: entry.emoji, fallback: `emoji/${emojiFile(entry.emoji)}` };
+  if (entry.kind === 'emoji') {
+    return { kind: 'emoji', emoji: entry.emoji, fallbacks: emojiParts(entry.emoji).map((e) => `emoji/${emojiFile(e)}`) };
+  }
   if (entry.kind === 'svg') return { kind: 'svg', src: `pictures/${id}.svg` };
   return undefined;
 }

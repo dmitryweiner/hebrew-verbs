@@ -1,14 +1,15 @@
-// Downloads the Twemoji SVG of every emoji in src/data/pictures.json into
+// Downloads the Twemoji SVG of every emoji (each of a pair) in src/data/pictures.json into
 // public/emoji/: the app shows it instead of an emoji the device's font
 // lacks (old phones). Twemoji graphics are CC BY 4.0 (jdecked/twemoji).
-// Files already there are kept. Rerun after adding emoji to pictures.json;
+// Files already there are kept, copies no entry uses any more are deleted.
+// Rerun after changing emoji in pictures.json;
 // src/data/pictures.test.ts fails while a copy is missing.
 //
 //   node scripts/fetch-emoji.mjs
 
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { emojiFile } from '../src/pictures.ts';
+import { emojiFile, emojiParts } from '../src/pictures.ts';
 import { readPictures } from './lib/pictures.mjs';
 
 const BASE = 'https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/';
@@ -17,7 +18,12 @@ const OUT = resolve(import.meta.dirname, '../public/emoji');
 const codePoints = (emoji) => [...emoji].map((ch) => ch.codePointAt(0).toString(16));
 
 mkdirSync(OUT, { recursive: true });
-const emoji = [...new Set(Object.values(readPictures()).flatMap((e) => (e.kind === 'emoji' ? [e.emoji] : [])))];
+const emoji = [...new Set(Object.values(readPictures()).flatMap((e) => (e.kind === 'emoji' ? emojiParts(e.emoji) : [])))];
+const used = new Set(emoji.map(emojiFile));
+for (const file of readdirSync(OUT).filter((f) => !used.has(f))) {
+  rmSync(resolve(OUT, file));
+  console.log('del ', file);
+}
 let failed = 0;
 for (const e of emoji) {
   const target = resolve(OUT, emojiFile(e));
