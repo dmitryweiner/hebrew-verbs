@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GAMES, gamePool, gameTense, isGameId } from './games';
+import { GAMES, gamePart, gamePool, gameTense, isGameId, PARTS } from './games';
 import { verbs } from './testing';
 
 describe('games', () => {
@@ -31,5 +31,13 @@ describe('games', () => {
     expect(present).toHaveLength(999);
     expect(gamePool(verbs, 'future-person').every((v) => v.future)).toBe(true);
     expect(present.map((v) => v.rank)).toEqual(present.map((v) => v.rank).toSorted((a, b) => a - b));
+  });
+
+  it('make up the four parts in order: verbs, then the present, past and future', () => {
+    expect(PARTS.flatMap((p) => p.games)).toEqual(GAMES);
+    expect(PARTS.map((p) => p.part)).toEqual([1, 2, 3, 4]);
+    expect(PARTS.map((p) => p.games.map(gameTense)[0])).toEqual([undefined, 'present', 'past', 'future']);
+    expect(gamePart('write')).toBe(1);
+    expect(gamePart('past-person')).toBe(3);
   });
 });

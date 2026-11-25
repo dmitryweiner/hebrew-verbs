@@ -21,6 +21,20 @@ export type GameId = (typeof GAMES)[number];
 
 export const isGameId = (value: unknown): value is GameId => GAMES.some((g) => g === value);
 
+export type Part = 1 | 2 | 3 | 4;
+
+/** The parts of the app (plan, section 3): the verbs, then a tense each. */
+export const PARTS: readonly { part: Part; games: readonly GameId[] }[] = [
+  { part: 1, games: ['he-ru', 'ru-he', 'write'] },
+  { part: 2, games: ['present-form', 'present-person'] },
+  { part: 3, games: ['past-form', 'past-person'] },
+  { part: 4, games: ['future-form', 'future-person'] },
+];
+
+export function gamePart(game: GameId): Part {
+  return PARTS.find((p) => p.games.includes(game))?.part ?? 1;
+}
+
 /** The tense of a game of parts 2–4. */
 export function gameTense(game: GameId): Tense | undefined {
   if (game.startsWith('present-')) return 'present';
