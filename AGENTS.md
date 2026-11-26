@@ -28,8 +28,10 @@ Node.js — the version in `.node-version` (`fnm use`; check `node -v`).
   any work is called done.
 - `npm run smoke` — browser smoke on the dev server (port 5397): the home
   page, a `he-ru` round to its results, a `past-person` round on a phone, a
-  typed answer on a phone, no horizontal scroll on the home, settings and
-  game screens (`he-ru`, `write`, `present-form`, `future-person`), the
+  typed answer on a phone, a dictionary search by a form and its card on a
+  phone, no horizontal scroll on the home, settings, dictionary (all, a form
+  found), card and game screens (`he-ru`, `write`, `present-form`,
+  `future-person`), the
   canvas emoji test (dev only); `-- --preview` builds and also checks offline mode and an
   update (port 4397); `-- --shots` saves `shots/<viewport>-<screen>.png`.
 - `npm run build` — typecheck and build into `dist/`.
@@ -128,6 +130,7 @@ titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
 `fetch-emoji.mjs` ~0.3 s per new emoji (network); `set-pictures.mjs` ~0.1 s;
 `review:pictures` starts in ~1 s. The app: a task (`makeQuestion`) ~0.2 ms for
 `he-ru`/`ru-he` (distractors scan all verbs), ~0.005 ms for a tense game;
+the dictionary's index (`searchIndex`) ~50 ms once, a query 0.2–3 ms;
 `npm run check` ~4 s, of it the whole-data task test ~1 s and the app's
 jsdom tests ~0.4 s — CI's runner is ~2.5× slower and vitest's timeout is
 5 s, so keep a test well under 2 s; `npm run smoke` ~3 s, `-- --preview`
@@ -153,12 +156,13 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   emoji support, registers the service worker in production.
 - `src/app.ts` — loads and checks the data, keeps the saved state, shows the
   view of the hash route; `src/routes.ts` — the routes (`#/`, `#/settings`,
-  `#/part/1/he-ru`, `#/part/2/form`).
+  `#/part/1/he-ru`, `#/part/2/form`, `#/dict?q=…`, `#/dict/<id>`).
 - `src/views/` — `home.ts` (the parts and each game's progress), `game.ts`
   (all nine games: a round, its feedback and results), `settings.ts`,
-  `picture.ts` (emoji, Twemoji copy or drawing); `context.ts` — what a view
-  gets from the app; `src/dom.ts` — element builder and an isolated Hebrew
-  word.
+  `dictionary.ts` (the search and its results), `verb.ts` (a verb's card),
+  `picture.ts` (emoji, Twemoji copy or drawing), `listen.ts` (🔊 buttons and
+  the no-voice line); `context.ts` — what a view gets from the app;
+  `src/dom.ts` — element builder and an isolated Hebrew word.
 - `src/round.ts` — a round: its tasks, the answers, the round of mistakes.
 - `src/speech.ts` — the Hebrew voice of `speechSynthesis`; `src/emoji.ts` —
   the canvas test whether the font draws an emoji, the Twemoji copies.
@@ -174,7 +178,9 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   `src/selection.ts` — the open verbs, the frontier and the round;
   `src/questions.ts` — the tasks, exactly one right option in the spelling
   shown (decision 37); `src/answer.ts` — a typed headword. The rules:
-  `docs/games.md`.
+  `docs/games.md`. `src/search.ts` — the dictionary's search (by any form,
+  root or Russian, `docs/dictionary.md`); `src/binyanim.ts` — the binyanim's
+  Hebrew names.
 - `src/testing.ts` — the real verb data for unit tests (node and jsdom tests;
   reads the file, never shipped).
 - `src/pictures.ts` — the illustrations' types, `parsePictures` and
@@ -196,7 +202,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   Russian (TSV), `ru-forms.json` (generated) and `hspell.tsv` (a test
   fixture); the app's generated data is in `src/data/`.
 - `docs/` — user and design docs (`docs/data.md` — the verb data,
-  `docs/games.md` — the games' rules and how the app shows them); `plans/` —
+  `docs/games.md` — the games' rules and how the app shows them,
+  `docs/dictionary.md` — the search and the card); `plans/` —
   plans and reports (Russian).
 
 ## Invariants

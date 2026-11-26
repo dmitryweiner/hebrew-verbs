@@ -12,10 +12,12 @@ import { labelOf, withPronoun } from '../persons';
 import { ruPhrase } from '../phrases';
 import { pictureOf } from '../pictures';
 import { personsWith, type Question } from '../questions';
+import { hashOf } from '../routes';
 import { current, mistakes, newRound, record, retryRound, type Round } from '../round';
 import { fill, texts } from '../texts';
 import type { Verb } from '../verbs';
 import type { AppContext } from './context';
+import { listening } from './listen';
 import { pictureElement } from './picture';
 
 /** How long a right answer stays on screen before the next task, with autoNext on. */
@@ -38,35 +40,13 @@ export function gameView(game: GameId) {
     let timer: ReturnType<typeof setTimeout> | undefined;
     /** Digit keys 1–4 pick an option while a choice task waits for an answer. */
     let pickByKey: ((index: number) => void) | undefined;
-    const listenButtons = new Set<HTMLButtonElement>();
 
     const he = (form: { nikud: string; plain: string; translit: string }) => hebrewWord(form, round.spelling, translit);
     const word = (verb: Verb) => he(verb.lemma);
     const tense = gameTense(game);
 
-    function updateListen() {
-      const voice = ctx.speaker.voice() !== null;
-      for (const button of listenButtons) {
-        if (!button.isConnected) listenButtons.delete(button);
-        else button.disabled = !voice;
-      }
-      root.querySelector('.no-voice')?.toggleAttribute('hidden', voice);
-    }
-
-    /** 🔊 for a text with nikud: the headword, a form, a phrase. */
-    function listen(text: string): HTMLButtonElement {
-      const button = h('button', { type: 'button', class: 'listen', 'aria-label': texts.game.listen, title: texts.game.listen }, '🔊');
-      button.disabled = ctx.speaker.voice() === null;
-      button.addEventListener('click', () => {
-        clearTimeout(timer); // listening after a right answer: stay on it
-        ctx.speaker.say(text);
-      });
-      listenButtons.add(button);
-      return button;
-    }
-
-    const noVoice = () =>
-      h('p', { class: 'no-voice', hidden: ctx.speaker.voice() !== null }, h('a', { href: '#/settings' }, texts.game.noVoice));
+    // Listening after a right answer: stay on it.
+    const { listen, noVoice, stop: stopListening } = listening(ctx, () => clearTimeout(timer));
 
     function head(): HTMLElement {
       const n = round.results.length;
@@ -285,7 +265,12 @@ export function gameView(game: GameId) {
           'li',
           { class: ok ? 'good' : 'bad' },
           h('span', { class: 'mark', 'aria-label': ok ? texts.game.right : texts.game.wrong }, ok ? '✓' : '✗'),
-          isTense(q) ? he(withPronoun(q.person, q.form)) : word(q.verb),
+          // The round is over: a verb opens its card.
+          h(
+            'a',
+            { class: 'to-card', href: hashOf({ page: 'verb', id: q.verb.id }) },
+            isTense(q) ? he(withPronoun(q.person, q.form)) : word(q.verb),
+          ),
           h('span', { class: 'ru' }, isTense(q) ? ruPhrase(q.verb, q.person) : translations(q.verb)),
         );
       });
@@ -318,12 +303,11 @@ export function gameView(game: GameId) {
       if (pickByKey && !event.ctrlKey && !event.metaKey && !event.altKey && index >= 0 && index < 4) pickByKey(index);
     };
     document.addEventListener('keydown', onKey);
-    const stopWatching = ctx.speaker.watch(updateListen);
     showTask();
     return () => {
       clearTimeout(timer);
       document.removeEventListener('keydown', onKey);
-      stopWatching();
+      stopListening();
     };
   };
 }

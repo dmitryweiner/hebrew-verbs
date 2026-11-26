@@ -6,13 +6,14 @@ import { startApp, type AppOptions } from './app';
 import type { EmojiSupport } from './emoji';
 import { formOf, labelOf, personsOf, PRONOUNS, withPronoun, type Person, type Tense } from './persons';
 import { ruPhrase } from './phrases';
-import { parsePictures } from './pictures';
+import { parsePictures, pictureOf } from './pictures';
+import { hashOf, routeOf } from './routes';
 import { personsWith } from './questions';
 import { seededRandom } from './selection';
 import type { Speaker } from './speech';
 import { loadState, saveState, STORAGE_KEY, type KeyValueStorage } from './storage';
 import { verb, verbs } from './testing';
-import { texts } from './texts';
+import { fill, texts } from './texts';
 import type { Verb } from './verbs';
 import { CORRECT_DELAY } from './views/game';
 
@@ -231,6 +232,7 @@ describe('a choice game', () => {
     expect(options().right).toBeGreaterThanOrEqual(0);
     expect(progress()).toBe(0);
     expect($('.settings-link')?.hidden).toBe(true);
+    expect($('.dict-link')?.hidden).toBe(true);
   });
 
   it('shows a right answer with the verb card, saves it and waits for "Дальше"', async () => {
@@ -325,6 +327,10 @@ describe('a choice game', () => {
     expect(retry?.textContent).toBe(texts.summary.retry);
     expect(again?.textContent).toBe(texts.summary.again);
     expect($as('.summary .actions a', HTMLAnchorElement)?.getAttribute('href')).toBe('#/');
+    // A verb of the results opens its card (the round is over).
+    const cardLinks = $$as('.results li a', HTMLAnchorElement).map((a) => routeOf(a.getAttribute('href') ?? ''));
+    expect(cardLinks).toHaveLength(10);
+    expect(cardLinks.filter((r) => r.page === 'verb' && wrongVerbs.has(r.id))).toHaveLength(wrongVerbs.size);
 
     retry?.click();
     const seen = new Set<string>();
@@ -497,6 +503,8 @@ describe('a person game', () => {
     expect(text('.score')).toBe(`10 из 10 · ${texts.summary.perfect}`);
     expect($$('.results li .he').map((el) => el.textContent)).toEqual(phrases);
     expect($$('.results li .ru').map((el) => el.textContent)).toEqual(translations);
+    const pages = $$as('.results li a', HTMLAnchorElement).map((a) => routeOf(a.getAttribute('href') ?? '').page);
+    expect(pages).toEqual(Array(10).fill('verb'));
   });
 });
 
@@ -616,6 +624,40 @@ describe('settings', () => {
     expect(text('.voice-status')).toBe('Голос иврита: Carmit.');
   });
 
+  it('reset the statistics of every game after a question, keeping the settings', async () => {
+    await start('#/part/1/he-ru');
+    const { buttons, right } = options();
+    buttons[right]?.click();
+    await go('#/settings');
+    $as('input[name="translit"]', HTMLInputElement)?.click();
+    const reset = $as('.reset', HTMLButtonElement);
+    expect(reset?.textContent).toBe(texts.settings.reset);
+    expect($('.reset-confirm')?.hidden).toBe(true);
+
+    reset?.click();
+    expect($('.reset-confirm')?.hidden).toBe(false);
+    expect(text('.reset-confirm p')).toBe(texts.settings.resetQuestion);
+    $as('.reset-cancel', HTMLButtonElement)?.click();
+    expect($('.reset-confirm')?.hidden).toBe(true);
+    expect(Object.keys(loadState(storage).stats)).toEqual(['he-ru']);
+
+    reset?.click();
+    $as('.reset-yes', HTMLButtonElement)?.click();
+    expect(loadState(storage).stats).toEqual({});
+    expect(loadState(storage).settings.translit).toBe(false);
+    expect($('.reset-confirm')?.hidden).toBe(true);
+    expect(text('.reset-status')).toBe(texts.settings.resetDone);
+    expect(reset?.disabled).toBe(true);
+
+    await go('#/');
+    expect($$('.game-progress').map((p) => p.textContent)).toEqual(Array(9).fill('выучено 0 из 20'));
+  });
+
+  it('offer no reset while there are no statistics', async () => {
+    await start('#/settings');
+    expect($as('.reset', HTMLButtonElement)?.disabled).toBe(true);
+  });
+
   it('keep the statistics when saved', async () => {
     await start('#/part/1/he-ru');
     const { buttons, right } = options();
@@ -624,6 +666,144 @@ describe('settings', () => {
     $as('input[name="translit"]', HTMLInputElement)?.click();
     expect(Object.keys(loadState(storage).stats)).toEqual(['he-ru']);
     expect(storage.data.has(STORAGE_KEY)).toBe(true);
+  });
+});
+
+/** Types a query into the dictionary's field, as a learner would. */
+function search(query: string) {
+  const field = $as('.dict-search input', HTMLInputElement);
+  if (!field) throw new Error('no search field');
+  field.value = query;
+  field.dispatchEvent(new Event('input'));
+}
+
+const firstFound = () => $('.dict-results li');
+
+describe('the dictionary', () => {
+  it('opens from the header and lists every verb by frequency', async () => {
+    await start();
+    expect($as('.dict-link', HTMLAnchorElement)?.getAttribute('href')).toBe('#/dict');
+    expect(text('.dict-link')).toBe(texts.dictLink);
+    await go('#/dict');
+    expect(text('h1')).toBe(texts.dictionary.heading);
+    expect($$('.dict-results li')).toHaveLength(verbs.length);
+    expect(text('.dict-count')).toBe(fill(texts.dictionary.all, { n: verbs.length }));
+    expect($as('.dict-results li a', HTMLAnchorElement)?.getAttribute('href')).toBe(hashOf({ page: 'verb', id: 'היה' }));
+    expect(firstFound()?.querySelector('.he')?.textContent).toBe(verb('היה').lemma.nikud);
+  });
+
+  it('searches as one types, tells the form found and keeps the query in the hash', async () => {
+    await start('#/dict');
+    const field = $('.dict-search input');
+    expect(field?.getAttribute('dir')).toBe('auto');
+    search('אכלתי');
+    expect(firstFound()?.querySelector('a')?.getAttribute('href')).toBe(hashOf({ page: 'verb', id: 'אכל' }));
+    expect(firstFound()?.querySelector('.hit .he')?.textContent).toBe('אָכַלְתִּי');
+    expect(firstFound()?.querySelector('.hit')?.textContent).toContain(`${texts.dictionary.where.past}, я`);
+    expect(text('.dict-count')).toBe(fill(texts.dictionary.found, { n: $$('.dict-results li').length }));
+    expect(window.location.hash).toBe(hashOf({ page: 'dict', query: 'אכלתי' }));
+    await flush();
+    expect($('.dict-search input')).toBe(field); // no redraw from the hash
+    search('');
+    expect(window.location.hash).toBe('#/dict');
+  });
+
+  it('opens with the query of its hash', async () => {
+    await start(hashOf({ page: 'dict', query: 'есть' }));
+    expect($as('.dict-search input', HTMLInputElement)?.value).toBe('есть');
+    expect(firstFound()?.querySelector('.ru')?.textContent).toBe(ru(verb('אכל')));
+    expect(firstFound()?.querySelector('.hit')).toBeNull();
+  });
+
+  it('says when nothing is found', async () => {
+    await start(hashOf({ page: 'dict', query: 'write' }));
+    expect($$('.dict-results li')).toHaveLength(0);
+    expect(text('.dict-count')).toBe(texts.dictionary.nothing);
+  });
+
+  it('shows the spelling and the transliteration of the settings', async () => {
+    const state = loadState(storage);
+    saveState(storage, { ...state, settings: { ...state.settings, nikud: false, translit: false } });
+    await start('#/dict');
+    expect(firstFound()?.querySelector('.he')?.textContent).toBe(verb('היה').lemma.plain);
+    expect($('.dict-results .translit')).toBeNull();
+  });
+});
+
+/** A verb card's rows of a tense; a row's person and form. */
+const rows = (tense: Tense) => $$(`.tense-${tense} tbody tr`);
+function cells(tense: Tense, i: number) {
+  const row = rows(tense)[i];
+  return [row?.querySelector('th')?.textContent, row?.querySelector('.he')?.textContent];
+}
+
+describe('a verb card', () => {
+  it('shows the headword with its sound, the translations, the root, the binyan and the rank', async () => {
+    await start(hashOf({ page: 'verb', id: 'דיבר' }));
+    expect(text('h1 .he')).toBe('לְדַבֵּר');
+    expect(text('.verb-page > .verb-head .ru')).toBe(ru(verb('דיבר')));
+    expect(text('.verb-meta .root')).toBe('ד־ב־ר');
+    const binyan = $as('.verb-meta a.binyan', HTMLAnchorElement);
+    expect(binyan?.getAttribute('href')).toBe('#/menorah/piel');
+    expect(binyan?.textContent).toContain(texts.binyanim.piel);
+    expect(text('.verb-meta .rank')).toBe(String(verb('דיבר').rank));
+    expect($('.dict-link')?.hidden).toBe(false);
+  });
+
+  it('gives the three tenses, a person and a form a row', async () => {
+    await start(hashOf({ page: 'verb', id: 'אכל' }));
+    expect($$('.tense h2').map((h) => h.textContent)).toEqual(Object.values(texts.verb.tenses));
+    expect([rows('present').length, rows('past').length, rows('future').length]).toEqual([4, 9, 10]);
+    expect(cells('present', 0)).toEqual(['я (м.), ты (м.), он', 'אוֹכֵל']);
+    expect(cells('past', 0)).toEqual(['я', 'אָכַלְתִּי']);
+    expect(cells('past', 8)).toEqual(['они (м.), они (ж.)', 'אָכְלוּ']);
+    expect(cells('future', 9)).toEqual(['они (ж.)', 'יֹאכְלוּ']);
+    // The literary future, small beside the spoken one (decision 6).
+    expect(rows('future')[9]?.querySelector('.literary .he')?.textContent).toBe('תֹּאכַלְנָה');
+    expect($$('.tense .literary')).toHaveLength(2);
+  });
+
+  it('says every form, once a Hebrew voice is there', async () => {
+    await start(hashOf({ page: 'verb', id: 'אכל' }));
+    const buttons = $$as('.verb-page .listen', HTMLButtonElement);
+    expect(buttons).toHaveLength(1 + 4 + 9 + 10);
+    expect(buttons.every((b) => b.disabled)).toBe(true);
+    expect($('.no-voice')?.hidden).toBe(false);
+    speaker.install('Carmit');
+    expect($('.no-voice')?.hidden).toBe(true);
+    rows('past')[0]?.querySelector('button')?.click();
+    $as('h1 .listen', HTMLButtonElement)?.click();
+    expect(speaker.said).toEqual(['אָכַלְתִּי', 'לֶאֱכֹל']);
+  });
+
+  it('always shows the picture, and the spelling of the settings', async () => {
+    const id = verbs.find((v) => pictureOf(pictures, v.id))?.id ?? '';
+    const state = loadState(storage);
+    saveState(storage, { ...state, settings: { ...state.settings, nikud: false } });
+    await start(hashOf({ page: 'verb', id }));
+    expect($('.verb-head .picture')).not.toBeNull();
+    expect(text('h1 .he')).toBe(verb(id).lemma.plain);
+  });
+
+  it('tells a tense the verb lacks and a headword that is no infinitive', async () => {
+    await start(hashOf({ page: 'verb', id: 'היה' }));
+    expect(rows('present')).toHaveLength(0);
+    expect(text('.tense-present .note')).toBe(texts.verb.missing.present);
+    await go(hashOf({ page: 'verb', id: 'שוחרר' }));
+    expect(text('.verb-head .note')).toBe(texts.game.noInfinitive);
+  });
+
+  it('leads back to the search it came from', async () => {
+    await start('#/dict');
+    search('есть');
+    await go($as('.dict-results a', HTMLAnchorElement)?.getAttribute('href') ?? '');
+    expect($as('.verb-page .back', HTMLAnchorElement)?.getAttribute('href')).toBe(hashOf({ page: 'dict', query: 'есть' }));
+  });
+
+  it('tells an unknown verb', async () => {
+    await start(hashOf({ page: 'verb', id: 'אאא' }));
+    expect(text('.verb-page p')).toBe(texts.verb.notFound);
+    expect($as('.verb-page .back', HTMLAnchorElement)?.getAttribute('href')).toBe('#/dict');
   });
 });
 

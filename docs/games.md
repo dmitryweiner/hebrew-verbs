@@ -99,6 +99,9 @@ a bad verb entry (counts that do not add up, a streak above the correct
 answers) or a bad `open` is dropped or reset on its own. Version 2 is read as
 it is (`autoNext` off); version 1 (settings only) keeps its settings.
 
+"Сбросить статистику" in the settings empties `stats` of every game after a
+question right under the button; the settings stay (decision 57).
+
 ## In the app
 
 `src/views/game.ts`, `src/round.ts`; one view for all nine games.
@@ -113,7 +116,9 @@ it is (`autoNext` off); version 1 (settings only) keeps its settings.
   phrase its pronoun ("он"; the right one "я (м.)" only where the form tells
   the gender, else "я"). A tense task then shows the phrase, pronoun + form
   (`withPronoun`), with 🔊 and its Russian (`ruPhrase`). The verb's card
-  follows: picture, headword with 🔊, translations.
+  follows: picture, headword with 🔊, translations. The answer's card is
+  centred like the task's: a band of its colour on top, the verdict as a
+  badge, the phrase, a line, the verb, "Дальше" (decision 58).
 - The cards of parts 2–4: `<tense>-form` shows the headword with 🔊, its
   translations and the pronoun asked ("הוּא · он"); `<tense>-person` the form
   with 🔊, the headword and translations small under it. The head names the
