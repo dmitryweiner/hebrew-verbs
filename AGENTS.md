@@ -33,11 +33,15 @@ Node.js — the version in `.node-version` (`fnm use`; check `node -v`).
   at once), a dictionary search by a form and its card on a
   phone, the menorah on a phone (flames on their arms, a binyan's card, an
   example's card), the progress page on a phone (a played game's tiles, a
-  hard verb's card, the reset), no horizontal scroll on the home, settings,
-  dictionary (all, a form found), card, menorah (alone, hitpael's card),
-  progress, meeting (part 1, part 4's future tables) and game screens
-  (`he-ru`, `write`, `present-form`, `future-person`), the canvas emoji test (dev only); `-- --preview` builds and also checks offline mode and an
-  update (port 4397); `-- --shots` saves `shots/<viewport>-<screen>.png`.
+  hard verb's card, the reset), the about page on a phone (from the footer:
+  the sources, their licenses, the version), no horizontal scroll on the
+  home, settings, dictionary (all, a form found), card, menorah (alone,
+  hitpael's card), progress, meeting (part 1, part 4's future tables),
+  about and game screens (`he-ru`, `write`, `present-form`,
+  `future-person`), the canvas emoji test (dev only); `-- --preview` builds
+  and also checks offline mode on a phone (a round, a drawing, the Twemoji
+  copies, the about page), an update, and an update waiting until a game is
+  left (port 4397); `-- --shots` saves `shots/<viewport>-<screen>.png`.
 - `npm run build` — typecheck and build into `dist/`.
 - `npm run format` — prettier.
 - `npm run icons` — render the PWA PNG icons from `public/icon.svg`.
@@ -137,8 +141,8 @@ titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
 the dictionary's index (`searchIndex`) ~50 ms once, a query 0.2–3 ms;
 `npm run check` ~5 s, of it the whole-data task test ~1 s and the app's
 jsdom tests ~0.4 s — CI's runner is ~2.5× slower and vitest's timeout is
-5 s, so keep a test well under 2 s; `npm run smoke` ~5 s, `-- --preview`
-~7 s with the build.
+5 s, so keep a test well under 2 s; `npm run smoke` ~9 s, `-- --preview`
+~12 s with the build.
 
 ## Test-driven development is mandatory
 
@@ -157,17 +161,20 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 
 - `src/main.ts` — entry: fetches the data files (`?url` imports of
   `src/data/*.json`), starts the app with the browser's storage, speech and
-  emoji support, registers the service worker in production.
+  emoji support and the build's version, registers the service worker in
+  production (a new version waits while `isExercise`).
 - `src/app.ts` — loads and checks the data, keeps the saved state, shows the
   view of the hash route; `src/routes.ts` — the routes (`#/`, `#/settings`,
   `#/part/1/he-ru`, `#/part/2/form`, `#/dict?q=…`, `#/dict/<id>`, `#/menorah`,
-  `#/menorah/<binyan>`, `#/progress`, `#/part/1/intro` — a part's meeting).
+  `#/menorah/<binyan>`, `#/progress`, `#/about`, `#/part/1/intro` — a part's
+  meeting; `isExercise` — a game or a meeting).
 - `src/views/` — `home.ts` (the parts and each game's progress), `game.ts`
   (all nine games: a round, its feedback and results), `settings.ts`,
   `dictionary.ts` (the search and its results), `verb.ts` (a verb's card),
   `menorah.ts` (the menorah of the binyanim and a binyan's card),
   `progress.ts` (every game's progress, its hardest verbs, the reset of one
   game), `reset.ts` (a reset asked under its button, decision 57),
+  `about.ts` (the sources and licenses, the version, decision 73),
   `meeting.ts` (a part's meeting with its verbs), `meet-card.ts` (a verb's
   card to meet it, in a meeting and before a round), `forms.ts` (a verb's
   table of a tense), `head.ts` (the head of a game or a meeting),
@@ -210,7 +217,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   test.
 - `src/sw-plugin.ts` — Vite plugin emitting `sw.js` that precaches the build;
   `src/pwa.ts` — its registration, an update check on every return to the
-  page and a reload when a new version takes control (`_conventions/pwa.md`).
+  page and a reload when a new version takes control, after a game or a
+  meeting is left (`_conventions/pwa.md`, `docs/app.md`).
 - `src/style.css` — mobile first, logical properties, light and dark.
 - `public/` — manifest, icons (`icon.svg` is the source); `pictures/` — own
   drawings, `twemoji.json` — Twemoji copies.
@@ -219,7 +227,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - `data/` — the hand-curated verb list, its exclusions, hand tables and
   Russian (TSV), `ru-forms.json` (generated) and `hspell.tsv` (a test
   fixture); the app's generated data is in `src/data/`.
-- `docs/` — user and design docs (`docs/data.md` — the verb data,
+- `docs/` — user and design docs (`docs/app.md` — the about page, the
+  version, offline mode and updates, `docs/data.md` — the verb data,
   `docs/games.md` — the games' rules, how the app shows them and the progress page,
   `docs/dictionary.md` — the search and the card, `docs/menorah.md` — the
   menorah); `plans/` —
@@ -239,7 +248,12 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - The verb data is CC BY-SA 4.0 (Wiktionary, FrequencyWords), the code
   GPL-3.0-or-later; Hspell (AGPL) is used by build scripts and as a test
   fixture (`data/hspell.tsv`) only; nothing of it ships. The Twemoji copies in
-  `public/twemoji.json` are CC BY 4.0 (attribution in README).
+  `public/twemoji.json` are CC BY 4.0. The attribution is on the about page
+  (`#/about`) and in the README.
+- A new version may take control while a game or a meeting goes on; the
+  page reloads only when it is left (decision 74), so the old page runs on
+  under the new worker. It may, because the app loads no hashed asset after
+  its start: a lazily loaded chunk would need the reload at once.
 
 ## Conventions
 
@@ -248,7 +262,10 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   browser APIs are parameters so tests can replace them.
 - The package name in `package.json` is the app id: Vite injects it as
   `__APP_ID__`, the storage key and the service worker's cache prefix. All
-  apps on `<user>.github.io` share one origin, so it must be unique.
+  apps on `<user>.github.io` share one origin, so it must be unique. Vite
+  also injects the version (`__APP_VERSION__`) and the date of the last
+  commit that changed what ships (`__APP_DATE__`, not the build's date: the
+  same commit builds the same files), shown on the about page.
 - Do not change the stored format without bumping `VERSION` in
   `src/storage.ts` and a test for the reset or migration.
 - No `as` casts in app code; a disabled lint rule carries its reason.
