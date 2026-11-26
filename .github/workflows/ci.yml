@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          # the whole history: the build's date is the last commit that changed what ships (vite.config.ts)
+          fetch-depth: 0
       - uses: actions/setup-node@v5
         with:
           node-version-file: .node-version

@@ -1,5 +1,5 @@
 // Hash routes (plan, section 8): #/, #/part/1/he-ru, #/part/2/form, #/part/1/intro,
-// #/dict?q=…, #/dict/<id>, #/menorah, #/menorah/<binyan>, #/progress, #/settings. A game of part 1 is named by its id,
+// #/dict?q=…, #/dict/<id>, #/menorah, #/menorah/<binyan>, #/progress, #/settings, #/about. A game of part 1 is named by its id,
 // a game of parts 2–4 by its kind; a part's meeting with its verbs is intro.
 
 import { GAMES, gamePart, PARTS, type GameId, type Part } from './games';
@@ -9,6 +9,7 @@ export type Route =
   | { page: 'home' }
   | { page: 'settings' }
   | { page: 'progress' }
+  | { page: 'about' }
   | { page: 'game'; game: GameId }
   | { page: 'intro'; part: Part }
   | { page: 'dict'; query: string }
@@ -22,11 +23,17 @@ export function hashOf(route: Route): string {
   if (route.page === 'home') return '#/';
   if (route.page === 'settings') return '#/settings';
   if (route.page === 'progress') return '#/progress';
+  if (route.page === 'about') return '#/about';
   if (route.page === 'dict') return route.query === '' ? '#/dict' : `#/dict?${new URLSearchParams({ q: route.query })}`;
   if (route.page === 'verb') return `#/dict/${encodeURIComponent(route.id)}`;
   if (route.page === 'menorah') return route.binyan ? `#/menorah/${route.binyan}` : '#/menorah';
   if (route.page === 'intro') return `#/part/${route.part}/intro`;
   return `#/part/${gamePart(route.game)}/${slug(route.game)}`;
+}
+
+/** A game or a meeting: the header hides its links, and a new version waits until it is left (decision 74). */
+export function isExercise(route: Route): boolean {
+  return route.page === 'game' || route.page === 'intro';
 }
 
 function decoded(text: string): string | undefined {
@@ -42,6 +49,7 @@ export function routeOf(hash: string): Route {
   const path = hash.replace(/^#\/?/u, '');
   if (path === 'settings') return { page: 'settings' };
   if (path === 'progress') return { page: 'progress' };
+  if (path === 'about') return { page: 'about' };
   if (path === 'dict' || path.startsWith('dict?')) return { page: 'dict', query: new URLSearchParams(path.slice(5)).get('q') ?? '' };
   if (path.startsWith('dict/')) {
     const id = decoded(path.slice(5));

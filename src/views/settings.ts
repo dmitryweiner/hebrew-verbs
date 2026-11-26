@@ -2,7 +2,7 @@
 // transliteration, autoNext, whether there is a Hebrew voice, with how to
 // install one, and a reset of the statistics of every game, asked again
 // right under its button (decision 57; not confirm()); one game is reset on
-// the progress page.
+// the progress page. At the end, a link to the about page (decision 73).
 
 import { h } from '../dom';
 import { GAMES, PARTS } from '../games';
@@ -53,6 +53,7 @@ export function settingsView(root: HTMLElement, ctx: AppContext): () => void {
     h('h2', {}, texts.settings.stats),
     h('p', {}, h('a', { class: 'progress-link', href: hashOf({ page: 'progress' }) }, texts.settings.oneGame)),
     reset,
+    h('p', {}, h('a', { class: 'about-link', href: hashOf({ page: 'about' }) }, texts.settings.about)),
     h('a', { class: 'button', href: '#/' }, texts.settings.done),
   );
   return ctx.speaker.watch(showVoice);

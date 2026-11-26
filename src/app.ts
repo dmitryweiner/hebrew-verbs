@@ -4,14 +4,15 @@
 import type { EmojiSupport } from './emoji';
 import { gamePool, type GameId } from './games';
 import { parsePictures, type Pictures } from './pictures';
-import { routeOf, type Route } from './routes';
+import { isExercise, routeOf, type Route } from './routes';
 import { answer, type Random } from './selection';
 import type { Speaker } from './speech';
 import { emptyGameStats } from './stats';
 import { loadState, saveState, type KeyValueStorage } from './storage';
 import { texts } from './texts';
 import { parseVerbs, type Verb } from './verbs';
-import type { AppContext, View } from './views/context';
+import { aboutView } from './views/about';
+import type { AppContext, Build, View } from './views/context';
 import { dictionaryView } from './views/dictionary';
 import { gameView } from './views/game';
 import { homeView } from './views/home';
@@ -29,6 +30,7 @@ export interface AppOptions {
   emoji: EmojiSupport;
   now?: () => number;
   random?: Random;
+  build: Build;
 }
 
 function required<T extends Element>(selector: string, type: abstract new () => T): T {
@@ -47,6 +49,7 @@ function message(text: string): HTMLElement {
 function viewOf(route: Route): View {
   if (route.page === 'settings') return settingsView;
   if (route.page === 'progress') return progressView;
+  if (route.page === 'about') return aboutView;
   if (route.page === 'game') return gameView(route.game);
   if (route.page === 'intro') return meetingView(route.part);
   if (route.page === 'dict') return dictionaryView(route.query);
@@ -56,7 +59,7 @@ function viewOf(route: Route): View {
 }
 
 /** Starts the app on the current page; returns a function that clears it. */
-export function startApp({ storage, loadData, speaker, emoji, now = Date.now, random = Math.random }: AppOptions): () => void {
+export function startApp({ storage, loadData, speaker, emoji, now = Date.now, random = Math.random, build }: AppOptions): () => void {
   const root = required('#app', HTMLElement);
   const headerLinks = ['.dict-link', '.menorah-link', '.settings-link'].map((selector) => required(selector, HTMLElement));
   const state = loadState(storage);
@@ -112,6 +115,7 @@ export function startApp({ storage, loadData, speaker, emoji, now = Date.now, ra
       emoji,
       now,
       random,
+      build,
     };
   }
 
@@ -121,7 +125,7 @@ export function startApp({ storage, loadData, speaker, emoji, now = Date.now, ra
     if (!ctx) return;
     const route = routeOf(window.location.hash);
     stopView?.();
-    for (const link of headerLinks) link.hidden = route.page === 'game' || route.page === 'intro';
+    for (const link of headerLinks) link.hidden = isExercise(route);
     document.documentElement.scrollTop = 0;
     stopView = viewOf(route)(root, ctx);
   }

@@ -26,7 +26,11 @@ interface Registration {
   update: () => Promise<unknown>;
 }
 
-function setup({ controlled = true, register }: { controlled?: boolean; register?: () => Promise<Registration> } = {}) {
+function setup({
+  controlled = true,
+  register,
+  busy,
+}: { controlled?: boolean; register?: () => Promise<Registration>; busy?: () => boolean } = {}) {
   const update = vi.fn<() => Promise<unknown>>(() => Promise.resolve());
   const container = {
     ...fakeTarget(),
@@ -35,7 +39,7 @@ function setup({ controlled = true, register }: { controlled?: boolean; register
   };
   const win = fakeWindow();
   const doc = fakeDocument();
-  registerServiceWorker({ serviceWorker: container }, win, doc);
+  registerServiceWorker({ serviceWorker: container }, win, doc, busy);
   const loaded = async () => {
     win.fire('load');
     await Promise.resolve();
@@ -95,5 +99,25 @@ describe('registerServiceWorker', () => {
     expect(win.location.reload).not.toHaveBeenCalled();
     container.fire('controllerchange');
     expect(win.location.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits with the reload while the page is busy, until a route change finds it free', () => {
+    let busy = true;
+    const { container, win } = setup({ busy: () => busy });
+    container.fire('controllerchange');
+    expect(win.location.reload).not.toHaveBeenCalled();
+    win.fire('hashchange');
+    expect(win.location.reload).not.toHaveBeenCalled();
+    busy = false;
+    win.fire('hashchange');
+    expect(win.location.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not reload on a route change without a new version', () => {
+    const { container, win } = setup({ controlled: false, busy: () => false });
+    win.fire('hashchange');
+    container.fire('controllerchange');
+    win.fire('hashchange');
+    expect(win.location.reload).not.toHaveBeenCalled();
   });
 });

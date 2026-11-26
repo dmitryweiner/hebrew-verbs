@@ -4,6 +4,7 @@ import verbsUrl from './data/verbs.json?url';
 import { startApp } from './app';
 import { browserEmoji } from './emoji';
 import { registerServiceWorker } from './pwa';
+import { isExercise, routeOf } from './routes';
 import { browserSpeaker } from './speech';
 import { browserStorage } from './storage';
 
@@ -22,5 +23,7 @@ startApp({
   },
   speaker: browserSpeaker(),
   emoji: browserEmoji(document),
+  build: { version: __APP_VERSION__, date: __APP_DATE__ },
 });
-if (import.meta.env.PROD) registerServiceWorker(navigator, window, document);
+// A new version waits until a game or a meeting is left (decision 74).
+if (import.meta.env.PROD) registerServiceWorker(navigator, window, document, () => isExercise(routeOf(window.location.hash)));

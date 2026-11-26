@@ -624,17 +624,35 @@ a.dict-item:hover {
 .verb-page > .no-voice {
   text-align: start;
 }
-.verb-meta {
+.verb-meta,
+.about-meta {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 4px 16px;
   margin-block: 12px;
 }
-.verb-meta dt {
+.verb-meta dt,
+.about-meta dt {
   color: var(--muted);
 }
-.verb-meta dd {
+.verb-meta dd,
+.about-meta dd {
   margin: 0;
+}
+/* The repository's path breaks after a slash, and anywhere on the narrowest phones. */
+.about-meta dd {
+  overflow-wrap: anywhere;
+}
+.sources a,
+.about-meta a,
+.about-link {
+  color: inherit;
+}
+.sources {
+  padding-inline-start: 20px;
+}
+.sources li + li {
+  margin-block-start: 8px;
 }
 .binyan {
   color: inherit;
