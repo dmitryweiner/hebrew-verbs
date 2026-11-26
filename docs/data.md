@@ -96,7 +96,10 @@ pair of them (`{"kind":"emoji","emoji":"🚶"}`, `"🧠💭"`), an own drawing
 (`pictureOf` in `src/pictures.ts`); each emoji comes with the name of its
 Twemoji copy (`<code points>.svg`) in `public/twemoji.json` — all copies in one
 precached file (decision 34; `scripts/fetch-emoji.mjs`) — for devices whose
-font lacks it.
+font lacks it. The app draws an emoji on a canvas to see whether the font has
+it and fetches `twemoji.json` only when it does not (`src/emoji.ts`, decision
+43); a drawing is shown as a CSS mask filled with the text colour
+(`src/views/picture.ts`).
 
 A drawing: a stick figure and an object, lines in `currentColor` (so it
 follows the theme) 6 wide, an object's lines 4 wide with a `currentColor`

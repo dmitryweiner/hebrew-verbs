@@ -42,7 +42,10 @@ describe('state storage', () => {
 
   it('saves and loads settings and statistics', () => {
     const storage = new MemoryStorage();
-    const state: SavedState = { settings: { nikud: false, translit: true }, stats: { 'past-form': { open: 30, verbs: { אכל: stat } } } };
+    const state: SavedState = {
+      settings: { nikud: false, translit: true, autoNext: true },
+      stats: { 'past-form': { open: 30, verbs: { אכל: stat } } },
+    };
     expect(saveState(storage, state)).toBe(true);
     expect(loadState(storage)).toEqual(state);
   });
@@ -52,7 +55,7 @@ describe('state storage', () => {
     expect(saveState(null, emptyState())).toBe(false);
   });
 
-  it.each(['not json', '[]', '{"version":3,"settings":{"nikud":false}}', '{"version":2}'])('resets unreadable data: %s', (raw) => {
+  it.each(['not json', '[]', '{"version":9,"settings":{"nikud":false}}', '{"version":3}'])('resets unreadable data: %s', (raw) => {
     const storage = new MemoryStorage();
     storage.setItem(STORAGE_KEY, raw);
     expect(loadState(storage)).toEqual(emptyState());
@@ -60,22 +63,32 @@ describe('state storage', () => {
 
   it('keeps the settings of version 1, which had no statistics', () => {
     expect(loadState(stored({ version: 1, settings: { nikud: false, translit: false } }))).toEqual({
-      settings: { nikud: false, translit: false },
+      settings: { nikud: false, translit: false, autoNext: false },
       stats: {},
     });
   });
 
+  it('keeps the settings and statistics of version 2, which had no autoNext', () => {
+    expect(
+      loadState(stored({ version: 2, settings: { nikud: false, translit: true }, stats: { write: { open: 20, verbs: { אכל: stat } } } })),
+    ).toEqual({
+      settings: { nikud: false, translit: true, autoNext: false },
+      stats: { write: { open: 20, verbs: { אכל: stat } } },
+    });
+  });
+
   it('replaces bad settings with defaults one by one', () => {
-    expect(loadState(stored({ version: 2, settings: { nikud: 'no', translit: false }, stats: {} })).settings).toEqual({
+    expect(loadState(stored({ version: 3, settings: { nikud: 'no', translit: false, autoNext: 1 }, stats: {} })).settings).toEqual({
       nikud: true,
       translit: false,
+      autoNext: false,
     });
   });
 
   it('drops unknown games, bad verb entries and a bad open count', () => {
     const state = loadState(
       stored({
-        version: 2,
+        version: 3,
         settings: DEFAULT_SETTINGS,
         stats: {
           'he-ru': { open: 40, verbs: { אכל: stat, שתה: { ...stat, shown: -1 }, הלך: { ...stat, lastSeen: 'yesterday' } } },
@@ -93,12 +106,12 @@ describe('state storage', () => {
 
   it('drops a verb entry whose counts do not add up', () => {
     const state = loadState(
-      stored({ version: 2, settings: DEFAULT_SETTINGS, stats: { write: { open: 20, verbs: { אכל: { ...stat, streak: 5 } } } } }),
+      stored({ version: 3, settings: DEFAULT_SETTINGS, stats: { write: { open: 20, verbs: { אכל: { ...stat, streak: 5 } } } } }),
     );
     expect(state.stats.write?.verbs).toEqual({});
   });
 
-  it('shows nikud and transliteration by default', () => {
-    expect(DEFAULT_SETTINGS).toEqual({ nikud: true, translit: true });
+  it('shows nikud and transliteration and waits for "Дальше" by default', () => {
+    expect(DEFAULT_SETTINGS).toEqual({ nikud: true, translit: true, autoNext: false });
   });
 });

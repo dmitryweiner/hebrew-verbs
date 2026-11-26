@@ -9,6 +9,11 @@
   --accent-fg: #fff;
   --surface: #fff;
   --focus: #e6af00;
+  --line: #d3e0da;
+  --good: #1d7a3a;
+  --good-bg: #e3f4e8;
+  --bad: #b3261e;
+  --bad-bg: #fbe7e5;
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
@@ -19,6 +24,11 @@
     --accent: #4fcfac;
     --accent-fg: #06130f;
     --surface: #182823;
+    --line: #2c423b;
+    --good: #7ad992;
+    --good-bg: #173322;
+    --bad: #ff9c92;
+    --bad-bg: #3d1d1a;
   }
 }
 
@@ -36,8 +46,10 @@ body {
     16px/1.5 system-ui,
     sans-serif;
 }
-button {
+button,
+input {
   font: inherit;
+  color: inherit;
 }
 :focus-visible {
   outline: 3px solid var(--focus);
@@ -61,6 +73,17 @@ header {
 }
 .brand {
   font-weight: 700;
+  color: inherit;
+  text-decoration: none;
+}
+.settings-link {
+  display: grid;
+  place-items: center;
+  min-inline-size: 44px;
+  min-block-size: 44px;
+  color: inherit;
+  font-size: 1.5rem;
+  text-decoration: none;
 }
 main {
   flex: 1;
@@ -80,8 +103,348 @@ footer a {
   color: inherit;
 }
 
+h2 {
+  margin-block: 24px 8px;
+  font-size: 1.25rem;
+}
+.status,
+.hint,
+.note {
+  color: var(--muted);
+}
+.note {
+  margin-block: 4px 0;
+  font-size: 0.875rem;
+}
+
+/* Hebrew words: isolated, a Hebrew font size a little larger than the Russian text. */
+.word {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+}
+.he {
+  font-size: 1.25em;
+  unicode-bidi: isolate;
+}
+.translit {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.2;
+}
+
+/* Buttons and links that look like buttons. */
+button,
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-block-size: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+}
+.primary,
+.button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+/* Home: the parts and their games. */
+.games {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.game-link {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+a.game-link:hover {
+  border-color: var(--accent);
+}
+.game-name {
+  font-weight: 600;
+}
+.game-progress {
+  color: var(--muted);
+}
+.game-link.disabled {
+  opacity: 0.6;
+}
+
+/* A game. */
+.game-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.quit {
+  color: inherit;
+}
+.game-title {
+  font-weight: 600;
+}
+.count {
+  margin-inline-start: auto;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.game-head progress {
+  inline-size: 100%;
+  block-size: 8px;
+  accent-color: var(--accent);
+}
+.card {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  margin-block: 16px 8px;
+  padding: 20px 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  text-align: center;
+}
+.card p {
+  margin: 0;
+}
+.big {
+  font-size: 1.5rem;
+}
+.verb-word {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.listen {
+  min-inline-size: 44px;
+  padding: 4px;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+.no-voice {
+  margin: 0;
+  font-size: 0.875rem;
+  text-align: center;
+}
+.no-voice a {
+  color: var(--muted);
+}
+.task {
+  margin-block: 12px 8px;
+  color: var(--muted);
+  text-align: center;
+}
+.options {
+  display: grid;
+  gap: 8px;
+}
+.option {
+  flex-direction: column;
+  gap: 2px;
+  min-block-size: 56px;
+  text-align: center;
+}
+.option.right {
+  border-color: var(--good);
+  background: var(--good-bg);
+}
+.option.wrong {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+}
+.option:disabled {
+  color: inherit;
+}
+.option:disabled:not(.right, .wrong) {
+  opacity: 0.75;
+}
+.reveal {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* The write game: the field and its buttons. */
+.write {
+  display: grid;
+  gap: 8px;
+}
+.answer-input {
+  inline-size: 100%;
+  min-block-size: 52px;
+  padding: 8px 12px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 1.5rem;
+  text-align: center;
+}
+.answer-input.right {
+  border-color: var(--good);
+}
+.answer-input.wrong {
+  border-color: var(--bad);
+}
+.write-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+/* After an answer. */
+.feedback {
+  display: grid;
+  gap: 8px;
+  margin-block-start: 16px;
+  padding: 12px 16px 16px;
+  border: 1px solid var(--line);
+  border-inline-start: 4px solid var(--good);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.feedback.bad {
+  border-inline-start-color: var(--bad);
+}
+.feedback p {
+  margin: 0;
+}
+.verdict {
+  font-weight: 700;
+}
+.good .verdict {
+  color: var(--good);
+}
+.bad .verdict {
+  color: var(--bad);
+}
+.verb-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.verb-text {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+}
+.picture {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 72px;
+  block-size: 72px;
+}
+.picture.emoji {
+  font-size: 2.75rem;
+  line-height: 1;
+}
+.picture.emoji img {
+  inline-size: 1em;
+  block-size: 1em;
+}
+/* An own drawing: its currentColor lines as a mask filled with the text colour. */
+.picture.drawing {
+  background: currentColor;
+  -webkit-mask: var(--picture) center / contain no-repeat;
+  mask: var(--picture) center / contain no-repeat;
+}
+.remark {
+  font-size: 0.875rem;
+}
+.next {
+  justify-self: stretch;
+}
+
+/* The results of a round. */
+.score {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.results {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  list-style: none;
+}
+.results li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: var(--surface);
+}
+.results .mark {
+  font-weight: 700;
+}
+.results .good .mark {
+  color: var(--good);
+}
+.results .bad .mark {
+  color: var(--bad);
+}
+.results .ru {
+  color: var(--muted);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Settings. */
+.setting {
+  margin-block: 12px;
+}
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-block-size: 44px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.toggle input {
+  inline-size: 22px;
+  block-size: 22px;
+  accent-color: var(--accent);
+}
+.voice-status ul {
+  padding-inline-start: 20px;
+  font-size: 0.875rem;
+}
+
 @media (min-width: 600px) {
   h1 {
     font-size: 2.25rem;
+  }
+  .options {
+    grid-template-columns: 1fr 1fr;
+  }
+  .next {
+    justify-self: start;
   }
 }

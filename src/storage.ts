@@ -6,6 +6,8 @@ export interface Settings {
   nikud: boolean;
   /** Show the Cyrillic transliteration under Hebrew words. */
   translit: boolean;
+  /** Move to the next task by itself after a right answer (decision 39). */
+  autoNext: boolean;
 }
 
 /** Statistics by game; a game never played is absent. */
@@ -19,10 +21,13 @@ export interface SavedState {
 export type KeyValueStorage = Pick<Storage, 'getItem' | 'setItem'>;
 
 export const STORAGE_KEY = __APP_ID__;
-/** 2: statistics added; version 1 held the settings only, they are kept. */
-const VERSION = 2;
+/**
+ * 3: the autoNext setting; version 2 is read as it is (autoNext gets its
+ * default). 2: statistics added; version 1 held the settings only, they are kept.
+ */
+const VERSION = 3;
 
-export const DEFAULT_SETTINGS: Settings = { nikud: true, translit: true };
+export const DEFAULT_SETTINGS: Settings = { nikud: true, translit: true, autoNext: false };
 
 export function emptyState(): SavedState {
   return { settings: { ...DEFAULT_SETTINGS }, stats: {} };
@@ -34,10 +39,11 @@ const isCount = (value: unknown): value is number => Number.isInteger(value) && 
 
 function parseSettings(value: unknown): Settings {
   if (!isRecord(value)) return { ...DEFAULT_SETTINGS };
-  const { nikud, translit } = value;
+  const { nikud, translit, autoNext } = value;
   return {
     nikud: isBoolean(nikud) ? nikud : DEFAULT_SETTINGS.nikud,
     translit: isBoolean(translit) ? translit : DEFAULT_SETTINGS.translit,
+    autoNext: isBoolean(autoNext) ? autoNext : DEFAULT_SETTINGS.autoNext,
   };
 }
 
@@ -74,7 +80,7 @@ export function loadState(storage: KeyValueStorage | null): SavedState {
     const data: unknown = JSON.parse(raw);
     if (!isRecord(data)) return emptyState();
     if (data.version === 1) return { settings: parseSettings(data.settings), stats: {} };
-    if (data.version !== VERSION || !isRecord(data.settings)) return emptyState();
+    if ((data.version !== VERSION && data.version !== 2) || !isRecord(data.settings)) return emptyState();
     return { settings: parseSettings(data.settings), stats: parseStats(data.stats) };
   } catch {
     return emptyState();

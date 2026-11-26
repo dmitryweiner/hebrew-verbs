@@ -89,8 +89,27 @@ remark. The verdict names the verb that matched.
 
 ## Storage
 
-`src/storage.ts`: one key, `hebrew-verbs`, holding `{ version: 2, settings,
-stats }`. `stats` maps a game id to its `GameStats`. Every field is checked
-on load: an unknown game, a bad verb entry (counts that do not add up, a
-streak above the correct answers) or a bad `open` is dropped or reset on its
-own. Version 1 (settings only) keeps its settings.
+`src/storage.ts`: one key, `hebrew-verbs`, holding `{ version: 3, settings,
+stats }`; `settings` are `nikud`, `translit` and `autoNext`. `stats` maps a
+game id to its `GameStats`. Every field is checked on load: an unknown game,
+a bad verb entry (counts that do not add up, a streak above the correct
+answers) or a bad `open` is dropped or reset on its own. Version 2 is read as
+it is (`autoNext` off); version 1 (settings only) keeps its settings.
+
+## In the app
+
+`src/views/game.ts`, `src/round.ts` (part 1; parts 2–4 come with stage 5).
+
+- A round's tasks are built when it starts, in the spelling of the nikud
+  setting then. Every answer goes to the game's statistics at once.
+- After an answer: the right option green, a wrong choice red, and under
+  every option its other side (the headword under a translation and back).
+  The verb's card follows: picture, headword with 🔊, translations.
+- The game waits for "Дальше". With `autoNext` on, a right answer moves on
+  after 1.5 s, unless there is a remark or 🔊 was pressed.
+- `write`: the field takes the focus; "Не знаю" is a mistake that shows the
+  answer; an empty answer is ignored. A remark names the final letters or
+  says that another verb with the same translation was typed.
+- The results list every task ✓/✗; "Повторить ошибки" makes a round of the
+  verbs answered wrong, each once.
+- Digit keys 1–4 pick an option.
