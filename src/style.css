@@ -340,41 +340,72 @@ a.game-link:hover {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
-/* After an answer. */
+/* After an answer: centred like the task card above it, its colour in a band on top. */
 .feedback {
   display: grid;
-  gap: 8px;
+  justify-items: center;
+  gap: 12px;
   margin-block-start: 16px;
-  padding: 12px 16px 16px;
+  padding: 16px 16px 20px;
   border: 1px solid var(--line);
-  border-inline-start: 4px solid var(--good);
-  border-radius: 12px;
+  border-block-start: 4px solid var(--good);
+  border-radius: 16px;
   background: var(--surface);
+  text-align: center;
 }
 .feedback.bad {
-  border-inline-start-color: var(--bad);
+  border-block-start-color: var(--bad);
 }
 .feedback p {
   margin: 0;
 }
 .verdict {
+  padding: 2px 14px;
+  border-radius: 999px;
   font-weight: 700;
 }
 .good .verdict {
+  background: var(--good-bg);
   color: var(--good);
 }
 .bad .verdict {
+  background: var(--bad-bg);
   color: var(--bad);
+}
+/* After a tense task: the phrase said and its Russian, the verb under a line. */
+.phrase {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+.phrase .he {
+  font-size: 1.5em;
+}
+.phrase .ru {
+  font-size: 1.125rem;
+  font-weight: 600;
 }
 .verb-card {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 16px;
+}
+.phrase + .verb-card {
+  inline-size: 100%;
+  padding-block-start: 12px;
+  border-block-start: 1px solid var(--line);
 }
 .verb-text {
   display: grid;
   justify-items: start;
   gap: 2px;
+  text-align: start;
+}
+/* Without a picture the headword stands in the middle. */
+.verb-text:only-child {
+  justify-items: center;
+  text-align: center;
 }
 .picture {
   flex: none;
@@ -398,16 +429,9 @@ a.game-link:hover {
   -webkit-mask: var(--picture) center / contain no-repeat;
   mask: var(--picture) center / contain no-repeat;
 }
-/* After a tense task: the phrase said and its Russian. */
-.phrase {
-  display: grid;
-  justify-items: start;
-  gap: 2px;
-}
-.phrase .ru {
-  font-weight: 600;
-}
 .remark {
+  max-inline-size: 32em;
+  color: var(--muted);
   font-size: 0.875rem;
 }
 .next {
@@ -624,6 +648,7 @@ a.dict-item:hover {
     grid-template-columns: 1fr 1fr;
   }
   .next {
-    justify-self: start;
+    justify-self: center;
+    min-inline-size: 240px;
   }
 }
