@@ -2,7 +2,7 @@
 
 The rules of the nine games as the core (`src/`, no DOM) implements them. The
 decisions behind them are in the plan (`plans/2026-11-24-hebrew-verbs.md`,
-sections 2–3 and 6, decisions 5–10, 13, 25–27, 35, 37, 45).
+sections 2–3 and 6, decisions 5–10, 13, 25–27, 35, 37, 41, 45–49).
 
 ## The games
 
@@ -63,8 +63,8 @@ the spelling the round started with, so the nikud switch lives outside a game.
 - `<tense>-form`: the other forms of the tense, none spelled like the right
   one. Without nikud a present like עושה (ms = fs) leaves only 3 options.
 - `<tense>-person`: a pronoun is right when any of its persons takes the
-  shown spelling (אכלת: אתה and את), so only one of the right pronouns is
-  offered.
+  shown spelling (אכלת: אתה and את, `personsWith`), so only one of the right
+  pronouns is offered.
 
 The whole-data test (`src/questions.test.ts`) builds a task for every verb of
 every game in both spellings and checks these rules.
@@ -100,18 +100,27 @@ it is (`autoNext` off); version 1 (settings only) keeps its settings.
 
 ## In the app
 
-`src/views/game.ts`, `src/round.ts` (part 1; parts 2–4 come with stage 5).
+`src/views/game.ts`, `src/round.ts`; one view for all nine games.
 
 - A round's tasks are built when it starts, in the spelling of the nikud
   setting then. Every answer goes to the game's statistics at once.
 - After an answer: the right option green, a wrong choice red, and under
-  every option its other side (the headword under a translation and back).
-  The verb's card follows: picture, headword with 🔊, translations.
+  every option its other side: the headword under a translation and back;
+  under a form who says it (`labelOf`: "я (ж.), ты (ж.), она"); under a
+  phrase its pronoun ("он"; the right one "я (м.)" only where the form tells
+  the gender, else "я"). A tense task then shows the phrase, pronoun + form
+  (`withPronoun`), with 🔊 and its Russian (`ruPhrase`). The verb's card
+  follows: picture, headword with 🔊, translations.
+- The cards of parts 2–4: `<tense>-form` shows the headword with 🔊, its
+  translations and the pronoun asked ("הוּא · он"); `<tense>-person` the form
+  with 🔊, the headword and translations small under it. The head names the
+  tense: "Прошедшее · Местоимение → форма".
 - The game waits for "Дальше". With `autoNext` on, a right answer moves on
   after 1.5 s, unless there is a remark or 🔊 was pressed.
 - `write`: the field takes the focus; "Не знаю" is a mistake that shows the
   answer; an empty answer is ignored. A remark names the final letters or
   says that another verb with the same translation was typed.
-- The results list every task ✓/✗; "Повторить ошибки" makes a round of the
-  verbs answered wrong, each once.
-- Digit keys 1–4 pick an option.
+- The results list every task ✓/✗ (a tense task as its phrase and Russian);
+  "Повторить ошибки" makes a round of the verbs answered wrong, each once,
+  with a new person.
+- Digit keys 1–4 pick an option (a plain present with three forms takes no 4).

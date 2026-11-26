@@ -27,9 +27,10 @@ Node.js — the version in `.node-version` (`fnm use`; check `node -v`).
 - `npm run check` — typecheck + oxlint + prettier + unit tests. Must pass before
   any work is called done.
 - `npm run smoke` — browser smoke on the dev server (port 5397): the home
-  page, a `he-ru` round to its results, a typed answer on a phone, no
-  horizontal scroll on the home, game and settings screens, the canvas emoji
-  test (dev only); `-- --preview` builds and also checks offline mode and an
+  page, a `he-ru` round to its results, a `past-person` round on a phone, a
+  typed answer on a phone, no horizontal scroll on the home, settings and
+  game screens (`he-ru`, `write`, `present-form`, `future-person`), the
+  canvas emoji test (dev only); `-- --preview` builds and also checks offline mode and an
   update (port 4397); `-- --shots` saves `shots/<viewport>-<screen>.png`.
 - `npm run build` — typecheck and build into `dist/`.
 - `npm run format` — prettier.
@@ -128,7 +129,7 @@ titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
 `review:pictures` starts in ~1 s. The app: a task (`makeQuestion`) ~0.2 ms for
 `he-ru`/`ru-he` (distractors scan all verbs), ~0.005 ms for a tense game;
 `npm run check` ~4 s, of it the whole-data task test ~1 s and the app's
-jsdom tests ~0.3 s — CI's runner is ~2.5× slower and vitest's timeout is
+jsdom tests ~0.4 s — CI's runner is ~2.5× slower and vitest's timeout is
 5 s, so keep a test well under 2 s; `npm run smoke` ~3 s, `-- --preview`
 ~5 s with the build.
 
@@ -154,7 +155,7 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   view of the hash route; `src/routes.ts` — the routes (`#/`, `#/settings`,
   `#/part/1/he-ru`, `#/part/2/form`).
 - `src/views/` — `home.ts` (the parts and each game's progress), `game.ts`
-  (a round, its feedback and results), `settings.ts`, `picture.ts` (emoji,
+  (all nine games: a round, its feedback and results), `settings.ts`, `picture.ts` (emoji,
   Twemoji copy or drawing); `context.ts` — what a view gets from the app;
   `src/dom.ts` — element builder and an isolated Hebrew word.
 - `src/round.ts` — a round: its tasks, the answers, the round of mistakes.
@@ -166,7 +167,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   is, version 1's settings are kept).
 - The core without the DOM (stage 3): `src/hebrew.ts` — nikud, final
   letters, typed input; `src/persons.ts` — pronouns and the persons of each
-  tense (я (м.) / я (ж.) everywhere, decision 35); `src/phrases.ts` — the
+  tense (я (м.) / я (ж.) everywhere, decision 35), their labels and the
+  phrase "pronoun + form"; `src/phrases.ts` — the
   Russian phrase after an answer; `src/games.ts` — the nine games and their
   verb pools; `src/stats.ts` — a game's statistics and weights;
   `src/selection.ts` — the open verbs, the frontier and the round;
