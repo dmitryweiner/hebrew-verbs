@@ -1,5 +1,6 @@
-// Settings (decision 37: outside a game): nikud, transliteration, and
-// whether there is a Hebrew voice, with how to install one.
+// Settings (decisions 37–39: a page of its own, outside a game): nikud,
+// transliteration, autoNext, and whether there is a Hebrew voice, with how
+// to install one.
 
 import { h } from '../dom';
 import type { Settings } from '../storage';

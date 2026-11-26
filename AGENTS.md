@@ -26,9 +26,11 @@ Node.js — the version in `.node-version` (`fnm use`; check `node -v`).
 - `npm run dev` — dev server.
 - `npm run check` — typecheck + oxlint + prettier + unit tests. Must pass before
   any work is called done.
-- `npm run smoke` — browser smoke on the dev server (port 5397); `-- --preview`
-  builds and also checks offline mode (port 4397); `-- --shots` saves
-  screenshots to `shots/`.
+- `npm run smoke` — browser smoke on the dev server (port 5397): the home
+  page, a `he-ru` round to its results, a typed answer on a phone, no
+  horizontal scroll on the home, game and settings screens, the canvas emoji
+  test (dev only); `-- --preview` builds and also checks offline mode and an
+  update (port 4397); `-- --shots` saves `shots/<viewport>-<screen>.png`.
 - `npm run build` — typecheck and build into `dist/`.
 - `npm run format` — prettier.
 - `npm run icons` — render the PWA PNG icons from `public/icon.svg`.
@@ -125,8 +127,10 @@ titles, a polite delay; the top 1400 took ~70 min); `compare.mjs` ~0.3 s
 `fetch-emoji.mjs` ~0.3 s per new emoji (network); `set-pictures.mjs` ~0.1 s;
 `review:pictures` starts in ~1 s. The app: a task (`makeQuestion`) ~0.2 ms for
 `he-ru`/`ru-he` (distractors scan all verbs), ~0.005 ms for a tense game;
-`npm run check` ~3 s, of it the whole-data task test ~1 s — CI's runner is
-~2.5× slower and vitest's timeout is 5 s, so keep a test well under 2 s.
+`npm run check` ~4 s, of it the whole-data task test ~1 s and the app's
+jsdom tests ~0.3 s — CI's runner is ~2.5× slower and vitest's timeout is
+5 s, so keep a test well under 2 s; `npm run smoke` ~3 s, `-- --preview`
+~5 s with the build.
 
 ## Test-driven development is mandatory
 
@@ -169,12 +173,15 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   `src/questions.ts` — the tasks, exactly one right option in the spelling
   shown (decision 37); `src/answer.ts` — a typed headword. The rules:
   `docs/games.md`.
-- `src/testing.ts` — the real verb data for unit tests (node only).
+- `src/testing.ts` — the real verb data for unit tests (node and jsdom tests;
+  reads the file, never shipped).
 - `src/pictures.ts` — the illustrations' types, `parsePictures` and
   `pictureOf` (only approved pictures reach the app).
 - `src/verbs.ts` — the verb data's types and `parseVerbs` (a shape check, so
   the data is read without casts); `src/data/verbs.json` — the data (~3 MB,
-  ~410 KB gzip), `src/data/verbs.test.ts` — its test.
+  ~410 KB gzip; the app fetches it and `pictures.json` as JSON files, which
+  the service worker precaches, decision 44), `src/data/verbs.test.ts` — its
+  test.
 - `src/sw-plugin.ts` — Vite plugin emitting `sw.js` that precaches the build;
   `src/pwa.ts` — its registration, an update check on every return to the
   page and a reload when a new version takes control (`_conventions/pwa.md`).
@@ -199,7 +206,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   Academy's plene spelling (דיבר), derived from the nikud by rules and checked
   against Hspell. Never strip nikud to get the plain form.
 - Hebrew inside Russian text is isolated (`dir`/`unicode-bidi`), see the RTL
-  lessons in `~/projects/CLAUDE.md`.
+  lessons in `~/projects/CLAUDE.md`: views build a Hebrew word with
+  `hebrewWord` (`src/dom.ts`), never as bare text.
 - The verb data is CC BY-SA 4.0 (Wiktionary, FrequencyWords), the code
   GPL-3.0-or-later; Hspell (AGPL) is used by build scripts and as a test
   fixture (`data/hspell.tsv`) only; nothing of it ships. The Twemoji copies in

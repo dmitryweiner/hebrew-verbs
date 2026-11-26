@@ -90,11 +90,11 @@ remark. The verdict names the verb that matched.
 ## Storage
 
 `src/storage.ts`: one key, `hebrew-verbs`, holding `{ version: 3, settings,
-stats }`; `settings` are `nikud`, `translit` and `autoNext`. `stats` maps a game id to its `GameStats`. Every field is checked
-on load: an unknown game, a bad verb entry (counts that do not add up, a
-streak above the correct answers) or a bad `open` is dropped or reset on its
-own. Version 2 is read as it is (`autoNext` off); version 1 (settings only) keeps
-its settings.
+stats }`; `settings` are `nikud`, `translit` and `autoNext`. `stats` maps a
+game id to its `GameStats`. Every field is checked on load: an unknown game,
+a bad verb entry (counts that do not add up, a streak above the correct
+answers) or a bad `open` is dropped or reset on its own. Version 2 is read as
+it is (`autoNext` off); version 1 (settings only) keeps its settings.
 
 ## In the app
 
