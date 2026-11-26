@@ -15,6 +15,7 @@ describe('texts', () => {
     expect(doc.querySelector('.brand')?.textContent).toBe(texts.title);
     expect(doc.querySelector('.settings-link')?.getAttribute('aria-label')).toBe(texts.settingsLink);
     expect(doc.querySelector('.dict-link')?.textContent).toBe(texts.dictLink);
+    expect(doc.querySelector('.menorah-link')?.textContent).toBe(texts.menorahLink);
     expect(doc.querySelector('#app .status')?.textContent).toBe(texts.loading);
   });
 

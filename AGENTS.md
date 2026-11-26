@@ -29,9 +29,10 @@ Node.js — the version in `.node-version` (`fnm use`; check `node -v`).
 - `npm run smoke` — browser smoke on the dev server (port 5397): the home
   page, a `he-ru` round to its results, a `past-person` round on a phone, a
   typed answer on a phone, a dictionary search by a form and its card on a
-  phone, no horizontal scroll on the home, settings, dictionary (all, a form
-  found), card and game screens (`he-ru`, `write`, `present-form`,
-  `future-person`), the
+  phone, the menorah on a phone (flames on their arms, a binyan's card, an
+  example's card), no horizontal scroll on the home, settings, dictionary
+  (all, a form found), card, menorah (alone, hitpael's card) and game
+  screens (`he-ru`, `write`, `present-form`, `future-person`), the
   canvas emoji test (dev only); `-- --preview` builds and also checks offline mode and an
   update (port 4397); `-- --shots` saves `shots/<viewport>-<screen>.png`.
 - `npm run build` — typecheck and build into `dist/`.
@@ -156,13 +157,16 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   emoji support, registers the service worker in production.
 - `src/app.ts` — loads and checks the data, keeps the saved state, shows the
   view of the hash route; `src/routes.ts` — the routes (`#/`, `#/settings`,
-  `#/part/1/he-ru`, `#/part/2/form`, `#/dict?q=…`, `#/dict/<id>`).
+  `#/part/1/he-ru`, `#/part/2/form`, `#/dict?q=…`, `#/dict/<id>`, `#/menorah`,
+  `#/menorah/<binyan>`).
 - `src/views/` — `home.ts` (the parts and each game's progress), `game.ts`
   (all nine games: a round, its feedback and results), `settings.ts`,
   `dictionary.ts` (the search and its results), `verb.ts` (a verb's card),
+  `menorah.ts` (the menorah of the binyanim and a binyan's card),
   `picture.ts` (emoji, Twemoji copy or drawing), `listen.ts` (🔊 buttons and
   the no-voice line); `context.ts` — what a view gets from the app;
-  `src/dom.ts` — element builder and an isolated Hebrew word.
+  `src/dom.ts` — element builder, an isolated Hebrew word, the Hebrew runs
+  of a Russian text isolated (`withHebrew`).
 - `src/round.ts` — a round: its tasks, the answers, the round of mistakes.
 - `src/speech.ts` — the Hebrew voice of `speechSynthesis`; `src/emoji.ts` —
   the canvas test whether the font draws an emoji, the Twemoji copies.
@@ -180,7 +184,9 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   shown (decision 37); `src/answer.ts` — a typed headword. The rules:
   `docs/games.md`. `src/search.ts` — the dictionary's search (by any form,
   root or Russian, `docs/dictionary.md`); `src/binyanim.ts` — the binyanim's
-  Hebrew names.
+  Hebrew names, the menorah's branches and pairs, the model forms on פ־ע־ל
+  (the conjugator's, `scripts/lib/binyanim.test.mjs` keeps them equal) and
+  the examples (`docs/menorah.md`).
 - `src/testing.ts` — the real verb data for unit tests (node and jsdom tests;
   reads the file, never shipped).
 - `src/pictures.ts` — the illustrations' types, `parsePictures` and
@@ -203,7 +209,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   fixture); the app's generated data is in `src/data/`.
 - `docs/` — user and design docs (`docs/data.md` — the verb data,
   `docs/games.md` — the games' rules and how the app shows them,
-  `docs/dictionary.md` — the search and the card); `plans/` —
+  `docs/dictionary.md` — the search and the card, `docs/menorah.md` — the
+  menorah); `plans/` —
   plans and reports (Russian).
 
 ## Invariants

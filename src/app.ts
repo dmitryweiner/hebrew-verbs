@@ -15,6 +15,7 @@ import type { AppContext, View } from './views/context';
 import { dictionaryView } from './views/dictionary';
 import { gameView } from './views/game';
 import { homeView } from './views/home';
+import { menorahView } from './views/menorah';
 import { settingsView } from './views/settings';
 import { verbView } from './views/verb';
 
@@ -46,13 +47,14 @@ function viewOf(route: Route): View {
   if (route.page === 'game') return gameView(route.game);
   if (route.page === 'dict') return dictionaryView(route.query);
   if (route.page === 'verb') return verbView(route.id);
+  if (route.page === 'menorah') return menorahView(route.binyan);
   return homeView;
 }
 
 /** Starts the app on the current page; returns a function that clears it. */
 export function startApp({ storage, loadData, speaker, emoji, now = Date.now, random = Math.random }: AppOptions): () => void {
   const root = required('#app', HTMLElement);
-  const headerLinks = [required('.dict-link', HTMLElement), required('.settings-link', HTMLElement)];
+  const headerLinks = ['.dict-link', '.menorah-link', '.settings-link'].map((selector) => required(selector, HTMLElement));
   const state = loadState(storage);
   const pools = new Map<GameId, Verb[]>();
   let stopView: (() => void) | undefined;

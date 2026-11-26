@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { startApp, type AppOptions } from './app';
 import type { EmojiSupport } from './emoji';
+import { BINYAN_EXAMPLES, BINYAN_HEBREW, BINYAN_MODELS } from './binyanim';
 import { formOf, labelOf, personsOf, PRONOUNS, withPronoun, type Person, type Tense } from './persons';
 import { ruPhrase } from './phrases';
 import { parsePictures, pictureOf } from './pictures';
@@ -233,6 +234,7 @@ describe('a choice game', () => {
     expect(progress()).toBe(0);
     expect($('.settings-link')?.hidden).toBe(true);
     expect($('.dict-link')?.hidden).toBe(true);
+    expect($('.menorah-link')?.hidden).toBe(true);
   });
 
   it('shows a right answer with the verb card, saves it and waits for "Дальше"', async () => {
@@ -804,6 +806,87 @@ describe('a verb card', () => {
     await start(hashOf({ page: 'verb', id: 'אאא' }));
     expect(text('.verb-page p')).toBe(texts.verb.notFound);
     expect($as('.verb-page .back', HTMLAnchorElement)?.getAttribute('href')).toBe('#/dict');
+  });
+});
+
+const branches = () => $$as('.menorah .branch', HTMLAnchorElement);
+
+describe('the menorah', () => {
+  it('opens from the header: seven branches, hitpael in the middle, no card yet', async () => {
+    await start();
+    expect($as('.menorah-link', HTMLAnchorElement)?.getAttribute('href')).toBe('#/menorah');
+    expect(text('.menorah-link')).toBe(texts.menorahLink);
+    await go('#/menorah');
+    expect(text('h1')).toBe(texts.menorah.heading);
+    expect(branches().map((a) => a.getAttribute('href'))).toEqual(
+      ['nifal', 'pual', 'hufal', 'hitpael', 'hifil', 'piel', 'paal'].map((b) => `#/menorah/${b}`),
+    );
+    expect(branches()[6]?.querySelector('.he')?.textContent).toBe(BINYAN_HEBREW.paal);
+    expect(branches()[6]?.querySelector('.name')?.textContent).toBe(texts.binyanim.paal);
+    expect(branches()[3]?.classList.contains('branch-reflexive')).toBe(true);
+    expect($$('.menorah .branch[aria-current]')).toHaveLength(0);
+    expect($('.binyan-card')).toBeNull();
+    expect(text('.menorah-page .hint')).toBe(texts.menorah.choose);
+    expect($('.menorah-link')?.hidden).toBe(false);
+  });
+
+  it('opens a binyan: its meaning, features, model forms and examples', async () => {
+    await start('#/menorah/piel');
+    expect(branches()[5]?.getAttribute('aria-current')).toBe('page');
+    expect($$('.menorah .branch[aria-current]')).toHaveLength(1);
+    expect(text('.binyan-card h2 .he')).toBe(BINYAN_HEBREW.piel);
+    expect(text('.binyan-card h2')).toContain(texts.binyanim.piel);
+    expect(text('.binyan-card .meaning')).toBe(texts.menorah.binyanim.piel.meaning);
+    expect($$('.binyan-card .features li').map((li) => li.textContent)).toEqual(texts.menorah.binyanim.piel.features);
+    expect($('.binyan-card .features .he[dir="rtl"]')).not.toBeNull();
+    // The pair: piel's passive is pual, a link to it.
+    expect($as('.binyan-card .pair a', HTMLAnchorElement)?.getAttribute('href')).toBe('#/menorah/pual');
+    const model = $$('.binyan-card .model tr');
+    expect(model.map((tr) => tr.querySelector('th')?.textContent)).toEqual([
+      texts.menorah.infinitive,
+      texts.tenses.present,
+      texts.tenses.past,
+      texts.tenses.future,
+    ]);
+    expect(model[0]?.querySelector('.he')?.textContent).toBe(BINYAN_MODELS.piel.infinitive?.nikud);
+    expect([...(model[2]?.querySelectorAll('.model-form') ?? [])].map((f) => f.textContent)).toEqual([
+      `он${BINYAN_MODELS.piel.past['3ms'].nikud}${BINYAN_MODELS.piel.past['3ms'].translit}`,
+      `она${BINYAN_MODELS.piel.past['3fs'].nikud}${BINYAN_MODELS.piel.past['3fs'].translit}`,
+      `я${BINYAN_MODELS.piel.past['1s'].nikud}${BINYAN_MODELS.piel.past['1s'].translit}`,
+      `они${BINYAN_MODELS.piel.past['3p'].nikud}${BINYAN_MODELS.piel.past['3p'].translit}`,
+    ]);
+    const examples = $$as('.binyan-card .examples a', HTMLAnchorElement);
+    expect(examples.map((a) => a.getAttribute('href'))).toEqual(BINYAN_EXAMPLES.piel.map((id) => hashOf({ page: 'verb', id })));
+    expect(examples[0]?.querySelector('.he')?.textContent).toBe('לְדַבֵּר');
+    expect(examples[0]?.querySelector('.ru')?.textContent).toBe(ru(verb('דיבר')));
+    expect(text('.binyan-card .count')).toBe(fill(texts.menorah.count, { n: verbs.filter((v) => v.binyan === 'piel').length }));
+  });
+
+  it('tells a binyan without an infinitive and the active one of a passive', async () => {
+    await start('#/menorah/hufal');
+    expect(text('.binyan-card .model tr th')).toBe(texts.menorah.infinitive);
+    expect(text('.binyan-card .model tr td')).toBe(texts.menorah.noInfinitive);
+    expect(text('.binyan-card .pair')).toContain(texts.menorah.passiveOf);
+    expect($as('.binyan-card .pair a', HTMLAnchorElement)?.getAttribute('href')).toBe('#/menorah/hifil');
+    await go('#/menorah/hitpael');
+    expect($('.binyan-card .pair')).toBeNull();
+  });
+
+  it('shows the spelling and the transliteration of the settings', async () => {
+    const state = loadState(storage);
+    saveState(storage, { ...state, settings: { ...state.settings, nikud: false, translit: false } });
+    await start('#/menorah/piel');
+    expect(text('.binyan-card .model tr .he')).toBe(BINYAN_MODELS.piel.infinitive?.plain);
+    expect(text('.binyan-card .examples .he')).toBe('לדבר');
+    expect($('.binyan-card .translit')).toBeNull();
+    // The names on the branches and the texts keep their nikud: they tell the vowels.
+    expect(branches()[5]?.querySelector('.he')?.textContent).toBe(BINYAN_HEBREW.piel);
+  });
+
+  it('is where a verb card leads by its binyan', async () => {
+    await start(hashOf({ page: 'verb', id: 'דיבר' }));
+    await go($as('.verb-meta a.binyan', HTMLAnchorElement)?.getAttribute('href') ?? '');
+    expect(text('.binyan-card h2 .he')).toBe(BINYAN_HEBREW.piel);
   });
 });
 

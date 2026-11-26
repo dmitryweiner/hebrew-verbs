@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { GAMES } from './games';
-import { hashOf, menorahHash, routeOf } from './routes';
+import { hashOf, routeOf } from './routes';
+import { BINYANIM } from './verbs';
 
 describe('routes', () => {
   it('open a game of part 1 by its id, of parts 2–4 by form or person', () => {
@@ -36,8 +37,12 @@ describe('routes', () => {
     expect(routeOf('#/dict/דיבר')).toEqual({ page: 'verb', id: 'דיבר' });
   });
 
-  it('give each binyan a hash of the menorah', () => {
-    expect(menorahHash('piel')).toBe('#/menorah/piel');
+  it('open the menorah, with a binyan or without', () => {
+    expect(routeOf('#/menorah')).toEqual({ page: 'menorah' });
+    expect(hashOf({ page: 'menorah' })).toBe('#/menorah');
+    expect(routeOf('#/menorah/piel')).toEqual({ page: 'menorah', binyan: 'piel' });
+    expect(hashOf({ page: 'menorah', binyan: 'piel' })).toBe('#/menorah/piel');
+    for (const binyan of BINYANIM) expect(routeOf(hashOf({ page: 'menorah', binyan }))).toEqual({ page: 'menorah', binyan });
   });
 
   it('send an unknown or broken hash home', () => {
@@ -50,6 +55,8 @@ describe('routes', () => {
       '#settings/x',
       '#/dict/%E0%A4%A',
       '#/dict/',
+      '#/menorah/qal',
+      '#/menorah/',
     ])
       expect(routeOf(hash)).toEqual({ page: 'home' });
   });

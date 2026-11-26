@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest';
-import { h, hebrewWord } from '../dom';
+import { h, hebrewWord, withHebrew } from '../dom';
 import type { EmojiSupport } from '../emoji';
 import { pictureElement } from './picture';
 
@@ -30,6 +30,17 @@ describe('dom helpers', () => {
     const plain = hebrewWord(form, 'plain', false);
     expect(plain.textContent).toBe('לאכול');
     expect(plain.querySelector('.translit')).toBeNull();
+  });
+
+  it('isolate each Hebrew run of a Russian text, maqaf and nikud included', () => {
+    const p = h('p', {}, ...withHebrew('Приставка נִ־ в прошедшем: נִפְעַל, נִכְנַס.'));
+    expect([...p.querySelectorAll('[lang="he"]')].map((el) => [el.textContent, el.getAttribute('dir')])).toEqual([
+      ['נִ־', 'rtl'],
+      ['נִפְעַל', 'rtl'],
+      ['נִכְנַס', 'rtl'],
+    ]);
+    expect(p.textContent).toBe('Приставка נִ־ в прошедшем: נִפְעַל, נִכְנַס.');
+    expect(withHebrew('без иврита')).toEqual(['без иврита']);
   });
 });
 

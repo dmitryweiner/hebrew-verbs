@@ -8,7 +8,7 @@ import { BINYAN_HEBREW } from '../binyanim';
 import { h, hebrewWord } from '../dom';
 import { labelOf, personsOf, TENSES, type Tense } from '../persons';
 import { pictureOf } from '../pictures';
-import { hashOf, menorahHash } from '../routes';
+import { hashOf } from '../routes';
 import { texts } from '../texts';
 import { FUTURE_SLOTS, PAST_SLOTS, PRESENT_SLOTS, type Form, type Verb } from '../verbs';
 import type { AppContext } from './context';
@@ -99,7 +99,7 @@ export function verbView(id: string) {
             {},
             h(
               'a',
-              { class: 'binyan', href: menorahHash(verb.binyan) },
+              { class: 'binyan', href: hashOf({ page: 'menorah', binyan: verb.binyan }) },
               `${texts.binyanim[verb.binyan]} `,
               h('span', { class: 'he', lang: 'he', dir: 'rtl' }, BINYAN_HEBREW[verb.binyan]),
             ),

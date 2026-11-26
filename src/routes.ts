@@ -1,12 +1,17 @@
 // Hash routes (plan, section 8): #/, #/part/1/he-ru, #/part/2/form,
-// #/dict?q=…, #/dict/<id>, #/settings. A game of part 1 is named by its id,
+// #/dict?q=…, #/dict/<id>, #/menorah, #/menorah/<binyan>, #/settings. A game of part 1 is named by its id,
 // a game of parts 2–4 by its kind.
 
 import { GAMES, gamePart, type GameId } from './games';
-import type { Binyan } from './verbs';
+import { BINYANIM, type Binyan } from './verbs';
 
 export type Route =
-  { page: 'home' } | { page: 'settings' } | { page: 'game'; game: GameId } | { page: 'dict'; query: string } | { page: 'verb'; id: string };
+  | { page: 'home' }
+  | { page: 'settings' }
+  | { page: 'game'; game: GameId }
+  | { page: 'dict'; query: string }
+  | { page: 'verb'; id: string }
+  | { page: 'menorah'; binyan?: Binyan };
 
 /** The last part of a game's hash: he-ru in part 1, form in present-form. */
 const slug = (game: GameId): string => game.replace(/^(present|past|future)-/u, '');
@@ -16,11 +21,9 @@ export function hashOf(route: Route): string {
   if (route.page === 'settings') return '#/settings';
   if (route.page === 'dict') return route.query === '' ? '#/dict' : `#/dict?${new URLSearchParams({ q: route.query })}`;
   if (route.page === 'verb') return `#/dict/${encodeURIComponent(route.id)}`;
+  if (route.page === 'menorah') return route.binyan ? `#/menorah/${route.binyan}` : '#/menorah';
   return `#/part/${gamePart(route.game)}/${slug(route.game)}`;
 }
-
-/** A binyan's page of the menorah (stage 7; until then the hash leads home). */
-export const menorahHash = (binyan: Binyan): string => `#/menorah/${binyan}`;
 
 function decoded(text: string): string | undefined {
   try {
@@ -39,6 +42,9 @@ export function routeOf(hash: string): Route {
     const id = decoded(path.slice(5));
     return id ? { page: 'verb', id } : { page: 'home' };
   }
+  if (path === 'menorah') return { page: 'menorah' };
+  const binyan = BINYANIM.find((b) => path === `menorah/${b}`);
+  if (binyan) return { page: 'menorah', binyan };
   const game = GAMES.find((g) => path === `part/${gamePart(g)}/${slug(g)}`);
   return game ? { page: 'game', game } : { page: 'home' };
 }

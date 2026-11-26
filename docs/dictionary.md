@@ -39,8 +39,8 @@ The index is built once, on the first visit (~50 ms); a query takes
 `src/views/verb.ts`: the picture (always, decision 14), the headword with 🔊
 and its other spellings ("также לאמור"), the translations, "нет инфинитива"
 for a verb without one; the root (ח־ת־ן), the binyan in Russian and Hebrew
-as a link to its menorah page (`#/menorah/<binyan>`, stage 7; until then
-the link leads home), the rank. Then a table per tense, a row per form:
+as a link to its card on the menorah (`#/menorah/<binyan>`,
+[menorah.md](menorah.md)), the rank. Then a table per tense, a row per form:
 who says it (the present's "я (м.), ты (м.), он", the past's "они (м.),
 они (ж.)"), the form, 🔊. The literary future (תֹּאכַלְנָה) stands small in
 the rows of вы (ж.) and они (ж.) (decision 6). A tense the verb lacks is

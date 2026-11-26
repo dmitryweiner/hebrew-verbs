@@ -8,6 +8,7 @@ link new files from this index.
 | [data.md](data.md)             | the verb data: pipeline, files, format, Russian forms, how to change            |
 | [dictionary.md](dictionary.md) | the dictionary: search rules, the verb's card                                   |
 | [games.md](games.md)           | the nine games: tasks, persons, verb selection, storage, how the app shows them |
+| [menorah.md](menorah.md)       | the menorah of the binyanim: the branches, a binyan's card                      |
 
 Plans of upcoming work go to `plans/`, not here; once a plan is done, what
 remains true about the design moves into a file here.

@@ -26,3 +26,11 @@ export function hebrewWord(form: { nikud: string; plain: string; translit: strin
     translit && h('span', { class: 'translit' }, form.translit),
   );
 }
+
+/** A Russian text with each Hebrew run (letters, nikud, maqaf) isolated right to left, as hebrewWord does. */
+export function withHebrew(text: string): (Node | string)[] {
+  return text
+    .split(/([֑-״]+)/u)
+    .filter((part) => part !== '')
+    .map((part) => (/[א-ת]/u.test(part) ? h('span', { class: 'he', lang: 'he', dir: 'rtl' }, part) : part));
+}

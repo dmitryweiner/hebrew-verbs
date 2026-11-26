@@ -1,7 +1,9 @@
 // Browser smoke of the real app: the home page renders with the verb data,
 // a round of a part-1 game and of a tense game run to their results, a typed
 // answer is taken, the dictionary finds a verb by a form and opens its card,
-// no horizontal scroll on a phone (home, game, dictionary and card screens),
+// the menorah opens a binyan and leads to an example's card, no horizontal
+// scroll on a phone (home, game, dictionary, card and menorah screens), the
+// menorah's arms meet its branches,
 // no console errors. In dev it also checks the canvas emoji test. With
 // --preview it runs against a fresh production build and also checks that
 // the service worker makes the app work offline and that a new deploy
@@ -118,6 +120,35 @@ try {
     await context.close();
   });
 
+  await step('the menorah opens a binyan on a phone, its arms under the branches, an example leads to its card', async () => {
+    const { page, context } = await app.open({ viewport: VIEWPORTS.phone });
+    await page.goto(app.base);
+    await page.locator('.menorah-link').click();
+    await page.locator('.menorah .branch').first().waitFor();
+    check((await page.locator('.menorah .branch').count()) === 7, 'the menorah has not seven branches');
+    // Each flame stands over the top of its arm: the columns and the SVG share one grid.
+    const offsets = await page.evaluate(() => {
+      const svg = document.querySelector('.menorah-arms');
+      const box = svg.getBoundingClientRect();
+      const scale = box.width / 700;
+      return [...document.querySelectorAll('.menorah .flame')].map((flame, i) => {
+        const r = flame.getBoundingClientRect();
+        return Math.abs(r.left + r.width / 2 - (box.left + (50 + 100 * i) * scale)) + Math.abs(box.top - r.bottom);
+      });
+    });
+    check(
+      offsets.every((d) => d < 12),
+      `the flames miss their arms by ${offsets.map((d) => Math.round(d)).join(', ')} px`,
+    );
+    await page.locator('.menorah .branch[href="#/menorah/piel"]').click();
+    await page.locator('.binyan-card .model').waitFor();
+    check((await page.locator('.binyan-card h2 .he').textContent()) === 'פִּעֵל', 'the card is not of piel');
+    await page.locator('.binyan-card .examples a').first().click();
+    await page.locator('.tense-past tbody tr').first().waitFor();
+    check((await page.locator('h1 .he').textContent()) === 'לְדַבֵּר', 'the first example is not לדבר');
+    await context.close();
+  });
+
   if (!preview) {
     await step('the canvas emoji test tells a drawn emoji from a missing one', async () => {
       const { page, context } = await app.open();
@@ -134,32 +165,38 @@ try {
   }
 
   for (const [name, viewport] of Object.entries(VIEWPORTS)) {
-    await step(`no horizontal scroll on ${name} (${viewport.width}px): home, the games, settings, dictionary, a card`, async () => {
-      const { page, context } = await app.open({ viewport });
-      const screens = [
-        ['home', '#/', 'h1'],
-        ['he-ru', '#/part/1/he-ru', '.option'],
-        ['write', '#/part/1/write', '.answer-input'],
-        ['present-form', '#/part/2/form', '.option'],
-        ['future-person', '#/part/4/person', '.option'],
-        ['settings', '#/settings', '.toggle'],
-        ['dictionary', '#/dict', '.dict-results li'],
-        // A form of two tenses: the found forms under the verb.
-        ['dictionary-form', `#/dict?q=${encodeURIComponent('אוכל')}`, '.hit'],
-        // The longest translations and a picture: התחתן, "жениться, выходить замуж".
-        ['card', `#/dict/${encodeURIComponent('התחתן')}`, '.forms'],
-      ];
-      for (const [screen, hash, ready] of screens) {
-        await page.goto(`${app.base}${hash}`);
-        await page.locator(ready).first().waitFor();
-        // A choice game is measured after an answer: the feedback is its widest screen.
-        if (ready === '.option') await page.locator('.option').first().click();
-        const width = await page.evaluate(() => document.documentElement.scrollWidth);
-        check(width <= viewport.width, `${screen} is ${width}px wide`);
-        if (shots) await page.screenshot({ path: `shots/${name}-${screen}.png`, fullPage: true });
-      }
-      await context.close();
-    });
+    await step(
+      `no horizontal scroll on ${name} (${viewport.width}px): home, the games, settings, dictionary, a card, the menorah`,
+      async () => {
+        const { page, context } = await app.open({ viewport });
+        const screens = [
+          ['home', '#/', 'h1'],
+          ['he-ru', '#/part/1/he-ru', '.option'],
+          ['write', '#/part/1/write', '.answer-input'],
+          ['present-form', '#/part/2/form', '.option'],
+          ['future-person', '#/part/4/person', '.option'],
+          ['settings', '#/settings', '.toggle'],
+          ['dictionary', '#/dict', '.dict-results li'],
+          // A form of two tenses: the found forms under the verb.
+          ['dictionary-form', `#/dict?q=${encodeURIComponent('אוכל')}`, '.hit'],
+          // The longest translations and a picture: התחתן, "жениться, выходить замуж".
+          ['card', `#/dict/${encodeURIComponent('התחתן')}`, '.forms'],
+          ['menorah', '#/menorah', '.menorah .branch'],
+          // The longest model forms: hitpael's.
+          ['menorah-hitpael', '#/menorah/hitpael', '.binyan-card .model'],
+        ];
+        for (const [screen, hash, ready] of screens) {
+          await page.goto(`${app.base}${hash}`);
+          await page.locator(ready).first().waitFor();
+          // A choice game is measured after an answer: the feedback is its widest screen.
+          if (ready === '.option') await page.locator('.option').first().click();
+          const width = await page.evaluate(() => document.documentElement.scrollWidth);
+          check(width <= viewport.width, `${screen} is ${width}px wide`);
+          if (shots) await page.screenshot({ path: `shots/${name}-${screen}.png`, fullPage: true });
+        }
+        await context.close();
+      },
+    );
   }
 
   if (preview) {
