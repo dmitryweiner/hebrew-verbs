@@ -3,7 +3,7 @@
 The rules of the nine games as the core (`src/`, no DOM) implements them, and
 how the app shows them and their progress (the last two sections). The
 decisions behind them are in the plan (`plans/2026-11-24-hebrew-verbs.md`,
-sections 2–3 and 6, decisions 5–10, 13, 25–27, 35, 37, 41, 45–49, 57, 64–71).
+sections 2–3 and 6, decisions 5–10, 13, 25–27, 35, 37, 41, 45–49, 57, 64–72).
 
 ## The games
 
@@ -50,7 +50,7 @@ per verb id `shown`, `correct`, `wrong`, `streak` (correct in a row) and
 
 ## Meeting the verbs
 
-`src/meeting.ts`. Nothing is asked before it is met (decisions 68–71).
+`src/meeting.ts`. Nothing is asked before it is met (decisions 68–72).
 Every part keeps the verbs met in it (`met` in the storage): its pool
 (`partPool`, the pool of its games: in parts 2–4 the verbs with the tense)
 in the order met. A verb met in part 1 is known to all three of its games;
