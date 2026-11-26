@@ -1,9 +1,9 @@
 # Games
 
 The rules of the nine games as the core (`src/`, no DOM) implements them, and
-how the app shows them (the last section). The
+how the app shows them and their progress (the last two sections). The
 decisions behind them are in the plan (`plans/2026-11-24-hebrew-verbs.md`,
-sections 2–3 and 6, decisions 5–10, 13, 25–27, 35, 37, 41, 45–49).
+sections 2–3 and 6, decisions 5–10, 13, 25–27, 35, 37, 41, 45–49, 57, 64–72).
 
 ## The games
 
@@ -47,6 +47,23 @@ per verb id `shown`, `correct`, `wrong`, `streak` (correct in a row) and
   (taken from alef-bet). The first round is the 10 most frequent verbs.
   Only a game with fewer than 10 open verbs repeats them, never the same one
   twice in a row.
+
+## Meeting the verbs
+
+`src/meeting.ts`. Nothing is asked before it is met (decisions 68–72).
+Every part keeps the verbs met in it (`met` in the storage): its pool
+(`partPool`, the pool of its games: in parts 2–4 the verbs with the tense)
+in the order met. A verb met in part 1 is known to all three of its games;
+a tense part meets its verbs again, in its tense.
+
+- The part's meeting, `#/part/<n>/intro`, shows the next verbs not met, the
+  most frequent first (`nextToMeet`): ten the first time (what the first
+  round asks), then five.
+- A round starts with a card of each of its verbs not met yet (`toMeet`),
+  then its tasks. A part met ahead asks at once: rounds take the most
+  frequent new verbs, the ones met first.
+- "Понятно" on a card meets the verb: it goes into the part's games. It is
+  not learned: that still takes three right answers in a row.
 
 ## Tasks
 
@@ -92,24 +109,37 @@ remark. The verdict names the verb that matched.
 
 ## Storage
 
-`src/storage.ts`: one key, `hebrew-verbs`, holding `{ version: 3, settings,
-stats }`; `settings` are `nikud`, `translit` and `autoNext`. `stats` maps a
-game id to its `GameStats`. Every field is checked on load: an unknown game,
-a bad verb entry (counts that do not add up, a streak above the correct
-answers) or a bad `open` is dropped or reset on its own. Version 2 is read as
-it is (`autoNext` off); version 1 (settings only) keeps its settings.
+`src/storage.ts`: one key, `hebrew-verbs`, holding `{ version: 4, settings,
+stats, met }`; `settings` are `nikud`, `translit` and `autoNext`. `stats` maps a
+game id to its `GameStats`, `met` a part (1–4) to the verb ids met in it.
+Every field is checked on load: an unknown game, a bad verb entry (counts
+that do not add up, a streak above the correct answers), a bad `open`, an
+unknown part or a non-string id is dropped or reset on its own. Versions 2
+and 3 are read as they are (version 2: `autoNext` off), their parts meeting
+the verbs their games asked; version 1 (settings only) keeps its settings.
 
-"Сбросить статистику" in the settings empties `stats` of every game after a
-question right under the button; the settings stay (decision 57).
+"Сбросить статистику" in the settings empties `stats` of every game and
+`met` after a question right under the button; the settings stay (decisions
+57, 69). The progress page resets one game the same way: its entry goes,
+the others, the verbs met and the settings stay.
 
 ## In the app
 
 `src/views/game.ts`, `src/round.ts`; one view for all nine games.
-`src/views/home.ts`: all four parts open, each game with "выучено N из M"
-(learned of its open verbs).
+`src/views/home.ts`: all four parts open, each first with its meeting,
+"знакомо N из M" (met of the part's verbs), then each game with "выучено N
+из M" (learned of its open verbs).
 
+- A meeting's card (`src/views/meet-card.ts`): the picture, the headword
+  with 🔊, the translations; in parts 2–4 also the verb's table of the tense
+  (who says it, the form, 🔊, as in the dictionary's card) and "Как строятся
+  формы:" with a link to the binyan on the menorah. The part's meeting
+  (`src/views/meeting.ts`) ends with the verbs met, "Проверить себя" (the
+  part's first game), "Ещё 5" and "К частям". A game and a meeting hide the
+  header's links.
 - A round's tasks are built when it starts, in the spelling of the nikud
-  setting then. Every answer goes to the game's statistics at once.
+  setting then; its verbs not met come first, "Новый глагол · 1 из 3".
+  Every answer goes to the game's statistics at once.
 - After an answer: the right option green, a wrong choice red, and under
   every option its other side: the headword under a translation and back;
   under a form who says it (`labelOf`: "я (ж.), ты (ж.), она"); under a
@@ -135,3 +165,26 @@ question right under the button; the settings stay (decision 57).
   "Повторить ошибки" makes a round of the verbs answered wrong, each once,
   with a new person.
 - Digit keys 1–4 pick an option (a plain present with three forms takes no 4).
+
+## Progress
+
+`src/progress.ts`, `gameProgress(pool, stats)`; the page `#/progress`,
+`src/views/progress.ts`. Entry: a button at the end of the home page and a
+link in the settings' statistics (the header has no room on a phone).
+
+- Under each part's heading: "Знакомство: знакомо N из M".
+
+- Every game by part, its name a link to the game. A game never answered
+  says "Ещё не играли." and nothing else.
+- A played game: four tiles — learned of the open verbs ("0 из 20", as on
+  the home page), open of the game's pool ("20 из 1000"), the share of right
+  answers of all its answers, and the number of answers.
+- Its hardest verbs, at most five: the verbs of its pool answered wrong at
+  least once, the highest error rate (`errorRate`, smoothed as for the
+  weights) first, then more mistakes, then more frequent. Each is a link to
+  its card, in the spelling and transliteration of the settings, with
+  "неверно 2 из 3"; none — "Ошибок нет.".
+- "Сбросить статистику игры" asks right under the button, naming the game
+  with its tense ("Прошедшее · Местоимение → форма"); after the reset the
+  game says "Ещё не играли." and the button is disabled. Every game at once
+  is reset in the settings (`src/views/reset.ts` builds both).

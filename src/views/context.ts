@@ -2,7 +2,7 @@
 // and the browser services, so tests can replace each of them.
 
 import type { EmojiSupport } from '../emoji';
-import type { GameId } from '../games';
+import type { GameId, Part } from '../games';
 import type { Pictures } from '../pictures';
 import type { Random } from '../selection';
 import type { Speaker } from '../speech';
@@ -18,8 +18,12 @@ export interface AppContext {
   gameStats(game: GameId): GameStats;
   /** Records an answer in the game's statistics and saves them. */
   recordAnswer(game: GameId, verb: Verb, correct: boolean): void;
-  /** Forgets the statistics of every game; the settings stay. */
-  resetStats(): void;
+  /** The verb ids met in a part (decisions 68–69). */
+  met(part: Part): ReadonlySet<string>;
+  /** Marks a verb met in a part and saves it. */
+  meet(part: Part, verb: Verb): void;
+  /** Forgets the statistics of one game, or of every game and the verbs met; the settings stay. */
+  resetStats(game?: GameId): void;
   /** The dictionary's last query, in memory only: a card leads back to it. */
   lastQuery(): string;
   setLastQuery(query: string): void;

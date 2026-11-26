@@ -15,7 +15,9 @@ import type { AppContext, View } from './views/context';
 import { dictionaryView } from './views/dictionary';
 import { gameView } from './views/game';
 import { homeView } from './views/home';
+import { meetingView } from './views/meeting';
 import { menorahView } from './views/menorah';
+import { progressView } from './views/progress';
 import { settingsView } from './views/settings';
 import { verbView } from './views/verb';
 
@@ -44,7 +46,9 @@ function message(text: string): HTMLElement {
 
 function viewOf(route: Route): View {
   if (route.page === 'settings') return settingsView;
+  if (route.page === 'progress') return progressView;
   if (route.page === 'game') return gameView(route.game);
+  if (route.page === 'intro') return meetingView(route.part);
   if (route.page === 'dict') return dictionaryView(route.query);
   if (route.page === 'verb') return verbView(route.id);
   if (route.page === 'menorah') return menorahView(route.binyan);
@@ -85,8 +89,19 @@ export function startApp({ storage, loadData, speaker, emoji, now = Date.now, ra
         state.stats[game] = answer(pool(game), state.stats[game] ?? emptyGameStats(), verb.id, correct, now());
         saveState(storage, state);
       },
-      resetStats() {
-        state.stats = {};
+      met: (part) => new Set(state.met[part]),
+      meet(part, verb) {
+        const ids = state.met[part] ?? [];
+        if (ids.includes(verb.id)) return;
+        state.met[part] = [...ids, verb.id];
+        saveState(storage, state);
+      },
+      resetStats(game) {
+        if (game) delete state.stats[game];
+        else {
+          state.stats = {};
+          state.met = {};
+        }
         saveState(storage, state);
       },
       lastQuery: () => lastQuery,
@@ -106,7 +121,7 @@ export function startApp({ storage, loadData, speaker, emoji, now = Date.now, ra
     if (!ctx) return;
     const route = routeOf(window.location.hash);
     stopView?.();
-    for (const link of headerLinks) link.hidden = route.page === 'game';
+    for (const link of headerLinks) link.hidden = route.page === 'game' || route.page === 'intro';
     document.documentElement.scrollTop = 0;
     stopView = viewOf(route)(root, ctx);
   }

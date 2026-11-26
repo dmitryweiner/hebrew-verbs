@@ -42,6 +42,12 @@ export function gameTense(game: GameId): Tense | undefined {
   return game.startsWith('future-') ? 'future' : undefined;
 }
 
+/** The tense of a part: none for part 1. */
+export function partTense(part: Part): Tense | undefined {
+  const game = PARTS.find((p) => p.part === part)?.games[0];
+  return game && gameTense(game);
+}
+
 /** The verbs a game asks about, most frequent first: those that have its tense. */
 export function gamePool(verbs: readonly Verb[], game: GameId): Verb[] {
   const tense = gameTense(game);

@@ -1,8 +1,10 @@
 // Browser smoke of the real app: the home page renders with the verb data,
-// a round of a part-1 game and of a tense game run to their results, a typed
+// a round of a part-1 game and of a tense game run to their results, each
+// after meeting its verbs, a meeting of part 3 leads to its game, a typed
 // answer is taken, the dictionary finds a verb by a form and opens its card,
-// the menorah opens a binyan and leads to an example's card, no horizontal
-// scroll on a phone (home, game, dictionary, card and menorah screens), the
+// the menorah opens a binyan and leads to an example's card, the progress
+// page shows a played game and resets it, no horizontal scroll on a phone
+// (home, game, dictionary, card, menorah and progress screens), the
 // menorah's arms meet its branches,
 // no console errors. In dev it also checks the canvas emoji test. With
 // --preview it runs against a fresh production build and also checks that
@@ -24,6 +26,14 @@ const preview = flags.has('preview');
 const shots = flags.has('shots');
 const app = await launch({ preview });
 const HEADING = 'Глаголы иврита';
+
+/** Says "Понятно" to every verb a round or a meeting shows before its tasks. */
+async function meetAll(page) {
+  await page.locator('.meet-next, .option, .answer-input').first().waitFor();
+  const next = page.locator('.meet-next');
+  // The next card is drawn at the click: count needs no wait here.
+  while ((await next.count()) > 0) await next.click();
+}
 
 /** Answers the current choice task with its first option and goes on. */
 async function answerFirst(page) {
@@ -52,6 +62,11 @@ try {
   await step('a he-ru round runs to its results and repeats the mistakes', async () => {
     const { page, context } = await app.open();
     await page.goto(`${app.base}#/part/1/he-ru`);
+    // A first round: ten verbs never met, a card each before the tasks.
+    await page.locator('.meet-card').waitFor();
+    // A game and its meeting hide the header's links (decision 55).
+    check(!(await page.locator('.dict-link').isVisible()), 'the header shows its links in a game');
+    await meetAll(page);
     for (let i = 0; i < 10; i++) await answerFirst(page);
     await page.locator('.summary').waitFor();
     check((await page.locator('.results li').count()) === 10, 'the results do not list ten tasks');
@@ -68,6 +83,7 @@ try {
   await step('a past-person round on a phone runs to its results, each task a phrase', async () => {
     const { page, context } = await app.open({ viewport: VIEWPORTS.phone });
     await page.goto(`${app.base}#/part/3/person`);
+    await meetAll(page);
     for (let i = 0; i < 10; i++) {
       await page.locator('.option').first().waitFor();
       check((await page.locator('.option').count()) === 4, `task ${i + 1} has not four options`);
@@ -83,6 +99,7 @@ try {
   await step('the write game takes a typed answer on a phone', async () => {
     const { page, context } = await app.open({ viewport: VIEWPORTS.phone });
     await page.goto(`${app.base}#/part/1/write`);
+    await meetAll(page);
     const asked = await page.locator('.card .ru').textContent();
     const lemma = await page.evaluate(async (ru) => {
       const verbs = await (
@@ -95,6 +112,22 @@ try {
     await page.keyboard.type(lemma);
     await page.getByRole('button', { name: 'Проверить' }).click();
     await page.locator('.feedback.good').waitFor();
+    await context.close();
+  });
+
+  await step('a meeting of part 3 on a phone shows each verb with its past, then leads to its game', async () => {
+    const { page, context } = await app.open({ viewport: VIEWPORTS.phone });
+    await page.goto(app.base);
+    await page.locator('.meet-link[href="#/part/3/intro"]').click();
+    await page.locator('.meet-card .forms').waitFor();
+    check((await page.locator('.meet-card .forms tr').count()) === 9, 'the past table has not nine rows');
+    await meetAll(page);
+    await page.locator('.summary').waitFor();
+    check((await page.locator('.results li').count()) === 10, 'the meeting did not show ten verbs');
+    await page.locator('.summary .check').click();
+    // The round asks the ten verbs just met: no meeting first.
+    await page.locator('.option').first().waitFor();
+    check((await page.locator('.meet-card').count()) === 0, 'the round met verbs already met');
     await context.close();
   });
 
@@ -149,6 +182,38 @@ try {
     await context.close();
   });
 
+  await step('the progress page on a phone shows a played game, leads to a hard verb and resets the game', async () => {
+    const { page, context } = await app.open({ viewport: VIEWPORTS.phone });
+    await page.goto(app.base);
+    await page.evaluate(() => {
+      const stat = { shown: 3, correct: 1, wrong: 2, streak: 0, lastSeen: Date.now() };
+      const settings = { nikud: true, translit: true, autoNext: false };
+      localStorage.setItem(
+        'hebrew-verbs',
+        JSON.stringify({ version: 3, settings, stats: { 'he-ru': { open: 20, verbs: { ידע: stat } } } }),
+      );
+    });
+    await page.reload();
+    await page.locator('main .progress-link').click();
+    const game = page.locator('.game-stats[data-game="he-ru"]');
+    await game.locator('.tiles').waitFor();
+    check((await page.locator('.game-stats').count()) === 9, 'the page has not nine games');
+    check(
+      (await game.locator('.tiles dd').allTextContents()).join(' | ') === '0 из 20 | 20 из 1000 | 33\u00a0% | 3',
+      'the tiles are wrong',
+    );
+    await game.locator('.hardest a').click();
+    await page.locator('.tense-past tbody tr').first().waitFor();
+    check((await page.locator('h1 .he').textContent()) === 'לָדַעַת', 'the hard verb is not לדעת');
+    await page.goBack();
+    await game.locator('.reset').click();
+    await game.locator('.reset-yes').click();
+    await game.locator('.reset-status').filter({ hasText: 'сброшена' }).waitFor();
+    const stored = await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('hebrew-verbs') ?? '{}').stats ?? {}));
+    check(stored.length === 0, 'the game was not reset');
+    await context.close();
+  });
+
   if (!preview) {
     await step('the canvas emoji test tells a drawn emoji from a missing one', async () => {
       const { page, context } = await app.open();
@@ -166,7 +231,7 @@ try {
 
   for (const [name, viewport] of Object.entries(VIEWPORTS)) {
     await step(
-      `no horizontal scroll on ${name} (${viewport.width}px): home, the games, settings, dictionary, a card, the menorah`,
+      `no horizontal scroll on ${name} (${viewport.width}px): home, the games, settings, dictionary, a card, the menorah, progress, meetings`,
       async () => {
         const { page, context } = await app.open({ viewport });
         const screens = [
@@ -184,9 +249,15 @@ try {
           ['menorah', '#/menorah', '.menorah .branch'],
           // The longest model forms: hitpael's.
           ['menorah-hitpael', '#/menorah/hitpael', '.binyan-card .model'],
+          ['meeting', '#/part/1/intro', '.meet-card'],
+          // The longest table: the future, the literary forms under two of its rows.
+          ['meeting-future', '#/part/4/intro', '.meet-card .forms'],
+          // After the games above: each answered one task.
+          ['progress', '#/progress', '.game-stats .tiles'],
         ];
         for (const [screen, hash, ready] of screens) {
           await page.goto(`${app.base}${hash}`);
+          if (ready === '.option' || ready === '.answer-input') await meetAll(page);
           await page.locator(ready).first().waitFor();
           // A choice game is measured after an answer: the feedback is its widest screen.
           if (ready === '.option') await page.locator('.option').first().click();

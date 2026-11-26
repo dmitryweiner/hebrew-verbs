@@ -5,6 +5,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { startApp, type AppOptions } from './app';
 import type { EmojiSupport } from './emoji';
 import { BINYAN_EXAMPLES, BINYAN_HEBREW, BINYAN_MODELS } from './binyanim';
+import { GAMES, PARTS, type GameId } from './games';
+import { FIRST_MEETING, MEETING, partPool } from './meeting';
 import { formOf, labelOf, personsOf, PRONOUNS, withPronoun, type Person, type Tense } from './persons';
 import { ruPhrase } from './phrases';
 import { parsePictures, pictureOf } from './pictures';
@@ -12,10 +14,11 @@ import { hashOf, routeOf } from './routes';
 import { personsWith } from './questions';
 import { seededRandom } from './selection';
 import type { Speaker } from './speech';
-import { loadState, saveState, STORAGE_KEY, type KeyValueStorage } from './storage';
+import type { VerbStat } from './stats';
+import { loadState, saveState, STORAGE_KEY, type KeyValueStorage, type Met } from './storage';
 import { verb, verbs } from './testing';
 import { fill, texts } from './texts';
-import type { Verb } from './verbs';
+import { PAST_SLOTS, type Verb } from './verbs';
 import { CORRECT_DELAY } from './views/game';
 
 const html = readFileSync(resolve(import.meta.dirname, '../index.html'), 'utf8');
@@ -135,7 +138,7 @@ function autoNext() {
 
 /** A game where the verbs of ranks 1..seen were answered: its first round brings the next three. */
 function playedBefore(game: 'write', seen: number) {
-  const state = loadState(null);
+  const state = loadState(storage);
   const stat = { shown: 1, correct: 1, wrong: 0, streak: 1, lastSeen: NOW };
   state.stats[game] = { open: 30, verbs: Object.fromEntries(verbs.filter((v) => v.rank <= seen).map((v) => [v.id, stat])) };
   saveState(storage, state);
@@ -150,10 +153,18 @@ function skipTo(id: string) {
   expect(asked().id).toBe(id);
 }
 
+/** Every verb met in every part: a game asks at once, with no meeting first. The tests of meeting start without it. */
+function metEverything() {
+  const met: Met = {};
+  for (const { part } of PARTS) met[part] = partPool(verbs, part).map((v) => v.id);
+  saveState(storage, { ...loadState(storage), met });
+}
+
 beforeEach(() => {
   document.head.innerHTML = head;
   document.body.innerHTML = body;
   storage = memoryStorage();
+  metEverything();
   speaker = fakeSpeaker(null);
 });
 afterEach(async () => {
@@ -646,6 +657,7 @@ describe('settings', () => {
     reset?.click();
     $as('.reset-yes', HTMLButtonElement)?.click();
     expect(loadState(storage).stats).toEqual({});
+    expect(loadState(storage).met).toEqual({});
     expect(loadState(storage).settings.translit).toBe(false);
     expect($('.reset-confirm')?.hidden).toBe(true);
     expect(text('.reset-status')).toBe(texts.settings.resetDone);
@@ -655,7 +667,8 @@ describe('settings', () => {
     expect($$('.game-progress').map((p) => p.textContent)).toEqual(Array(9).fill('выучено 0 из 20'));
   });
 
-  it('offer no reset while there are no statistics', async () => {
+  it('offer no reset while there are no statistics and no verb met', async () => {
+    storage = memoryStorage();
     await start('#/settings');
     expect($as('.reset', HTMLButtonElement)?.disabled).toBe(true);
   });
@@ -668,6 +681,110 @@ describe('settings', () => {
     $as('input[name="translit"]', HTMLInputElement)?.click();
     expect(Object.keys(loadState(storage).stats)).toEqual(['he-ru']);
     expect(storage.data.has(STORAGE_KEY)).toBe(true);
+  });
+});
+
+const verbStat = ([correct, wrong, streak]: [number, number, number]): VerbStat => ({
+  shown: correct + wrong,
+  correct,
+  wrong,
+  streak,
+  lastSeen: NOW,
+});
+
+/** Saves a game's statistics as if it was played: these verbs answered so, `open` verbs open. */
+function played(game: GameId, answers: Record<string, [correct: number, wrong: number, streak: number]>, open = 20) {
+  const state = loadState(storage);
+  state.stats[game] = { open, verbs: Object.fromEntries(Object.entries(answers).map(([id, a]) => [id, verbStat(a)])) };
+  saveState(storage, state);
+}
+
+/** A selector inside a game's block on the progress page. */
+const inGame = (game: GameId, selector: string) => `.game-stats[data-game="${game}"] ${selector}`;
+
+describe('the progress page', () => {
+  it('opens from the home page and the settings, every game not played yet', async () => {
+    await start();
+    expect($as('main .progress-link', HTMLAnchorElement)?.getAttribute('href')).toBe('#/progress');
+    expect(text('main .progress-link')).toBe(texts.home.progress);
+    await go('#/settings');
+    expect($as('main .progress-link', HTMLAnchorElement)?.getAttribute('href')).toBe('#/progress');
+    await go('#/progress');
+    expect(text('h1')).toBe(texts.progress.heading);
+    expect(text('main > .hint')).toBe(texts.progress.intro);
+    expect($$('.part h2').map((h) => h.textContent)).toEqual(Object.values(texts.parts));
+    // Every verb is met in these tests.
+    expect($$('.part .part-known').map((p) => p.textContent)).toEqual(
+      PARTS.map(({ part }) => partPool(verbs, part).length).map((n) => fill(texts.meeting.progress, { known: n, total: n })),
+    );
+    const games = $$('.game-stats');
+    expect(games.map((g) => g.dataset.game)).toEqual([...GAMES]);
+    expect(games.map((g) => g.querySelector('h3')?.textContent)).toEqual(GAMES.map((game) => texts.games[game]));
+    expect(games.map((g) => g.querySelector('h3 a')?.getAttribute('href'))).toEqual(GAMES.map((game) => hashOf({ page: 'game', game })));
+    expect(games.map((g) => g.querySelector('.note')?.textContent)).toEqual(Array(9).fill(texts.progress.notPlayed));
+    expect($('.game-stats .tiles, .game-stats .reset')).toBeNull();
+  });
+
+  it('shows what a played game learned, opened and answered, and its hardest verbs, each a link to its card', async () => {
+    played('ru-he', { היה: [3, 0, 3], ידע: [1, 2, 0], עשה: [2, 1, 1] }, 30);
+    await start('#/progress');
+    expect($$(inGame('ru-he', '.tiles dt')).map((dt) => dt.textContent)).toEqual([
+      texts.progress.learned,
+      texts.progress.opened,
+      texts.progress.right,
+      texts.progress.answers,
+    ]);
+    expect($$(inGame('ru-he', '.tiles dd')).map((dd) => dd.textContent)).toEqual(['1 из 30', `30 из ${verbs.length}`, '67\u00a0%', '9']);
+    expect(text(inGame('ru-he', 'h4'))).toBe(texts.progress.hardest);
+    const hardest = $$as(inGame('ru-he', '.hardest a'), HTMLAnchorElement);
+    expect(hardest.map((a) => a.getAttribute('href'))).toEqual(['ידע', 'עשה'].map((id) => hashOf({ page: 'verb', id })));
+    expect(hardest[0]?.querySelector('.he')?.textContent).toBe(verb('ידע').lemma.nikud);
+    expect(hardest[0]?.querySelector('.translit')?.textContent).toBe(verb('ידע').lemma.translit);
+    expect(hardest[0]?.querySelector('.ru')?.textContent).toBe(ru(verb('ידע')));
+    expect(hardest[0]?.querySelector('.mistakes')?.textContent).toBe('неверно 2 из 3');
+    expect(text(inGame('he-ru', '.note'))).toBe(texts.progress.notPlayed);
+  });
+
+  it('tells a game without mistakes, and shows the spelling of the settings', async () => {
+    played('write', { היה: [2, 0, 2] });
+    played('past-form', { ידע: [0, 1, 0] });
+    const state = loadState(storage);
+    saveState(storage, { ...state, settings: { ...state.settings, nikud: false, translit: false } });
+    await start('#/progress');
+    expect(text(inGame('write', '.note'))).toBe(texts.progress.noMistakes);
+    expect($(inGame('write', '.hardest'))).toBeNull();
+    expect(text(inGame('past-form', '.hardest .he'))).toBe(verb('ידע').lemma.plain);
+    expect($('.game-stats .translit')).toBeNull();
+  });
+
+  it('resets one game after a question under its button, keeping the other games and the settings', async () => {
+    played('he-ru', { היה: [1, 0, 1] });
+    played('past-form', { ידע: [0, 1, 0] });
+    await start('#/progress');
+    const reset = $as(inGame('past-form', '.reset'), HTMLButtonElement);
+    const confirm = $(inGame('past-form', '.reset-confirm'));
+    expect(reset?.textContent).toBe(texts.progress.reset);
+    expect(confirm?.hidden).toBe(true);
+
+    reset?.click();
+    expect(confirm?.hidden).toBe(false);
+    // A game of parts 2–4 is named with its tense.
+    expect(text(inGame('past-form', '.reset-confirm p'))).toBe(
+      fill(texts.progress.resetQuestion, { game: `${texts.tenses.past} · ${texts.games['past-form']}` }),
+    );
+    $as(inGame('past-form', '.reset-cancel'), HTMLButtonElement)?.click();
+    expect(confirm?.hidden).toBe(true);
+    expect(Object.keys(stats())).toEqual(['he-ru', 'past-form']);
+
+    reset?.click();
+    $as(inGame('past-form', '.reset-yes'), HTMLButtonElement)?.click();
+    expect(Object.keys(stats())).toEqual(['he-ru']);
+    expect($(inGame('past-form', '.tiles'))).toBeNull();
+    expect(text(inGame('past-form', '.note'))).toBe(texts.progress.notPlayed);
+    expect(text(inGame('past-form', '.reset-status'))).toBe(texts.progress.resetDone);
+    expect(reset?.disabled).toBe(true);
+    expect($(inGame('he-ru', '.tiles'))).not.toBeNull();
+    expect(loadState(storage).settings).toEqual(loadState(null).settings);
   });
 });
 
@@ -806,6 +923,119 @@ describe('a verb card', () => {
     await start(hashOf({ page: 'verb', id: 'אאא' }));
     expect(text('.verb-page p')).toBe(texts.verb.notFound);
     expect($as('.verb-page .back', HTMLAnchorElement)?.getAttribute('href')).toBe('#/dict');
+  });
+});
+
+/** Answers "Понятно" on every meeting card shown, as a learner would; returns the verbs met. */
+function meetAll(): Verb[] {
+  const met: Verb[] = [];
+  for (let next = $as('.meet-next', HTMLButtonElement); next; next = $as('.meet-next', HTMLButtonElement)) {
+    met.push(asked());
+    next.click();
+  }
+  return met;
+}
+
+describe('meeting the verbs', () => {
+  beforeEach(() => {
+    storage = memoryStorage();
+  });
+
+  it('opens every part from the home page, telling how many of its verbs are known', async () => {
+    saveState(storage, { ...loadState(storage), met: { 1: ['היה', 'ידע'] } });
+    await start();
+    const links = $$as('.part a.meet-link', HTMLAnchorElement);
+    expect(links.map((a) => a.getAttribute('href'))).toEqual(['#/part/1/intro', '#/part/2/intro', '#/part/3/intro', '#/part/4/intro']);
+    expect($$('.part .games li:first-child a').map((a) => a.className)).toEqual(Array(4).fill('meet-link'));
+    expect(links.map((a) => a.querySelector('.game-name')?.textContent)).toEqual(Array(4).fill(texts.meeting.name));
+    expect(links.map((a) => a.querySelector('.meet-progress')?.textContent)).toEqual(
+      PARTS.map(({ part }) => fill(texts.meeting.known, { known: part === 1 ? 2 : 0, total: partPool(verbs, part).length })),
+    );
+  });
+
+  it('shows the ten most frequent verbs one by one, each met at "Понятно", then the next five', async () => {
+    await start('#/part/1/intro');
+    expect($('.dict-link')?.hidden).toBe(true);
+    expect(text('.game-title')).toBe(texts.meeting.name);
+    expect(text('.count')).toBe(`1 / ${FIRST_MEETING}`);
+    expect(text('.meet-card .he')).toBe(verb('היה').lemma.nikud);
+    expect(text('.meet-card .ru')).toBe(ru(verb('היה')));
+    expect($('.meet-card .listen')).not.toBeNull();
+    // Meeting a verb is learning it: no table of a tense in part 1.
+    expect($('.meet-card .forms')).toBeNull();
+    expect(text('.meet-next')).toBe(texts.meeting.got);
+    $as('.meet-next', HTMLButtonElement)?.click();
+    expect(loadState(storage).met).toEqual({ 1: ['היה'] });
+    expect(text('.count')).toBe(`2 / ${FIRST_MEETING}`);
+
+    const met = [verb('היה'), ...meetAll()];
+    expect(met.map((v) => v.id)).toEqual(
+      partPool(verbs, 1)
+        .slice(0, FIRST_MEETING)
+        .map((v) => v.id),
+    );
+    expect(loadState(storage).met[1]).toEqual(met.map((v) => v.id));
+    expect(text('h1')).toBe(texts.meeting.done);
+    expect($$as('.summary .results a', HTMLAnchorElement).map((a) => a.getAttribute('href'))).toEqual(
+      met.map((v) => hashOf({ page: 'verb', id: v.id })),
+    );
+    expect($as('.summary a.check', HTMLAnchorElement)?.getAttribute('href')).toBe('#/part/1/he-ru');
+    const more = $as('.summary .more', HTMLButtonElement);
+    expect(more?.textContent).toBe(fill(texts.meeting.more, { n: MEETING }));
+    more?.click();
+    expect(text('.count')).toBe(`1 / ${MEETING}`);
+    expect(asked().id).toBe(partPool(verbs, 1)[FIRST_MEETING]?.id);
+  });
+
+  it('in parts 2–4 shows the table of the tense and how its binyan builds the forms', async () => {
+    await start('#/part/3/intro');
+    expect(text('.game-title')).toBe(`${texts.tenses.past} · ${texts.meeting.name}`);
+    const first = partPool(verbs, 3)[0];
+    expect(asked()).toBe(first);
+    const table = $$('.meet-card .forms tr');
+    expect(table.map((tr) => tr.querySelector('td .he')?.textContent)).toEqual(PAST_SLOTS.map((slot) => first?.past[slot].nikud));
+    expect(table[0]?.querySelector('th')?.textContent).toBe('я');
+    expect($$('.meet-card .listen')).toHaveLength(table.length + 1);
+    expect($as('.meet-card .how a', HTMLAnchorElement)?.getAttribute('href')).toBe(
+      hashOf({ page: 'menorah', binyan: first?.binyan ?? 'paal' }),
+    );
+  });
+
+  it('tells when every verb of a part is known', async () => {
+    metEverything();
+    await start('#/part/2/intro');
+    expect(text('.meeting-over p')).toBe(texts.meeting.allKnown);
+  });
+
+  it('starts a round with its verbs not known yet, then asks; the part knows them in its other games', async () => {
+    const first = partPool(verbs, 1).slice(0, 10);
+    saveState(storage, { ...loadState(storage), met: { 1: first.slice(0, 7).map((v) => v.id) } });
+    await start('#/part/1/he-ru');
+    expect(text('.meet-label')).toBe(fill(texts.meeting.newVerb, { n: 1, total: 3 }));
+    expect($('.option')).toBeNull();
+    const met = meetAll();
+    expect(met.map((v) => v.id).toSorted()).toEqual(
+      first
+        .slice(7)
+        .map((v) => v.id)
+        .toSorted(),
+    );
+    expect($$('.option')).toHaveLength(4);
+    expect(loadState(storage).met[1]).toHaveLength(10);
+
+    await go('#/part/1/ru-he');
+    expect($('.meet-card')).toBeNull();
+    expect($$('.option')).toHaveLength(4);
+  });
+
+  it('meets the verbs of a tense game in its tense, whatever part 1 knows', async () => {
+    saveState(storage, { ...loadState(storage), met: { 1: partPool(verbs, 1).map((v) => v.id) } });
+    await start('#/part/2/form');
+    expect(text('.meet-label')).toBe(fill(texts.meeting.newVerb, { n: 1, total: 10 }));
+    expect($('.meet-card .forms')).not.toBeNull();
+    meetAll();
+    expect($$('.option').length).toBeGreaterThanOrEqual(3);
+    expect(loadState(storage).met[2]).toHaveLength(10);
   });
 });
 

@@ -42,6 +42,10 @@
 * {
   box-sizing: border-box;
 }
+/* hidden wins over a display of a class (.dict-link is a grid): the header's links hide in a game. */
+[hidden] {
+  display: none !important;
+}
 body {
   margin: 0;
   min-height: 100dvh;
@@ -188,7 +192,8 @@ button:disabled {
   padding: 0;
   list-style: none;
 }
-.game-link {
+.game-link,
+.meet-link {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -200,14 +205,26 @@ button:disabled {
   color: inherit;
   text-decoration: none;
 }
-a.game-link:hover {
+a.game-link:hover,
+a.meet-link:hover {
   border-color: var(--accent);
 }
 .game-name {
   font-weight: 600;
 }
-.game-progress {
+.game-progress,
+.meet-progress {
   color: var(--muted);
+}
+/* A part's meeting stands first, its name in the accent colour. */
+.meet-link .game-name {
+  color: var(--accent);
+}
+.to-progress {
+  margin-block: 24px 0;
+}
+.progress-link {
+  color: inherit;
 }
 
 /* A game. */
@@ -518,6 +535,9 @@ a.game-link:hover {
 .reset-status {
   margin: 0 0 8px;
 }
+.reset-status:empty {
+  margin: 0;
+}
 .danger {
   border-color: var(--bad);
   background: var(--bad);
@@ -820,9 +840,104 @@ a.dict-item:hover {
   font-size: 0.875rem;
 }
 
+/* A meeting: a verb's card, in parts 2–4 with its table of the tense. */
+.meet-label {
+  margin-block: 16px 0;
+  color: var(--muted);
+  text-align: center;
+}
+.meet-card h2 {
+  margin-block: 12px 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.meet-card .forms {
+  max-inline-size: 420px;
+}
+.meet-card .how {
+  margin-block-start: 8px;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.meet-card .how a {
+  color: inherit;
+}
+.meet-next {
+  inline-size: 100%;
+  margin-block-start: 12px;
+}
+.part-known {
+  margin-block: 0 8px;
+  color: var(--muted);
+}
+
+/* The progress page: a card per game, its tiles, its hardest verbs, its reset. */
+.game-stats {
+  margin-block-end: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.game-stats h3 {
+  margin-block: 0 8px;
+  font-size: 1.0625rem;
+}
+.game-stats h3 a {
+  color: inherit;
+}
+.game-stats h4 {
+  margin-block: 16px 8px;
+  font-size: 1rem;
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+.tile {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--bg);
+}
+.tile dt {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.tile dd {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.hardest {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hardest .ru {
+  flex-basis: 8em;
+}
+.mistakes {
+  margin-inline-start: auto;
+  color: var(--bad);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+.game-stats .reset-box {
+  margin-block: 16px 0;
+}
+
 @media (min-width: 600px) {
   h1 {
     font-size: 2.25rem;
+  }
+  .tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .branch .he {
     font-size: 1.25rem;
@@ -836,5 +951,11 @@ a.dict-item:hover {
   .next {
     justify-self: center;
     min-inline-size: 240px;
+  }
+  .meet-next {
+    display: flex;
+    inline-size: auto;
+    min-inline-size: 240px;
+    margin-inline: auto;
   }
 }

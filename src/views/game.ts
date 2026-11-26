@@ -2,12 +2,15 @@
 // an answer the right one is shown with the verb's picture, in parts 2–4 also
 // the phrase "pronoun + form" with its Russian, and the game waits for
 // "Дальше" (a right answer moves on by itself when the autoNext setting is
-// on). The round ends with the results and "Повторить ошибки".
+// on). The round ends with the results and "Повторить ошибки". A round
+// starts with a card of each of its verbs not known in the part yet: nothing
+// is asked before it is met (decision 68).
 
 import { checkWritten } from '../answer';
 import { h, hebrewWord } from '../dom';
-import { gameTense, type GameId } from '../games';
+import { gamePart, gameTense, type GameId } from '../games';
 import { normalizeInput } from '../hebrew';
+import { toMeet } from '../meeting';
 import { labelOf, withPronoun } from '../persons';
 import { ruPhrase } from '../phrases';
 import { pictureOf } from '../pictures';
@@ -17,7 +20,9 @@ import { current, mistakes, newRound, record, retryRound, type Round } from '../
 import { fill, texts } from '../texts';
 import type { Verb } from '../verbs';
 import type { AppContext } from './context';
+import { gameHead } from './head';
 import { listening } from './listen';
+import { meetCard } from './meet-card';
 import { pictureElement } from './picture';
 
 /** How long a right answer stays on screen before the next task, with autoNext on. */
@@ -30,6 +35,12 @@ type WriteQuestion = Extract<Question, { kind: 'write' }>;
 const isTense = (q: Question): q is TenseQuestion => q.kind === 'form' || q.kind === 'person';
 
 const translations = (verb: Verb) => verb.ru.join(', ');
+
+/** A game's name; in parts 2–4 the tense first: "Прошедшее · Местоимение → форма" (decision 49). */
+export function gameTitle(game: GameId): string {
+  const tense = gameTense(game);
+  return tense ? `${texts.tenses[tense]} · ${texts.games[game]}` : texts.games[game];
+}
 const noInfinitive = (verb: Verb) => !verb.infinitive && h('p', { class: 'note' }, texts.game.noInfinitive);
 
 export function gameView(game: GameId) {
@@ -43,7 +54,7 @@ export function gameView(game: GameId) {
 
     const he = (form: { nikud: string; plain: string; translit: string }) => hebrewWord(form, round.spelling, translit);
     const word = (verb: Verb) => he(verb.lemma);
-    const tense = gameTense(game);
+    const part = gamePart(game);
 
     // Listening after a right answer: stay on it.
     const { listen, noVoice, stop: stopListening } = listening(ctx, () => clearTimeout(timer));
@@ -51,15 +62,7 @@ export function gameView(game: GameId) {
     function head(): HTMLElement {
       const n = round.results.length;
       const total = round.questions.length;
-      const count = fill(texts.game.count, { n: Math.min(n + 1, total), total });
-      return h(
-        'div',
-        { class: 'game-head' },
-        h('a', { class: 'quit', href: '#/' }, texts.game.quit),
-        h('span', { class: 'game-title' }, tense ? `${texts.tenses[tense]} · ${texts.games[game]}` : texts.games[game]),
-        h('span', { class: 'count', 'aria-hidden': 'true' }, `${Math.min(n + 1, total)} / ${total}`),
-        h('progress', { max: total, value: n, 'aria-label': count, title: count }),
-      );
+      return gameHead(gameTitle(game), n, total, fill(texts.game.count, { n: Math.min(n + 1, total), total }));
     }
 
     /** A tense task's phrase, "pronoun + form", with its sound and its Russian. */
@@ -255,6 +258,37 @@ export function gameView(game: GameId) {
       );
     }
 
+    /** The round's verbs not known in the part, a card at a time, then its first task. */
+    function meet(verbs: readonly Verb[], i = 0) {
+      const verb = verbs[i];
+      if (!verb) return showTask();
+      const next = h('button', { type: 'button', class: 'meet-next primary' }, texts.meeting.got);
+      next.addEventListener('click', () => {
+        ctx.meet(part, verb);
+        meet(verbs, i + 1);
+      });
+      root.replaceChildren(
+        h(
+          'section',
+          { class: 'game meeting' },
+          head(),
+          h('p', { class: 'meet-label' }, fill(texts.meeting.newVerb, { n: i + 1, total: verbs.length })),
+          meetCard(verb, part, ctx, he, listen),
+          noVoice(),
+          next,
+        ),
+      );
+      queueMicrotask(() => next.focus());
+    }
+
+    const begin = () =>
+      meet(
+        toMeet(
+          round.questions.map((q) => q.verb),
+          ctx.met(part),
+        ),
+      );
+
     function showSummary() {
       const right = round.results.filter(Boolean).length;
       const total = round.questions.length;
@@ -282,7 +316,7 @@ export function gameView(game: GameId) {
       const again = h('button', { type: 'button', class: wrong.length ? '' : 'primary' }, texts.summary.again);
       again.addEventListener('click', () => {
         round = newRound(game, ctx.verbs, ctx.gameStats(game), spelling, ctx.now(), ctx.random);
-        showTask();
+        begin();
       });
       const first = wrong.length > 0 ? retry : again;
       root.replaceChildren(
@@ -303,7 +337,7 @@ export function gameView(game: GameId) {
       if (pickByKey && !event.ctrlKey && !event.metaKey && !event.altKey && index >= 0 && index < 4) pickByKey(index);
     };
     document.addEventListener('keydown', onKey);
-    showTask();
+    begin();
     return () => {
       clearTimeout(timer);
       document.removeEventListener('keydown', onKey);
