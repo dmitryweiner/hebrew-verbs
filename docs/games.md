@@ -1,6 +1,7 @@
 # Games
 
-The rules of the nine games as the core (`src/`, no DOM) implements them. The
+The rules of the nine games as the core (`src/`, no DOM) implements them, and
+how the app shows them (the last section). The
 decisions behind them are in the plan (`plans/2026-11-24-hebrew-verbs.md`,
 sections 2–3 and 6, decisions 5–10, 13, 25–27, 35, 37, 41, 45–49).
 
@@ -101,6 +102,8 @@ it is (`autoNext` off); version 1 (settings only) keeps its settings.
 ## In the app
 
 `src/views/game.ts`, `src/round.ts`; one view for all nine games.
+`src/views/home.ts`: all four parts open, each game with "выучено N из M"
+(learned of its open verbs).
 
 - A round's tasks are built when it starts, in the spelling of the nikud
   setting then. Every answer goes to the game's statistics at once.
@@ -115,6 +118,9 @@ it is (`autoNext` off); version 1 (settings only) keeps its settings.
   translations and the pronoun asked ("הוּא · он"); `<tense>-person` the form
   with 🔊, the headword and translations small under it. The head names the
   tense: "Прошедшее · Местоимение → форма".
+- Without a Hebrew voice every 🔊 is disabled, and under a card with 🔊
+  (`he-ru`, the tense games) a line links the settings, which tell how to
+  install one. A voice installed later turns them on (`voiceschanged`).
 - The game waits for "Дальше". With `autoNext` on, a right answer moves on
   after 1.5 s, unless there is a remark or 🔊 was pressed.
 - `write`: the field takes the focus; "Не знаю" is a mistake that shows the

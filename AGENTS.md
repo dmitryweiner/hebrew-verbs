@@ -155,9 +155,10 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   view of the hash route; `src/routes.ts` — the routes (`#/`, `#/settings`,
   `#/part/1/he-ru`, `#/part/2/form`).
 - `src/views/` — `home.ts` (the parts and each game's progress), `game.ts`
-  (all nine games: a round, its feedback and results), `settings.ts`, `picture.ts` (emoji,
-  Twemoji copy or drawing); `context.ts` — what a view gets from the app;
-  `src/dom.ts` — element builder and an isolated Hebrew word.
+  (all nine games: a round, its feedback and results), `settings.ts`,
+  `picture.ts` (emoji, Twemoji copy or drawing); `context.ts` — what a view
+  gets from the app; `src/dom.ts` — element builder and an isolated Hebrew
+  word.
 - `src/round.ts` — a round: its tasks, the answers, the round of mistakes.
 - `src/speech.ts` — the Hebrew voice of `speechSynthesis`; `src/emoji.ts` —
   the canvas test whether the font draws an emoji, the Twemoji copies.
@@ -168,9 +169,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - The core without the DOM (stage 3): `src/hebrew.ts` — nikud, final
   letters, typed input; `src/persons.ts` — pronouns and the persons of each
   tense (я (м.) / я (ж.) everywhere, decision 35), their labels and the
-  phrase "pronoun + form"; `src/phrases.ts` — the
-  Russian phrase after an answer; `src/games.ts` — the nine games and their
-  verb pools; `src/stats.ts` — a game's statistics and weights;
+  phrase "pronoun + form"; `src/phrases.ts` — the Russian phrase after an
+  answer; `src/games.ts` — the nine games and their verb pools; `src/stats.ts` — a game's statistics and weights;
   `src/selection.ts` — the open verbs, the frontier and the round;
   `src/questions.ts` — the tasks, exactly one right option in the spelling
   shown (decision 37); `src/answer.ts` — a typed headword. The rules:
@@ -196,7 +196,7 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   Russian (TSV), `ru-forms.json` (generated) and `hspell.tsv` (a test
   fixture); the app's generated data is in `src/data/`.
 - `docs/` — user and design docs (`docs/data.md` — the verb data,
-  `docs/games.md` — the games' rules as the core implements them); `plans/` —
+  `docs/games.md` — the games' rules and how the app shows them); `plans/` —
   plans and reports (Russian).
 
 ## Invariants
