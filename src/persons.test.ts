@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formOf, personsOf, PRONOUNS, TENSES, type Tense } from './persons';
+import { formOf, labelOf, personsOf, PRONOUNS, TENSES, withPronoun, type Tense } from './persons';
 import { texts } from './texts';
 import { verb } from './testing';
 import { FUTURE_SLOTS, PAST_SLOTS, PRESENT_SLOTS } from './verbs';
@@ -57,8 +57,32 @@ describe('persons', () => {
   });
 
   it('have pronouns with nikud and transliteration', () => {
-    expect(PRONOUNS.at).toEqual({ id: 'at', nikud: 'אַתְּ', plain: 'את', translit: 'ат' });
+    expect(PRONOUNS.at).toEqual({ id: 'at', nikud: 'אַתְּ', plain: 'את', translit: 'ат', label: 'ты (ж.)' });
     expect(PRONOUNS.hu.translit).toBe('hу');
+  });
+
+  it('label a pronoun without a gender where it takes both: я, мы', () => {
+    expect(PRONOUNS.ani.label).toBe('я');
+    expect(PRONOUNS.anachnu.label).toBe('мы');
+    expect(PRONOUNS.hen.label).toBe('они (ж.)');
+  });
+});
+
+const persons = (tense: Tense, ...ids: string[]) => personsOf(tense).filter((p) => ids.includes(p.id));
+
+describe('labelOf', () => {
+  it('names the persons, a pronoun without a gender when all of its persons are there', () => {
+    expect(labelOf(persons('present', 'ani-m', 'ata', 'hu'))).toBe('я (м.), ты (м.), он');
+    expect(labelOf(persons('past', 'ani-m', 'ani-f'))).toBe('я');
+    expect(labelOf(persons('present', 'anachnu-m', 'anachnu-f', 'atem'))).toBe('мы, вы (м.)');
+    expect(labelOf(persons('past', 'hem', 'hen'))).toBe('они (м.), они (ж.)');
+  });
+});
+
+describe('withPronoun', () => {
+  it('says a form with its pronoun, in both spellings and the transliteration', () => {
+    const at = person('past', 'at');
+    expect(at && withPronoun(at, verb('אכל').past['2fs'])).toEqual({ nikud: 'אַתְּ אָכַלְתְּ', plain: 'את אכלת', translit: 'ат ахальт' });
   });
 });
 

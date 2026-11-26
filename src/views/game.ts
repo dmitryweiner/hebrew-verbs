@@ -1,14 +1,17 @@
-// A game of part 1 (plan 3.1): a round of ten tasks with a progress bar;
-// after an answer the right one is shown with the verb's picture, and the
-// game waits for "Дальше" (a right answer moves on by itself when the
-// autoNext setting is on). The round ends with the results and "Повторить ошибки".
+// A game (plan, section 3): a round of ten tasks with a progress bar; after
+// an answer the right one is shown with the verb's picture, in parts 2–4 also
+// the phrase "pronoun + form" with its Russian, and the game waits for
+// "Дальше" (a right answer moves on by itself when the autoNext setting is
+// on). The round ends with the results and "Повторить ошибки".
 
 import { checkWritten } from '../answer';
 import { h, hebrewWord } from '../dom';
-import type { GameId } from '../games';
+import { gameTense, type GameId } from '../games';
 import { normalizeInput } from '../hebrew';
+import { labelOf, withPronoun } from '../persons';
+import { ruPhrase } from '../phrases';
 import { pictureOf } from '../pictures';
-import type { Question } from '../questions';
+import { personsWith, type Question } from '../questions';
 import { current, mistakes, newRound, record, retryRound, type Round } from '../round';
 import { fill, texts } from '../texts';
 import type { Verb } from '../verbs';
@@ -18,10 +21,14 @@ import { pictureElement } from './picture';
 /** How long a right answer stays on screen before the next task, with autoNext on. */
 export const CORRECT_DELAY = 1500;
 
-type ChoiceQuestion = Extract<Question, { kind: 'he-ru' | 'ru-he' }>;
+type ChoiceQuestion = Extract<Question, { kind: 'he-ru' | 'ru-he' | 'form' | 'person' }>;
+type TenseQuestion = Extract<Question, { kind: 'form' | 'person' }>;
 type WriteQuestion = Extract<Question, { kind: 'write' }>;
 
+const isTense = (q: Question): q is TenseQuestion => q.kind === 'form' || q.kind === 'person';
+
 const translations = (verb: Verb) => verb.ru.join(', ');
+const noInfinitive = (verb: Verb) => !verb.infinitive && h('p', { class: 'note' }, texts.game.noInfinitive);
 
 export function gameView(game: GameId) {
   return (root: HTMLElement, ctx: AppContext): (() => void) => {
@@ -33,7 +40,9 @@ export function gameView(game: GameId) {
     let pickByKey: ((index: number) => void) | undefined;
     const listenButtons = new Set<HTMLButtonElement>();
 
-    const word = (verb: Verb) => hebrewWord(verb.lemma, round.spelling, translit);
+    const he = (form: { nikud: string; plain: string; translit: string }) => hebrewWord(form, round.spelling, translit);
+    const word = (verb: Verb) => he(verb.lemma);
+    const tense = gameTense(game);
 
     function updateListen() {
       const voice = ctx.speaker.voice() !== null;
@@ -44,12 +53,13 @@ export function gameView(game: GameId) {
       root.querySelector('.no-voice')?.toggleAttribute('hidden', voice);
     }
 
-    function listen(verb: Verb): HTMLButtonElement {
+    /** 🔊 for a text with nikud: the headword, a form, a phrase. */
+    function listen(text: string): HTMLButtonElement {
       const button = h('button', { type: 'button', class: 'listen', 'aria-label': texts.game.listen, title: texts.game.listen }, '🔊');
       button.disabled = ctx.speaker.voice() === null;
       button.addEventListener('click', () => {
         clearTimeout(timer); // listening after a right answer: stay on it
-        ctx.speaker.say(verb.lemma.nikud);
+        ctx.speaker.say(text);
       });
       listenButtons.add(button);
       return button;
@@ -66,14 +76,25 @@ export function gameView(game: GameId) {
         'div',
         { class: 'game-head' },
         h('a', { class: 'quit', href: '#/' }, texts.game.quit),
-        h('span', { class: 'game-title' }, texts.games[game]),
+        h('span', { class: 'game-title' }, tense ? `${texts.tenses[tense]} · ${texts.games[game]}` : texts.games[game]),
         h('span', { class: 'count', 'aria-hidden': 'true' }, `${Math.min(n + 1, total)} / ${total}`),
         h('progress', { max: total, value: n, 'aria-label': count, title: count }),
       );
     }
 
-    /** The answer's card: picture, headword with its sound, translations, and a remark. */
-    function feedback(correct: boolean, verb: Verb, remark: Node | null, last: boolean): HTMLElement {
+    /** A tense task's phrase, "pronoun + form", with its sound and its Russian. */
+    function phrase(q: TenseQuestion): HTMLElement {
+      const said = withPronoun(q.person, q.form);
+      return h(
+        'div',
+        { class: 'phrase' },
+        h('div', { class: 'verb-word' }, he(said), listen(said.nikud)),
+        h('p', { class: 'ru' }, ruPhrase(q.verb, q.person)),
+      );
+    }
+
+    /** The answer's card: the phrase of a tense task, picture, headword with its sound, translations, and a remark. */
+    function feedback(correct: boolean, verb: Verb, remark: Node | null, q: Question | undefined, last: boolean): HTMLElement {
       const picture = pictureOf(ctx.pictures, verb.id);
       const next = h('button', { type: 'button', class: 'next primary' }, last ? texts.game.results : texts.game.next);
       next.addEventListener('click', () => {
@@ -84,6 +105,7 @@ export function gameView(game: GameId) {
         'div',
         { class: `feedback ${correct ? 'good' : 'bad'}` },
         h('p', { class: 'verdict' }, correct ? `✓ ${texts.game.right}` : `✗ ${texts.game.wrong}`),
+        q && isTense(q) && phrase(q),
         h(
           'div',
           { class: 'verb-card' },
@@ -91,7 +113,7 @@ export function gameView(game: GameId) {
           h(
             'div',
             { class: 'verb-text' },
-            h('div', { class: 'verb-word' }, word(verb), listen(verb)),
+            h('div', { class: 'verb-word' }, word(verb), listen(verb.lemma.nikud)),
             h('p', { class: 'ru' }, translations(verb)),
             !verb.infinitive && h('p', { class: 'note' }, texts.game.noInfinitive),
           ),
@@ -109,26 +131,40 @@ export function gameView(game: GameId) {
       const q = current(round);
       if (q) ctx.recordAnswer(game, q.verb, correct);
       round = record(round, correct);
-      return feedback(correct, verb, remark, current(round) === undefined);
+      return feedback(correct, verb, remark, q, current(round) === undefined);
+    }
+
+    /** What each option shows, and its other side, revealed after the answer: what the chosen one means. */
+    function sides(q: ChoiceQuestion): { face: Node; reveal: Node | string }[] {
+      // Who says this form: אוכל is я (м.), ты (м.), он.
+      if (q.kind === 'form')
+        return q.options.map((f) => ({ face: he(f), reveal: labelOf(personsWith(q.verb, q.tense, f, round.spelling)) }));
+      if (q.kind === 'person') {
+        // The right pronoun keeps its gender only where the form has one: אֲנִי אוֹכֵל is я (м.), אֲנִי אָכַלְתִּי is я.
+        const sayers = personsWith(q.verb, q.tense, q.form, round.spelling).filter((p) => p.pronoun === q.person.pronoun);
+        return q.options.map((p) => ({ face: he(withPronoun(p, q.form)), reveal: p === q.person ? labelOf(sayers) : p.pronoun.label }));
+      }
+      if (q.kind === 'he-ru') return q.options.map((v) => ({ face: h('span', { class: 'ru' }, translations(v)), reveal: word(v) }));
+      return q.options.map((v) => ({ face: word(v), reveal: translations(v) }));
     }
 
     function choiceTask(q: ChoiceQuestion, area: HTMLElement, result: HTMLElement): HTMLElement {
-      const face = (v: Verb) => (q.kind === 'he-ru' ? h('span', { class: 'ru' }, translations(v)) : word(v));
-      const buttons = q.options.map((option, i) => {
-        const button = h('button', { type: 'button', class: 'option' }, face(option));
+      const options = sides(q);
+      const buttons = options.map(({ face }, i) => {
+        const button = h('button', { type: 'button', class: 'option' }, face);
         button.addEventListener('click', () => pick(i));
         return button;
       });
       function pick(i: number) {
-        if (pickByKey === undefined) return;
+        // A plain present may have three options: the key 4 picks nothing.
+        if (pickByKey === undefined || i >= buttons.length) return;
         const correct = i === q.answer;
         buttons.forEach((button, j) => {
           button.disabled = true;
           if (j === q.answer) button.classList.add('right');
           else if (j === i) button.classList.add('wrong');
-          // The other side of every option: what the chosen word means.
-          const v = q.options[j];
-          if (v) button.append(h('span', { class: 'reveal' }, q.kind === 'he-ru' ? word(v) : translations(v)));
+          const reveal = options[j]?.reveal;
+          if (reveal) button.append(h('span', { class: 'reveal' }, reveal));
         });
         result.replaceChildren(answered(correct, q.verb));
       }
@@ -183,20 +219,45 @@ export function gameView(game: GameId) {
       return area;
     }
 
+    /** The task's card: what is asked, with 🔊 where it is Hebrew. */
+    function card(q: Question): HTMLElement {
+      if (q.kind === 'form')
+        return h(
+          'div',
+          { class: 'card' },
+          h('div', { class: 'verb-word lemma' }, word(q.verb), listen(q.verb.lemma.nikud)),
+          h('p', { class: 'ru' }, translations(q.verb)),
+          noInfinitive(q.verb),
+          h(
+            'p',
+            { class: 'pronoun big' },
+            he(q.person.pronoun),
+            h('span', { 'aria-hidden': 'true' }, '·'),
+            h('span', { class: 'label' }, q.person.label),
+          ),
+        );
+      if (q.kind === 'person')
+        return h(
+          'div',
+          { class: 'card' },
+          h('div', { class: 'verb-word big form' }, he(q.form), listen(q.form.nikud)),
+          h('p', { class: 'lemma' }, word(q.verb), h('span', { class: 'ru' }, translations(q.verb))),
+          noInfinitive(q.verb),
+        );
+      if (q.kind === 'he-ru')
+        return h(
+          'div',
+          { class: 'card' },
+          h('div', { class: 'verb-word big' }, word(q.verb), listen(q.verb.lemma.nikud)),
+          noInfinitive(q.verb),
+        );
+      return h('div', { class: 'card' }, h('p', { class: 'ru big' }, translations(q.verb)));
+    }
+
     function showTask() {
       clearTimeout(timer);
       const q = current(round);
       if (!q) return showSummary();
-      if (q.kind !== 'he-ru' && q.kind !== 'ru-he' && q.kind !== 'write') throw new Error(`${game} is not a game of part 1`);
-      const card =
-        q.kind === 'he-ru'
-          ? h(
-              'div',
-              { class: 'card' },
-              h('div', { class: 'verb-word big' }, word(q.verb), listen(q.verb)),
-              !q.verb.infinitive && h('p', { class: 'note' }, texts.game.noInfinitive),
-            )
-          : h('div', { class: 'card' }, h('p', { class: 'ru big' }, translations(q.verb)));
       const task = q.kind === 'write' && !q.verb.infinitive ? texts.game.taskNoInfinitive : texts.game.task[q.kind];
       const result = h('div', { class: 'result', 'aria-live': 'polite' });
       const area = h('div');
@@ -205,8 +266,8 @@ export function gameView(game: GameId) {
           'section',
           { class: 'game' },
           head(),
-          card,
-          q.kind === 'he-ru' && noVoice(),
+          card(q),
+          q.kind !== 'ru-he' && q.kind !== 'write' && noVoice(),
           h('p', { class: 'task' }, task),
           q.kind === 'write' ? writeTask(q, area, result) : choiceTask(q, area, result),
           result,
@@ -224,8 +285,8 @@ export function gameView(game: GameId) {
           'li',
           { class: ok ? 'good' : 'bad' },
           h('span', { class: 'mark', 'aria-label': ok ? texts.game.right : texts.game.wrong }, ok ? '✓' : '✗'),
-          word(q.verb),
-          h('span', { class: 'ru' }, translations(q.verb)),
+          isTense(q) ? he(withPronoun(q.person, q.form)) : word(q.verb),
+          h('span', { class: 'ru' }, isTense(q) ? ruPhrase(q.verb, q.person) : translations(q.verb)),
         );
       });
       const retry = h('button', { type: 'button', class: 'primary' }, texts.summary.retry);

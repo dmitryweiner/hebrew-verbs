@@ -26,8 +26,8 @@ export type Question =
   | (Choice<Verb> & { kind: 'he-ru' | 'ru-he' })
   /** A translation to type the headword of; any verb sharing a translation is right, the asked one first. */
   | { kind: 'write'; game: GameId; verb: Verb; accepted: Verb[] }
-  /** A pronoun, options are forms of the tense. */
-  | (Choice<Form> & { kind: 'form'; tense: Tense; person: Person })
+  /** A pronoun, options are forms of the tense; `form` is the person's, the right one. */
+  | (Choice<Form> & { kind: 'form'; tense: Tense; person: Person; form: Form })
   /** A form, options are pronouns to say it with. */
   | (Choice<Person> & { kind: 'person'; tense: Tense; person: Person; form: Form });
 
@@ -79,24 +79,31 @@ function distractors(verb: Verb, verbs: readonly Verb[], spelling: Spelling, rng
   return chosen;
 }
 
+/** The persons of the tense whose form of the verb is spelled like this one, as shown: plain אכלת is אתה and את. */
+export function personsWith(verb: Verb, tense: Tense, form: Form, spelling: Spelling): Person[] {
+  return personsOf(tense).filter((p) => {
+    const f = formOf(verb, p);
+    return f !== undefined && spell(f, spelling) === spell(form, spelling);
+  });
+}
+
 function tenseQuestion(game: GameId, tense: Tense, verb: Verb, spelling: Spelling, rng: Random): Question {
   const persons = personsOf(tense).filter((p) => formOf(verb, p) !== undefined);
   const person = pick(persons, rng);
   const form = person && formOf(verb, person);
   if (!person || !form) throw new Error(`${verb.id} has no ${tense}`);
-  const same = (f: Form | undefined) => f !== undefined && spell(f, spelling) === spell(form, spelling);
 
   if (game.endsWith('-form')) {
     const others = new Map<string, Form>();
     for (const p of shuffle(persons, rng)) {
       const f = formOf(verb, p);
-      if (f && !same(f)) others.set(spell(f, spelling), f);
+      if (f && spell(f, spelling) !== spell(form, spelling)) others.set(spell(f, spelling), f);
     }
-    return { kind: 'form', game, tense, verb, person, ...arrange(form, [...others.values()].slice(0, OPTION_COUNT - 1), rng) };
+    return { kind: 'form', game, tense, verb, person, form, ...arrange(form, [...others.values()].slice(0, OPTION_COUNT - 1), rng) };
   }
 
   // A pronoun is right when any of its persons takes this spelling: אתה and את for אכלת.
-  const rightPronouns = new Set(persons.filter((p) => same(formOf(verb, p))).map((p) => p.pronoun.id));
+  const rightPronouns = new Set(personsWith(verb, tense, form, spelling).map((p) => p.pronoun.id));
   const others = new Map<string, Person>();
   for (const p of shuffle(persons, rng)) if (!rightPronouns.has(p.pronoun.id)) others.set(p.pronoun.id, p);
   return { kind: 'person', game, tense, verb, person, form, ...arrange(person, [...others.values()].slice(0, OPTION_COUNT - 1), rng) };

@@ -15,9 +15,17 @@ export interface Pronoun {
   nikud: string;
   plain: string;
   translit: string;
+  /** The Russian, without a gender where the pronoun takes both: я. */
+  label: string;
 }
 
-const pronoun = (id: PronounId, nikud: string, plain: string, translit: string): Pronoun => ({ id, nikud, plain, translit });
+const pronoun = (id: PronounId, nikud: string, plain: string, translit: string): Pronoun => ({
+  id,
+  nikud,
+  plain,
+  translit,
+  label: texts.pronouns[id],
+});
 
 export const PRONOUNS: Record<PronounId, Pronoun> = {
   ani: pronoun('ani', 'אֲנִי', 'אני', 'ани'),
@@ -141,4 +149,21 @@ export function formOf(verb: Verb, person: Person): Form | undefined {
   if (person.tense === 'present') return verb.present?.[person.slot];
   if (person.tense === 'past') return verb.past[person.slot];
   return verb.future?.[person.slot];
+}
+
+/** The persons named for a list: a pronoun without its gender when all its persons of the tense are there (я, not я (м.), я (ж.)). */
+export function labelOf(persons: readonly Person[]): string {
+  const labels: string[] = [];
+  for (const p of persons) {
+    const all = personsOf(p.tense).filter((x) => x.pronoun.id === p.pronoun.id);
+    const label = all.length > 1 && all.every((x) => persons.includes(x)) ? p.pronoun.label : p.label;
+    if (!labels.includes(label)) labels.push(label);
+  }
+  return labels.join(', ');
+}
+
+/** A form said with the person's pronoun: אַתְּ אָכַלְתְּ. */
+export function withPronoun(person: Person, form: Form): Pick<Form, 'nikud' | 'plain' | 'translit'> {
+  const { pronoun: p } = person;
+  return { nikud: `${p.nikud} ${form.nikud}`, plain: `${p.plain} ${form.plain}`, translit: `${p.translit} ${form.translit}` };
 }

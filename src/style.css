@@ -189,9 +189,6 @@ a.game-link:hover {
 .game-progress {
   color: var(--muted);
 }
-.game-link.disabled {
-  opacity: 0.6;
-}
 
 /* A game. */
 .game-head {
@@ -237,6 +234,25 @@ a.game-link:hover {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+/* A tense task: the pronoun asked, or the headword under the form shown. */
+.card .pronoun {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 10px;
+  margin-block-start: 8px;
+}
+.card .lemma {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 10px;
+}
+.lemma .ru {
+  color: var(--muted);
 }
 .listen {
   min-inline-size: 44px;
@@ -369,6 +385,15 @@ a.game-link:hover {
   background: currentColor;
   -webkit-mask: var(--picture) center / contain no-repeat;
   mask: var(--picture) center / contain no-repeat;
+}
+/* After a tense task: the phrase said and its Russian. */
+.phrase {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+}
+.phrase .ru {
+  font-weight: 600;
 }
 .remark {
   font-size: 0.875rem;

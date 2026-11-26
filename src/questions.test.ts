@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { GAMES, gamePool, gameTense } from './games';
 import { formOf, personsOf, type Person } from './persons';
-import { BAND, makeQuestion, OPTION_COUNT, sharesTranslation, spell, type Question, type Spelling } from './questions';
+import { BAND, makeQuestion, OPTION_COUNT, personsWith, sharesTranslation, spell, type Question, type Spelling } from './questions';
 import { seededRandom } from './selection';
 import { verb, verbs } from './testing';
 import type { Form, Verb } from './verbs';
@@ -111,6 +111,7 @@ describe('tense games', () => {
     if (q.kind !== 'form') throw new Error(q.kind);
     expect(q.tense).toBe('past');
     expect(q.options[q.answer]).toBe(formOf(verb('אכל'), q.person));
+    expect(q.form).toBe(q.options[q.answer]);
     const past = Object.values(verb('אכל').past);
     expect(q.options.every((o) => past.includes(o))).toBe(true);
   });
@@ -149,5 +150,20 @@ describe('tense games', () => {
       expect(q.game).toBe(game);
       expect(q.kind === 'form' || q.kind === 'person' ? q.tense : undefined).toBe(gameTense(game));
     }
+  });
+});
+
+const personIds = (list: readonly Person[]) => list.map((p) => p.id);
+
+describe('personsWith', () => {
+  it('gives every person of the tense whose form is spelled like this one', () => {
+    const form = verb('אכל').present?.ms;
+    expect(form && personIds(personsWith(verb('אכל'), 'present', form, 'nikud'))).toEqual(['ani-m', 'ata', 'hu']);
+  });
+
+  it('compares in the spelling shown: plain אכלת is ты (м.) and ты (ж.)', () => {
+    const form = verb('אכל').past['2ms'];
+    expect(personIds(personsWith(verb('אכל'), 'past', form, 'nikud'))).toEqual(['ata']);
+    expect(personIds(personsWith(verb('אכל'), 'past', form, 'plain'))).toEqual(['ata', 'at']);
   });
 });

@@ -15,7 +15,6 @@ export const texts = {
   home: {
     hint: 'Начните с части 1: значения глаголов. Все части открыты сразу.',
     learned: 'выучено {learned} из {open}',
-    soon: 'скоро',
   },
   parts: { 1: 'Часть 1. Глаголы', 2: 'Часть 2. Настоящее время', 3: 'Часть 3. Прошедшее время', 4: 'Часть 4. Будущее время' },
   games: {
@@ -29,10 +28,18 @@ export const texts = {
     'future-form': 'Местоимение → форма',
     'future-person': 'Форма → местоимение',
   },
+  /** A game of parts 2–4 is titled with its tense. */
+  tenses: { present: 'Настоящее', past: 'Прошедшее', future: 'Будущее' },
   game: {
     quit: '← Выйти',
     count: 'Задание {n} из {total}',
-    task: { 'he-ru': 'Выберите перевод', 'ru-he': 'Выберите глагол на иврите', write: 'Напишите инфинитив на иврите' },
+    task: {
+      'he-ru': 'Выберите перевод',
+      'ru-he': 'Выберите глагол на иврите',
+      write: 'Напишите инфинитив на иврите',
+      form: 'Выберите форму глагола',
+      person: 'Выберите местоимение к этой форме',
+    },
     /** The write task for a verb without an infinitive (pual, hufal): its headword is the past "он". */
     taskNoInfinitive: 'Инфинитива нет — напишите прошедшее время «он»',
     noInfinitive: 'нет инфинитива',
@@ -76,7 +83,20 @@ export const texts = {
     voiceReload: 'После установки перезапустите браузер.',
     done: 'Готово',
   },
-  /** Pronoun labels (src/persons.ts); мы has a gender in the present only. */
+  /** A pronoun without a gender, where it takes both (src/persons.ts): я, мы. */
+  pronouns: {
+    ani: 'я',
+    ata: 'ты (м.)',
+    at: 'ты (ж.)',
+    hu: 'он',
+    hi: 'она',
+    anachnu: 'мы',
+    atem: 'вы (м.)',
+    aten: 'вы (ж.)',
+    hem: 'они (м.)',
+    hen: 'они (ж.)',
+  },
+  /** Person labels (src/persons.ts); мы has a gender in the present only. */
   persons: {
     'ani-m': 'я (м.)',
     'ani-f': 'я (ж.)',

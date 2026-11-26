@@ -6,8 +6,9 @@ binyanim, a dictionary and progress stats. The interface is in Russian only.
 A static app that works offline (PWA), deployed to GitHub Pages:
 <https://dmitryweiner.github.io/hebrew-verbs/>.
 
-Work in progress: see [the plan](plans/2026-11-24-hebrew-verbs.md) (in
-Russian).
+Work in progress: the nine games of the four parts are playable; the
+dictionary, the menorah and the progress page are next. See
+[the plan](plans/2026-11-24-hebrew-verbs.md) (in Russian).
 
 ## Development
 

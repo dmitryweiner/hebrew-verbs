@@ -4,7 +4,10 @@ import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { startApp, type AppOptions } from './app';
 import type { EmojiSupport } from './emoji';
+import { formOf, labelOf, personsOf, PRONOUNS, withPronoun, type Person, type Tense } from './persons';
+import { ruPhrase } from './phrases';
 import { parsePictures } from './pictures';
+import { personsWith } from './questions';
 import { seededRandom } from './selection';
 import type { Speaker } from './speech';
 import { loadState, saveState, STORAGE_KEY, type KeyValueStorage } from './storage';
@@ -184,15 +187,24 @@ describe('loading', () => {
 });
 
 describe('home page', () => {
-  it('shows the four parts: the games of part 1 with their progress, the others to come', async () => {
+  it('shows the four parts, each game with its progress', async () => {
     await start();
     expect(text('h1')).toBe(texts.heading);
     expect(text('.hint')).toBe(texts.home.hint);
     expect($$('.part h2').map((h) => h.textContent)).toEqual(Object.values(texts.parts));
     const links = $$as('.part a.game-link', HTMLAnchorElement);
-    expect(links.map((a) => a.getAttribute('href'))).toEqual(['#/part/1/he-ru', '#/part/1/ru-he', '#/part/1/write']);
-    expect(links.map((a) => a.querySelector('.game-progress')?.textContent)).toEqual(Array(3).fill('выучено 0 из 20'));
-    expect($$('.game-link.disabled')).toHaveLength(6);
+    expect(links.map((a) => a.getAttribute('href'))).toEqual([
+      '#/part/1/he-ru',
+      '#/part/1/ru-he',
+      '#/part/1/write',
+      '#/part/2/form',
+      '#/part/2/person',
+      '#/part/3/form',
+      '#/part/3/person',
+      '#/part/4/form',
+      '#/part/4/person',
+    ]);
+    expect(links.map((a) => a.querySelector('.game-progress')?.textContent)).toEqual(Array(9).fill('выучено 0 из 20'));
   });
 
   it('counts the verbs learned of the open ones', async () => {
@@ -203,8 +215,8 @@ describe('home page', () => {
     expect($$('.game-progress')[1]?.textContent).toBe('выучено 1 из 20');
   });
 
-  it('sends a game of a part not ready yet home', async () => {
-    await start('#/part/2/form');
+  it('sends an unknown game home', async () => {
+    await start('#/part/2/write');
     expect(text('h1')).toBe(texts.heading);
   });
 });
@@ -333,6 +345,158 @@ describe('a choice game', () => {
     await go('#/');
     expect(text('h1')).toBe(texts.heading);
     expect($('.settings-link')?.hidden).toBe(false);
+  });
+});
+
+const optionHe = (b: HTMLElement) => b.querySelector('.he')?.textContent;
+
+/** A tense task as a learner reads it: the verb, the person asked (form game) or the form shown (person game), the right option. */
+function tenseTask(tense: Tense) {
+  const lemma = text('.card .lemma .he');
+  const v = verbs.find((x) => x.lemma.nikud === lemma || x.lemma.plain === lemma);
+  if (!v) throw new Error(`no verb ${lemma} on the card`);
+  const buttons = $$as('.option', HTMLButtonElement);
+  const label = text('.card .pronoun .label');
+  const person = personsOf(tense).find((p) => p.label === label);
+  if (person) {
+    const form = formOf(v, person);
+    return { verb: v, person, buttons, right: buttons.findIndex((b) => optionHe(b) === form?.nikud || optionHe(b) === form?.plain) };
+  }
+  const shownForm = text('.card .form .he');
+  const says = (p: Person) => {
+    const f = formOf(v, p);
+    return f !== undefined && (f.nikud === shownForm || f.plain === shownForm);
+  };
+  const pronouns = personsOf(tense)
+    .filter(says)
+    .map((p) => p.pronoun);
+  const right = buttons.findIndex((b) =>
+    pronouns.some((p) => optionHe(b) === `${p.nikud} ${shownForm}` || optionHe(b) === `${p.plain} ${shownForm}`),
+  );
+  return { verb: v, person: undefined, buttons, right };
+}
+
+describe('a form game', () => {
+  it('asks the form of a pronoun, the verb and its translation on the card', async () => {
+    await start('#/part/3/form');
+    expect(text('.game-title')).toBe(`${texts.tenses.past} · ${texts.games['past-form']}`);
+    expect(text('.task')).toBe(texts.game.task.form);
+    const { verb: v, person, buttons, right } = tenseTask('past');
+    expect(person).toBeDefined();
+    expect(text('.card .ru')).toBe(ru(v));
+    expect(text('.card .pronoun .he')).toBe(person?.pronoun.nikud);
+    expect(buttons).toHaveLength(4);
+    const past = new Set(Object.values(v.past).map((f) => f.nikud));
+    expect(buttons.every((b) => past.has(optionHe(b) ?? ''))).toBe(true);
+    expect(right).toBeGreaterThanOrEqual(0);
+  });
+
+  it('after the answer shows the phrase with its translation and who says each option', async () => {
+    await start('#/part/2/form');
+    const { verb: v, person, buttons, right } = tenseTask('present');
+    if (!person) throw new Error('no person on the card');
+    buttons[(right + 1) % 4]?.click();
+    expect($('.feedback.bad')).not.toBeNull();
+    expect(buttons[right]?.classList.contains('right')).toBe(true);
+    expect(text('.feedback .phrase .he')).toBe(withPronoun(person, formOf(v, person) ?? v.past['3ms']).nikud);
+    expect(text('.feedback .phrase .ru')).toBe(ruPhrase(v, person));
+    expect(text('.feedback .verb-card .he')).toBe(v.lemma.nikud);
+    for (const b of buttons) {
+      const form = Object.values(v.present ?? {}).find((f) => f.nikud === b.querySelector('.he')?.textContent);
+      expect(form && b.querySelector('.reveal')?.textContent).toBe(form && labelOf(personsWith(v, 'present', form, 'nikud')));
+    }
+    expect(stats()['present-form']?.verbs[v.id]).toMatchObject({ shown: 1, wrong: 1 });
+  });
+
+  it('without nikud takes no key 4 where the present has three forms: עושה', async () => {
+    const state = loadState(storage);
+    saveState(storage, { ...state, settings: { ...state.settings, nikud: false } });
+    await start('#/part/2/form');
+    for (let i = 0; i < 10 && tenseTask('present').verb.id !== 'עשה'; i++) {
+      $$as('.option', HTMLButtonElement)[0]?.click();
+      $as('.next', HTMLButtonElement)?.click();
+    }
+    expect(tenseTask('present').buttons).toHaveLength(3);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: '4' }));
+    expect($('.feedback')).toBeNull();
+  });
+});
+
+describe('a person game', () => {
+  it('asks the pronoun of a form, offering it said with four pronouns', async () => {
+    await start('#/part/4/person');
+    expect(text('.game-title')).toBe(`${texts.tenses.future} · ${texts.games['future-person']}`);
+    expect(text('.task')).toBe(texts.game.task.person);
+    const form = text('.card .form .he');
+    const { verb: v, buttons, right } = tenseTask('future');
+    expect(Object.values(v.future ?? {}).map((f) => f.nikud)).toContain(form);
+    expect(buttons).toHaveLength(4);
+    expect(buttons.every((b) => b.querySelector('.he')?.textContent?.endsWith(` ${form}`))).toBe(true);
+    expect(right).toBeGreaterThanOrEqual(0);
+    // No Russian among the options: it would tell the answer.
+    expect(buttons.every((b) => !/[а-я]/i.test(b.querySelector('.he')?.textContent ?? ''))).toBe(true);
+  });
+
+  it('after the answer names every pronoun, without a gender where the form takes both, and gives the phrase', async () => {
+    await start('#/part/4/person');
+    const reveals = new Set<string>();
+    for (let i = 0; i < 10; i++) {
+      const { verb: v, buttons, right } = tenseTask('future');
+      const shownForm = text('.card .form .he');
+      const form = Object.values(v.future ?? {}).find((f) => f.nikud === shownForm);
+      if (!form) throw new Error(`no form ${shownForm}`);
+      const pronounOf = (b: HTMLElement) => Object.values(PRONOUNS).find((p) => optionHe(b) === `${p.nikud} ${shownForm}`);
+      buttons[right]?.click();
+      expect($('.feedback.good')).not.toBeNull();
+      expect(text('.feedback .phrase .he')).toBe(optionHe(buttons[right] ?? document.body));
+      const sayers = personsWith(v, 'future', form, 'nikud').filter((p) => p.pronoun === pronounOf(buttons[right] ?? document.body));
+      const person = sayers.find((p) => ruPhrase(v, p) === text('.feedback .phrase .ru'));
+      expect(person).toBeDefined();
+      buttons.forEach((b, j) => {
+        const reveal = b.querySelector('.reveal')?.textContent ?? '';
+        reveals.add(reveal);
+        expect(reveal).toBe(j === right ? labelOf(sayers) : pronounOf(b)?.label);
+      });
+      expect(stats()['future-person']?.verbs[v.id]).toMatchObject({ shown: 1, correct: 1 });
+      $as('.next', HTMLButtonElement)?.click();
+    }
+    expect(reveals.has('я (м.)') || reveals.has('я (ж.)')).toBe(false);
+  });
+
+  it('without nikud offers the plain phrases', async () => {
+    const state = loadState(storage);
+    saveState(storage, { ...state, settings: { ...state.settings, nikud: false } });
+    await start('#/part/3/person');
+    const { verb: v, buttons } = tenseTask('past');
+    const plain = Object.values(v.past).map((f) => f.plain);
+    expect(plain).toContain(text('.card .form .he'));
+    expect(buttons.every((b) => /^[\u05d0-\u05ea ]+$/u.test(b.querySelector('.he')?.textContent ?? ''))).toBe(true);
+  });
+
+  it('says the form on the card and the phrase after the answer', async () => {
+    speaker = fakeSpeaker('Carmit');
+    await start('#/part/2/person');
+    $as('.card .listen', HTMLButtonElement)?.click();
+    const { buttons, right } = tenseTask('present');
+    buttons[right]?.click();
+    $as('.feedback .phrase .listen', HTMLButtonElement)?.click();
+    expect(speaker.said).toEqual([text('.card .form .he'), text('.feedback .phrase .he')]);
+  });
+
+  it('ends with the results, each task as its phrase and translation', async () => {
+    await start('#/part/4/person');
+    const phrases: string[] = [];
+    const translations: string[] = [];
+    for (let i = 0; i < 10; i++) {
+      const { buttons, right } = tenseTask('future');
+      buttons[right]?.click();
+      phrases.push(text('.feedback .phrase .he'));
+      translations.push(text('.feedback .phrase .ru'));
+      $as('.next', HTMLButtonElement)?.click();
+    }
+    expect(text('.score')).toBe(`10 из 10 · ${texts.summary.perfect}`);
+    expect($$('.results li .he').map((el) => el.textContent)).toEqual(phrases);
+    expect($$('.results li .ru').map((el) => el.textContent)).toEqual(translations);
   });
 });
 
