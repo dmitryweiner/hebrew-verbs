@@ -1,6 +1,7 @@
 // Which verbs a game studies and which of them make a round (plan 3.3): the
 // open verbs are the first of the pool; heavier ones (mistakes, long unseen)
-// come more often; a round brings at most three new verbs.
+// come more often; a round brings at most three new verbs, more only while
+// too few are seen to fill it (decision 45).
 
 import { isLearned, recordAnswer, verbWeight, type GameStats } from './stats';
 import type { Verb } from './verbs';
@@ -56,20 +57,21 @@ export function answer(pool: readonly Verb[], game: GameStats, id: string, corre
 }
 
 /**
- * The verbs of a round, one per task. At most MAX_NEW verbs never seen in the
- * game, the most frequent of them; the rest are seen verbs, heavier ones more
- * likely. When there are fewer verbs than tasks they repeat, never twice in a row.
+ * The verbs of a round, one per task, all different (decision 45). Verbs never
+ * seen in the game, the most frequent of them: MAX_NEW, or as many as the
+ * seen ones leave free; the rest are seen verbs, heavier ones more likely.
+ * Only when fewer verbs are open than tasks do they repeat, never twice in a row.
  */
 export function pickRound(pool: readonly Verb[], game: GameStats, now: number, rng: Random, length = ROUND_LENGTH): Verb[] {
   const open = openVerbs(pool, game);
-  const fresh = open.filter((v) => !game.verbs[v.id]).slice(0, MAX_NEW);
   const weight = (v: Verb) => verbWeight(game.verbs[v.id], now);
   const seen = weightedOrder(
     open.filter((v) => game.verbs[v.id]),
     weight,
     rng,
-  ).slice(0, length - fresh.length);
-  const chosen = [...fresh, ...seen];
+  );
+  const fresh = open.filter((v) => !game.verbs[v.id]).slice(0, Math.max(MAX_NEW, length - seen.length));
+  const chosen = [...fresh, ...seen.slice(0, length - fresh.length)];
   if (chosen.length === 0) return [];
   const round: Verb[] = [];
   while (round.length < length) {

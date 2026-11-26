@@ -64,13 +64,17 @@ describe('answer', () => {
 });
 
 describe('pickRound', () => {
-  it('starts with the three most frequent verbs, repeated, never twice in a row', () => {
+  it('starts with the ten most frequent verbs, each once', () => {
     for (const seed of [1, 2, 3]) {
       const round = pickRound(pool, emptyGameStats(), NOW, seededRandom(seed));
-      expect(round).toHaveLength(ROUND_LENGTH);
-      expect(new Set(ids(round))).toEqual(new Set(ids(pool.slice(0, MAX_NEW))));
-      expect(round.every((v, i) => i === 0 || v !== round[i - 1])).toBe(true);
+      expect(ids(round).toSorted()).toEqual(ids(pool.slice(0, ROUND_LENGTH)).toSorted());
     }
+  });
+
+  it('fills the round with new verbs while fewer seen ones than its tasks are open', () => {
+    const game = withStats(4, known(1));
+    const round = pickRound(pool, game, NOW, seededRandom(4));
+    expect(ids(round).toSorted()).toEqual(ids(pool.slice(0, ROUND_LENGTH)).toSorted());
   });
 
   it('takes at most three new verbs, the most frequent of them, the rest from the seen ones', () => {
@@ -78,7 +82,7 @@ describe('pickRound', () => {
     const round = pickRound(pool, game, NOW, seededRandom(5));
     expect(new Set(ids(round)).size).toBe(ROUND_LENGTH);
     const fresh = ids(round).filter((id) => !game.verbs[id]);
-    expect(fresh.toSorted()).toEqual(ids(pool.slice(12, 15)).toSorted());
+    expect(fresh.toSorted()).toEqual(ids(pool.slice(12, 12 + MAX_NEW)).toSorted());
   });
 
   it('takes only open verbs', () => {
@@ -100,6 +104,16 @@ describe('pickRound', () => {
         else easy++;
       }
     expect(hard).toBeGreaterThan(easy);
+  });
+
+  it('repeats verbs only when fewer are open than its tasks, never twice in a row', () => {
+    const small = pool.slice(0, 4);
+    for (const seed of [1, 2, 3]) {
+      const round = pickRound(small, emptyGameStats(), NOW, seededRandom(seed));
+      expect(round).toHaveLength(ROUND_LENGTH);
+      expect(new Set(ids(round))).toEqual(new Set(ids(small)));
+      expect(round.every((v, i) => i === 0 || v !== round[i - 1])).toBe(true);
+    }
   });
 
   it('gives an empty round for an empty pool', () => {

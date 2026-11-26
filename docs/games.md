@@ -2,7 +2,7 @@
 
 The rules of the nine games as the core (`src/`, no DOM) implements them. The
 decisions behind them are in the plan (`plans/2026-11-24-hebrew-verbs.md`,
-sections 2–3 and 6, decisions 5–10, 13, 25–27, 35–37).
+sections 2–3 and 6, decisions 5–10, 13, 25–27, 35, 37, 45).
 
 ## The games
 
@@ -39,11 +39,13 @@ per verb id `shown`, `correct`, `wrong`, `streak` (correct in a row) and
 - 20 verbs open at the start. A verb is learned at a streak of 3, and a
   mistake unlearns it. When 80 % of the open verbs are learned, 10 more open
   (`advance`, called by `answer` after every answer). `open` never goes down.
-- A round has 10 tasks (`pickRound`). At most 3 of its verbs are new to the
-  game: the most frequent ones not yet seen. The rest are seen verbs, chosen
-  by weight `1 + 4 · error rate + 3 · staleness` (taken from alef-bet). With
-  too few verbs the round repeats them, never the same one twice in a row.
-  The first round is the 3 most frequent verbs, 3–4 times each (decision 36).
+- A round has 10 tasks, 10 different verbs (`pickRound`, decision 45). At
+  most 3 of them are new to the game, the most frequent ones not yet seen,
+  unless fewer than 7 verbs are seen: then new ones fill the round. The rest
+  are seen verbs, chosen by weight `1 + 4 · error rate + 3 · staleness`
+  (taken from alef-bet). The first round is the 10 most frequent verbs.
+  Only a game with fewer than 10 open verbs repeats them, never the same one
+  twice in a row.
 
 ## Tasks
 

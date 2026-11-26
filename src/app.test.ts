@@ -464,7 +464,7 @@ describe('settings', () => {
 });
 
 describe('the verbs of the tests', () => {
-  it('include the three most frequent, which the first round asks', () => {
+  it('include the most frequent, which the first round asks', () => {
     expect([verb('היה'), verb('ידע'), verb('עשה')].map((v) => v.rank)).toEqual([1, 2, 3]);
   });
 });

@@ -9,7 +9,7 @@ const NOW = 1_700_000_000_000;
 const ids = (round: { questions: { verb: { id: string } }[] }) => round.questions.map((q) => q.verb.id);
 
 describe('a round', () => {
-  it('has ten tasks of its game in the spelling it starts with; the first is about the three most frequent verbs', () => {
+  it('has ten tasks of its game in the spelling it starts with; the first is about the ten most frequent verbs', () => {
     const round = newRound('ru-he', verbs, emptyGameStats(), 'plain', NOW, seededRandom(1));
     expect(round.questions).toHaveLength(ROUND_LENGTH);
     expect(round.questions.every((q) => q.kind === 'ru-he' && q.game === 'ru-he')).toBe(true);
@@ -17,7 +17,7 @@ describe('a round', () => {
     expect(new Set(ids(round))).toEqual(
       new Set(
         gamePool(verbs, 'ru-he')
-          .slice(0, 3)
+          .slice(0, ROUND_LENGTH)
           .map((v) => v.id),
       ),
     );
