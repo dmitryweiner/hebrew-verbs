@@ -76,6 +76,18 @@ header {
   color: inherit;
   text-decoration: none;
 }
+.header-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.dict-link {
+  display: grid;
+  place-items: center;
+  min-block-size: 44px;
+  padding-inline: 8px;
+  color: inherit;
+}
 .settings-link {
   display: grid;
   place-items: center;
@@ -460,6 +472,126 @@ a.game-link:hover {
 .voice-status ul {
   padding-inline-start: 20px;
   font-size: 0.875rem;
+}
+
+/* The dictionary: the field, the verbs found. */
+.dict-search input {
+  inline-size: 100%;
+  min-block-size: 48px;
+  padding: 8px 12px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.dict-search input:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+.dict-search + .hint {
+  margin-block: 8px;
+  font-size: 0.875rem;
+}
+.dict-count {
+  color: var(--muted);
+}
+.dict-results {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dict-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+a.dict-item:hover {
+  border-color: var(--accent);
+}
+.dict-item .ru {
+  flex: 1 1 12em;
+}
+.hit {
+  inline-size: 100%;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* A verb's card. */
+.back,
+.results a {
+  color: inherit;
+}
+.verb-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-block: 12px;
+}
+.verb-head h1 {
+  font-size: 1.75rem;
+}
+.verb-head .ru {
+  margin: 0;
+  font-size: 1.125rem;
+}
+.verb-head .note .he {
+  margin-inline-start: 6px;
+}
+.verb-head .no-voice,
+.verb-page > .no-voice {
+  text-align: start;
+}
+.verb-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+  margin-block: 12px;
+}
+.verb-meta dt {
+  color: var(--muted);
+}
+.verb-meta dd {
+  margin: 0;
+}
+.binyan {
+  color: inherit;
+}
+.forms {
+  inline-size: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: 10px;
+}
+.forms tr + tr {
+  border-block-start: 1px solid var(--line);
+}
+.forms th {
+  padding: 4px 8px 4px 12px;
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.875rem;
+  text-align: start;
+}
+.forms td {
+  padding: 4px 8px;
+  text-align: end;
+}
+.forms td:last-child {
+  inline-size: 52px;
+}
+.literary {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8125rem;
 }
 
 @media (min-width: 600px) {

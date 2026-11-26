@@ -18,6 +18,9 @@ export interface AppContext {
   gameStats(game: GameId): GameStats;
   /** Records an answer in the game's statistics and saves them. */
   recordAnswer(game: GameId, verb: Verb, correct: boolean): void;
+  /** The dictionary's last query, in memory only: a card leads back to it. */
+  lastQuery(): string;
+  setLastQuery(query: string): void;
   speaker: Speaker;
   emoji: EmojiSupport;
   now: () => number;

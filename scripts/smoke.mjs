@@ -1,6 +1,7 @@
 // Browser smoke of the real app: the home page renders with the verb data,
 // a round of a part-1 game and of a tense game run to their results, a typed
-// answer is taken, no horizontal scroll on a phone (home and game screens),
+// answer is taken, the dictionary finds a verb by a form and opens its card,
+// no horizontal scroll on a phone (home, game, dictionary and card screens),
 // no console errors. In dev it also checks the canvas emoji test. With
 // --preview it runs against a fresh production build and also checks that
 // the service worker makes the app work offline and that a new deploy
@@ -95,6 +96,28 @@ try {
     await context.close();
   });
 
+  await step('the dictionary finds a verb by a form on a phone and opens its card', async () => {
+    const { page, context } = await app.open({ viewport: VIEWPORTS.phone });
+    await page.goto(app.base);
+    await page.locator('.dict-link').click();
+    // The full list first: 1000 verbs drawn at once.
+    await page.locator('.dict-results li').first().waitFor();
+    check((await page.locator('.dict-results li').count()) >= 1000, 'the empty search does not list every verb');
+    const started = Date.now();
+    await page.locator('.dict-search input').fill('אכלתי');
+    await page.locator('.dict-results li .hit').first().waitFor();
+    const took = Date.now() - started;
+    check(took < 1000, `the search took ${took} ms`);
+    check(decodeURIComponent(new URL(page.url()).hash) === '#/dict?q=אכלתי', 'the query is not in the hash');
+    await page.locator('.dict-results a').first().click();
+    await page.locator('.tense-past tbody tr').first().waitFor();
+    check((await page.locator('h1 .he').textContent()) === 'לֶאֱכֹל', 'the card is not of לאכול');
+    check((await page.locator('.verb-page .listen').count()) === 24, 'the card has not a 🔊 per form');
+    await page.locator('.verb-page .back').click();
+    check((await page.locator('.dict-search input').inputValue()) === 'אכלתי', 'the card does not lead back to the search');
+    await context.close();
+  });
+
   if (!preview) {
     await step('the canvas emoji test tells a drawn emoji from a missing one', async () => {
       const { page, context } = await app.open();
@@ -111,7 +134,7 @@ try {
   }
 
   for (const [name, viewport] of Object.entries(VIEWPORTS)) {
-    await step(`no horizontal scroll on ${name} (${viewport.width}px): home, the games, settings`, async () => {
+    await step(`no horizontal scroll on ${name} (${viewport.width}px): home, the games, settings, dictionary, a card`, async () => {
       const { page, context } = await app.open({ viewport });
       const screens = [
         ['home', '#/', 'h1'],
@@ -120,6 +143,11 @@ try {
         ['present-form', '#/part/2/form', '.option'],
         ['future-person', '#/part/4/person', '.option'],
         ['settings', '#/settings', '.toggle'],
+        ['dictionary', '#/dict', '.dict-results li'],
+        // A form of two tenses: the found forms under the verb.
+        ['dictionary-form', `#/dict?q=${encodeURIComponent('אוכל')}`, '.hit'],
+        // The longest translations and a picture: התחתן, "жениться, выходить замуж".
+        ['card', `#/dict/${encodeURIComponent('התחתן')}`, '.forms'],
       ];
       for (const [screen, hash, ready] of screens) {
         await page.goto(`${app.base}${hash}`);

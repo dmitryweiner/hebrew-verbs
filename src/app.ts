@@ -4,7 +4,7 @@
 import type { EmojiSupport } from './emoji';
 import { gamePool, type GameId } from './games';
 import { parsePictures, type Pictures } from './pictures';
-import { routeOf } from './routes';
+import { routeOf, type Route } from './routes';
 import { answer, type Random } from './selection';
 import type { Speaker } from './speech';
 import { emptyGameStats } from './stats';
@@ -12,9 +12,11 @@ import { loadState, saveState, type KeyValueStorage } from './storage';
 import { texts } from './texts';
 import { parseVerbs, type Verb } from './verbs';
 import type { AppContext, View } from './views/context';
+import { dictionaryView } from './views/dictionary';
 import { gameView } from './views/game';
 import { homeView } from './views/home';
 import { settingsView } from './views/settings';
+import { verbView } from './views/verb';
 
 export interface AppOptions {
   storage: KeyValueStorage | null;
@@ -39,14 +41,23 @@ function message(text: string): HTMLElement {
   return p;
 }
 
+function viewOf(route: Route): View {
+  if (route.page === 'settings') return settingsView;
+  if (route.page === 'game') return gameView(route.game);
+  if (route.page === 'dict') return dictionaryView(route.query);
+  if (route.page === 'verb') return verbView(route.id);
+  return homeView;
+}
+
 /** Starts the app on the current page; returns a function that clears it. */
 export function startApp({ storage, loadData, speaker, emoji, now = Date.now, random = Math.random }: AppOptions): () => void {
   const root = required('#app', HTMLElement);
-  const settingsLink = required('.settings-link', HTMLElement);
+  const headerLinks = [required('.dict-link', HTMLElement), required('.settings-link', HTMLElement)];
   const state = loadState(storage);
   const pools = new Map<GameId, Verb[]>();
   let stopView: (() => void) | undefined;
   let stopped = false;
+  let lastQuery = '';
 
   root.replaceChildren(message(texts.loading));
 
@@ -72,6 +83,10 @@ export function startApp({ storage, loadData, speaker, emoji, now = Date.now, ra
         state.stats[game] = answer(pool(game), state.stats[game] ?? emptyGameStats(), verb.id, correct, now());
         saveState(storage, state);
       },
+      lastQuery: () => lastQuery,
+      setLastQuery(query) {
+        lastQuery = query;
+      },
       speaker,
       emoji,
       now,
@@ -84,11 +99,10 @@ export function startApp({ storage, loadData, speaker, emoji, now = Date.now, ra
   function show() {
     if (!ctx) return;
     const route = routeOf(window.location.hash);
-    const view: View = route.page === 'settings' ? settingsView : route.page === 'game' ? gameView(route.game) : homeView;
     stopView?.();
-    settingsLink.hidden = route.page === 'game';
+    for (const link of headerLinks) link.hidden = route.page === 'game';
     document.documentElement.scrollTop = 0;
-    stopView = view(root, ctx);
+    stopView = viewOf(route)(root, ctx);
   }
 
   loadData()

@@ -12,6 +12,7 @@ export const texts = {
   loading: 'Загрузка глаголов…',
   loadFailed: 'Не удалось загрузить глаголы. Обновите страницу.',
   settingsLink: 'Настройки',
+  dictLink: 'Словарь',
   home: {
     hint: 'Начните с части 1: значения глаголов. Все части открыты сразу.',
     learned: 'выучено {learned} из {open}',
@@ -62,6 +63,48 @@ export const texts = {
     retry: 'Повторить ошибки',
     again: 'Ещё раунд',
     home: 'К частям',
+  },
+  dictionary: {
+    heading: 'Словарь',
+    searchLabel: 'Поиск по словарю',
+    placeholder: 'по-русски, на иврите или корень',
+    hint: 'По-русски — по переводу (есть), на иврите — по любой форме (אכלתי) или по корню (כ־ת־ב).',
+    all: 'Все глаголы по частоте: {n}',
+    found: 'Найдено: {n}',
+    nothing: 'Ничего не найдено.',
+    /** Where a found form sits: "אָכַלְתִּי · прошедшее, я". */
+    where: {
+      infinitive: 'инфинитив',
+      present: 'настоящее',
+      past: 'прошедшее',
+      future: 'будущее',
+      literary: 'будущее, литературная форма',
+    },
+  },
+  verb: {
+    back: '← Словарь',
+    also: 'также',
+    root: 'Корень',
+    binyan: 'Биньян',
+    rank: 'Место по частоте',
+    tenses: { present: 'Настоящее время', past: 'Прошедшее время', future: 'Будущее время' },
+    missing: {
+      present: 'Настоящего времени у этого глагола нет.',
+      past: 'Прошедшего времени у этого глагола нет.',
+      future: 'Будущего времени у этого глагола нет.',
+    },
+    /** The literary future (decision 6), small beside the spoken one. */
+    literary: 'лит.',
+    notFound: 'Такого глагола в словаре нет.',
+  },
+  binyanim: {
+    paal: 'пааль',
+    nifal: 'нифаль',
+    piel: 'пиэль',
+    pual: 'пуаль',
+    hifil: 'хифиль',
+    hufal: 'хуфаль',
+    hitpael: 'хитпаэль',
   },
   settings: {
     heading: 'Настройки',
