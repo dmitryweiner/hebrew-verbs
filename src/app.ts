@@ -83,6 +83,10 @@ export function startApp({ storage, loadData, speaker, emoji, now = Date.now, ra
         state.stats[game] = answer(pool(game), state.stats[game] ?? emptyGameStats(), verb.id, correct, now());
         saveState(storage, state);
       },
+      resetStats() {
+        state.stats = {};
+        saveState(storage, state);
+      },
       lastQuery: () => lastQuery,
       setLastQuery(query) {
         lastQuery = query;

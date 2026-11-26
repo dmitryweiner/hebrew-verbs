@@ -624,6 +624,40 @@ describe('settings', () => {
     expect(text('.voice-status')).toBe('Голос иврита: Carmit.');
   });
 
+  it('reset the statistics of every game after a question, keeping the settings', async () => {
+    await start('#/part/1/he-ru');
+    const { buttons, right } = options();
+    buttons[right]?.click();
+    await go('#/settings');
+    $as('input[name="translit"]', HTMLInputElement)?.click();
+    const reset = $as('.reset', HTMLButtonElement);
+    expect(reset?.textContent).toBe(texts.settings.reset);
+    expect($('.reset-confirm')?.hidden).toBe(true);
+
+    reset?.click();
+    expect($('.reset-confirm')?.hidden).toBe(false);
+    expect(text('.reset-confirm p')).toBe(texts.settings.resetQuestion);
+    $as('.reset-cancel', HTMLButtonElement)?.click();
+    expect($('.reset-confirm')?.hidden).toBe(true);
+    expect(Object.keys(loadState(storage).stats)).toEqual(['he-ru']);
+
+    reset?.click();
+    $as('.reset-yes', HTMLButtonElement)?.click();
+    expect(loadState(storage).stats).toEqual({});
+    expect(loadState(storage).settings.translit).toBe(false);
+    expect($('.reset-confirm')?.hidden).toBe(true);
+    expect(text('.reset-status')).toBe(texts.settings.resetDone);
+    expect(reset?.disabled).toBe(true);
+
+    await go('#/');
+    expect($$('.game-progress').map((p) => p.textContent)).toEqual(Array(9).fill('выучено 0 из 20'));
+  });
+
+  it('offer no reset while there are no statistics', async () => {
+    await start('#/settings');
+    expect($as('.reset', HTMLButtonElement)?.disabled).toBe(true);
+  });
+
   it('keep the statistics when saved', async () => {
     await start('#/part/1/he-ru');
     const { buttons, right } = options();

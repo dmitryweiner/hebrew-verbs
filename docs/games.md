@@ -99,6 +99,9 @@ a bad verb entry (counts that do not add up, a streak above the correct
 answers) or a bad `open` is dropped or reset on its own. Version 2 is read as
 it is (`autoNext` off); version 1 (settings only) keeps its settings.
 
+"Сбросить статистику" in the settings empties `stats` of every game after a
+question right under the button; the settings stay (decision 57).
+
 ## In the app
 
 `src/views/game.ts`, `src/round.ts`; one view for all nine games.

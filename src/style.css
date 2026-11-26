@@ -469,6 +469,28 @@ a.game-link:hover {
   block-size: 22px;
   accent-color: var(--accent);
 }
+.reset-box {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-block-end: 24px;
+}
+.reset-confirm {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-inline-start: 4px solid var(--bad);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.reset-confirm p,
+.reset-status {
+  margin: 0 0 8px;
+}
+.danger {
+  border-color: var(--bad);
+  background: var(--bad);
+  color: var(--bg);
+}
 .voice-status ul {
   padding-inline-start: 20px;
   font-size: 0.875rem;
