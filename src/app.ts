@@ -2,7 +2,7 @@
 // the current hash route (src/routes.ts).
 
 import type { EmojiSupport } from './emoji';
-import { gamePart, gamePool, type GameId } from './games';
+import { gamePool, type GameId } from './games';
 import { parsePictures, type Pictures } from './pictures';
 import { routeOf } from './routes';
 import { answer, type Random } from './selection';
@@ -13,7 +13,7 @@ import { texts } from './texts';
 import { parseVerbs, type Verb } from './verbs';
 import type { AppContext, View } from './views/context';
 import { gameView } from './views/game';
-import { homeView, READY_PARTS } from './views/home';
+import { homeView } from './views/home';
 import { settingsView } from './views/settings';
 
 export interface AppOptions {
@@ -84,12 +84,7 @@ export function startApp({ storage, loadData, speaker, emoji, now = Date.now, ra
   function show() {
     if (!ctx) return;
     const route = routeOf(window.location.hash);
-    const view: View =
-      route.page === 'settings'
-        ? settingsView
-        : route.page === 'game' && READY_PARTS.includes(gamePart(route.game))
-          ? gameView(route.game)
-          : homeView;
+    const view: View = route.page === 'settings' ? settingsView : route.page === 'game' ? gameView(route.game) : homeView;
     stopView?.();
     settingsLink.hidden = route.page === 'game';
     document.documentElement.scrollTop = 0;

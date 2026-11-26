@@ -1,6 +1,6 @@
 // Browser smoke of the real app: the home page renders with the verb data,
-// a round of a part-1 game runs to its results, a typed answer is taken,
-// no horizontal scroll on a phone (home and game screens),
+// a round of a part-1 game and of a tense game run to their results, a typed
+// answer is taken, no horizontal scroll on a phone (home and game screens),
 // no console errors. In dev it also checks the canvas emoji test. With
 // --preview it runs against a fresh production build and also checks that
 // the service worker makes the app work offline and that a new deploy
@@ -62,6 +62,21 @@ try {
     await context.close();
   });
 
+  await step('a past-person round on a phone runs to its results, each task a phrase', async () => {
+    const { page, context } = await app.open({ viewport: VIEWPORTS.phone });
+    await page.goto(`${app.base}#/part/3/person`);
+    for (let i = 0; i < 10; i++) {
+      await page.locator('.option').first().waitFor();
+      check((await page.locator('.option').count()) === 4, `task ${i + 1} has not four options`);
+      await answerFirst(page);
+    }
+    await page.locator('.summary').waitFor();
+    check((await page.locator('.results li .he').count()) === 10, 'the results do not list ten phrases');
+    const stored = await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('hebrew-verbs') ?? '{}').stats ?? {}));
+    check(stored.includes('past-person'), 'the answers were not saved');
+    await context.close();
+  });
+
   await step('the write game takes a typed answer on a phone', async () => {
     const { page, context } = await app.open({ viewport: VIEWPORTS.phone });
     await page.goto(`${app.base}#/part/1/write`);
@@ -102,12 +117,15 @@ try {
         ['home', '#/', 'h1'],
         ['he-ru', '#/part/1/he-ru', '.option'],
         ['write', '#/part/1/write', '.answer-input'],
+        ['present-form', '#/part/2/form', '.option'],
+        ['future-person', '#/part/4/person', '.option'],
         ['settings', '#/settings', '.toggle'],
       ];
       for (const [screen, hash, ready] of screens) {
         await page.goto(`${app.base}${hash}`);
         await page.locator(ready).first().waitFor();
-        if (screen === 'he-ru') await page.locator('.option').first().click();
+        // A choice game is measured after an answer: the feedback is its widest screen.
+        if (ready === '.option') await page.locator('.option').first().click();
         const width = await page.evaluate(() => document.documentElement.scrollWidth);
         check(width <= viewport.width, `${screen} is ${width}px wide`);
         if (shots) await page.screenshot({ path: `shots/${name}-${screen}.png`, fullPage: true });
