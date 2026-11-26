@@ -1,9 +1,12 @@
-// Hash routes (plan, section 8): #/, #/part/1/he-ru, #/part/2/form, #/settings.
-// A game of part 1 is named by its id, a game of parts 2–4 by its kind.
+// Hash routes (plan, section 8): #/, #/part/1/he-ru, #/part/2/form,
+// #/dict?q=…, #/dict/<id>, #/settings. A game of part 1 is named by its id,
+// a game of parts 2–4 by its kind.
 
 import { GAMES, gamePart, type GameId } from './games';
+import type { Binyan } from './verbs';
 
-export type Route = { page: 'home' } | { page: 'settings' } | { page: 'game'; game: GameId };
+export type Route =
+  { page: 'home' } | { page: 'settings' } | { page: 'game'; game: GameId } | { page: 'dict'; query: string } | { page: 'verb'; id: string };
 
 /** The last part of a game's hash: he-ru in part 1, form in present-form. */
 const slug = (game: GameId): string => game.replace(/^(present|past|future)-/u, '');
@@ -11,13 +14,31 @@ const slug = (game: GameId): string => game.replace(/^(present|past|future)-/u, 
 export function hashOf(route: Route): string {
   if (route.page === 'home') return '#/';
   if (route.page === 'settings') return '#/settings';
+  if (route.page === 'dict') return route.query === '' ? '#/dict' : `#/dict?${new URLSearchParams({ q: route.query })}`;
+  if (route.page === 'verb') return `#/dict/${encodeURIComponent(route.id)}`;
   return `#/part/${gamePart(route.game)}/${slug(route.game)}`;
+}
+
+/** A binyan's page of the menorah (stage 7; until then the hash leads home). */
+export const menorahHash = (binyan: Binyan): string => `#/menorah/${binyan}`;
+
+function decoded(text: string): string | undefined {
+  try {
+    return decodeURIComponent(text);
+  } catch {
+    return undefined; // a broken %-escape
+  }
 }
 
 /** The route of a hash; anything unknown is the home page. */
 export function routeOf(hash: string): Route {
   const path = hash.replace(/^#\/?/u, '');
   if (path === 'settings') return { page: 'settings' };
+  if (path === 'dict' || path.startsWith('dict?')) return { page: 'dict', query: new URLSearchParams(path.slice(5)).get('q') ?? '' };
+  if (path.startsWith('dict/')) {
+    const id = decoded(path.slice(5));
+    return id ? { page: 'verb', id } : { page: 'home' };
+  }
   const game = GAMES.find((g) => path === `part/${gamePart(g)}/${slug(g)}`);
   return game ? { page: 'game', game } : { page: 'home' };
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GAMES } from './games';
-import { hashOf, routeOf } from './routes';
+import { hashOf, menorahHash, routeOf } from './routes';
 
 describe('routes', () => {
   it('open a game of part 1 by its id, of parts 2–4 by form or person', () => {
@@ -24,8 +24,33 @@ describe('routes', () => {
     expect(hashOf({ page: 'home' })).toBe('#/');
   });
 
+  it('open the dictionary with its query and a verb card by its id', () => {
+    expect(routeOf('#/dict')).toEqual({ page: 'dict', query: '' });
+    expect(hashOf({ page: 'dict', query: '' })).toBe('#/dict');
+    expect(routeOf('#/dict?q=%D7%90%D7%9B%D7%9C')).toEqual({ page: 'dict', query: 'אכל' });
+    expect(routeOf('#/dict?q=выйти+замуж')).toEqual({ page: 'dict', query: 'выйти замуж' });
+    for (const query of ['אכלתי', 'кто я', 'כ.ת.ב', 'a&b=c'])
+      expect(routeOf(hashOf({ page: 'dict', query }))).toEqual({ page: 'dict', query });
+    expect(hashOf({ page: 'verb', id: 'דיבר' })).toBe(`#/dict/${encodeURIComponent('דיבר')}`);
+    expect(routeOf(hashOf({ page: 'verb', id: 'דיבר' }))).toEqual({ page: 'verb', id: 'דיבר' });
+    expect(routeOf('#/dict/דיבר')).toEqual({ page: 'verb', id: 'דיבר' });
+  });
+
+  it('give each binyan a hash of the menorah', () => {
+    expect(menorahHash('piel')).toBe('#/menorah/piel');
+  });
+
   it('send an unknown or broken hash home', () => {
-    for (const hash of ['#/part/1/form', '#/part/2/he-ru', '#/part/5/form', '#/part/1', '#/nothing', '#settings/x'])
+    for (const hash of [
+      '#/part/1/form',
+      '#/part/2/he-ru',
+      '#/part/5/form',
+      '#/part/1',
+      '#/nothing',
+      '#settings/x',
+      '#/dict/%E0%A4%A',
+      '#/dict/',
+    ])
       expect(routeOf(hash)).toEqual({ page: 'home' });
   });
 });
