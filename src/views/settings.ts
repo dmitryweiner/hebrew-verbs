@@ -1,13 +1,16 @@
 // Settings (decisions 37–39: a page of its own, outside a game): nikud,
 // transliteration, autoNext, whether there is a Hebrew voice, with how to
-// install one, and a reset of the statistics, asked again right under its
-// button (decision 57; not confirm()).
+// install one, and a reset of the statistics of every game, asked again
+// right under its button (decision 57; not confirm()); one game is reset on
+// the progress page.
 
 import { h } from '../dom';
 import { GAMES } from '../games';
+import { hashOf } from '../routes';
 import type { Settings } from '../storage';
 import { fill, texts } from '../texts';
 import type { AppContext } from './context';
+import { resetBox } from './reset';
 
 export function settingsView(root: HTMLElement, ctx: AppContext): () => void {
   const toggle = (name: keyof Settings, label: string, note: string) => {
@@ -31,31 +34,12 @@ export function settingsView(root: HTMLElement, ctx: AppContext): () => void {
   };
   showVoice();
 
-  const hasStats = () => GAMES.some((game) => Object.keys(ctx.gameStats(game).verbs).length > 0);
-  const reset = h('button', { type: 'button', class: 'reset', disabled: !hasStats() }, texts.settings.reset);
-  const yes = h('button', { type: 'button', class: 'reset-yes danger' }, texts.settings.resetYes);
-  const cancel = h('button', { type: 'button', class: 'reset-cancel' }, texts.settings.resetCancel);
-  const confirm = h(
-    'div',
-    { class: 'reset-confirm', hidden: true },
-    h('p', {}, texts.settings.resetQuestion),
-    h('div', { class: 'actions' }, yes, cancel),
-  );
-  const status = h('p', { class: 'reset-status', 'aria-live': 'polite' });
-  reset.addEventListener('click', () => {
-    confirm.hidden = false;
-    status.textContent = '';
-    cancel.focus();
-  });
-  cancel.addEventListener('click', () => {
-    confirm.hidden = true;
-    reset.focus();
-  });
-  yes.addEventListener('click', () => {
-    ctx.resetStats();
-    confirm.hidden = true;
-    reset.disabled = true;
-    status.textContent = texts.settings.resetDone;
+  const reset = resetBox({
+    label: texts.settings.reset,
+    question: texts.settings.resetQuestion,
+    done: texts.settings.resetDone,
+    disabled: GAMES.every((game) => Object.keys(ctx.gameStats(game).verbs).length === 0),
+    onReset: () => ctx.resetStats(),
   });
 
   root.replaceChildren(
@@ -66,7 +50,8 @@ export function settingsView(root: HTMLElement, ctx: AppContext): () => void {
     h('h2', {}, texts.settings.voice),
     voice,
     h('h2', {}, texts.settings.stats),
-    h('div', { class: 'reset-box' }, reset, confirm, status),
+    h('p', {}, h('a', { class: 'progress-link', href: hashOf({ page: 'progress' }) }, texts.settings.oneGame)),
+    reset,
     h('a', { class: 'button', href: '#/' }, texts.settings.done),
   );
   return ctx.speaker.watch(showVoice);

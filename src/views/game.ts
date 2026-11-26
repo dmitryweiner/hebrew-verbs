@@ -30,6 +30,12 @@ type WriteQuestion = Extract<Question, { kind: 'write' }>;
 const isTense = (q: Question): q is TenseQuestion => q.kind === 'form' || q.kind === 'person';
 
 const translations = (verb: Verb) => verb.ru.join(', ');
+
+/** A game's name; in parts 2–4 the tense first: "Прошедшее · Местоимение → форма" (decision 49). */
+export function gameTitle(game: GameId): string {
+  const tense = gameTense(game);
+  return tense ? `${texts.tenses[tense]} · ${texts.games[game]}` : texts.games[game];
+}
 const noInfinitive = (verb: Verb) => !verb.infinitive && h('p', { class: 'note' }, texts.game.noInfinitive);
 
 export function gameView(game: GameId) {
@@ -43,7 +49,6 @@ export function gameView(game: GameId) {
 
     const he = (form: { nikud: string; plain: string; translit: string }) => hebrewWord(form, round.spelling, translit);
     const word = (verb: Verb) => he(verb.lemma);
-    const tense = gameTense(game);
 
     // Listening after a right answer: stay on it.
     const { listen, noVoice, stop: stopListening } = listening(ctx, () => clearTimeout(timer));
@@ -56,7 +61,7 @@ export function gameView(game: GameId) {
         'div',
         { class: 'game-head' },
         h('a', { class: 'quit', href: '#/' }, texts.game.quit),
-        h('span', { class: 'game-title' }, tense ? `${texts.tenses[tense]} · ${texts.games[game]}` : texts.games[game]),
+        h('span', { class: 'game-title' }, gameTitle(game)),
         h('span', { class: 'count', 'aria-hidden': 'true' }, `${Math.min(n + 1, total)} / ${total}`),
         h('progress', { max: total, value: n, 'aria-label': count, title: count }),
       );

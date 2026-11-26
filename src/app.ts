@@ -16,6 +16,7 @@ import { dictionaryView } from './views/dictionary';
 import { gameView } from './views/game';
 import { homeView } from './views/home';
 import { menorahView } from './views/menorah';
+import { progressView } from './views/progress';
 import { settingsView } from './views/settings';
 import { verbView } from './views/verb';
 
@@ -44,6 +45,7 @@ function message(text: string): HTMLElement {
 
 function viewOf(route: Route): View {
   if (route.page === 'settings') return settingsView;
+  if (route.page === 'progress') return progressView;
   if (route.page === 'game') return gameView(route.game);
   if (route.page === 'dict') return dictionaryView(route.query);
   if (route.page === 'verb') return verbView(route.id);
@@ -85,8 +87,9 @@ export function startApp({ storage, loadData, speaker, emoji, now = Date.now, ra
         state.stats[game] = answer(pool(game), state.stats[game] ?? emptyGameStats(), verb.id, correct, now());
         saveState(storage, state);
       },
-      resetStats() {
-        state.stats = {};
+      resetStats(game) {
+        if (game) delete state.stats[game];
+        else state.stats = {};
         saveState(storage, state);
       },
       lastQuery: () => lastQuery,

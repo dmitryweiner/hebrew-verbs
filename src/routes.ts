@@ -1,5 +1,5 @@
 // Hash routes (plan, section 8): #/, #/part/1/he-ru, #/part/2/form,
-// #/dict?q=…, #/dict/<id>, #/menorah, #/menorah/<binyan>, #/settings. A game of part 1 is named by its id,
+// #/dict?q=…, #/dict/<id>, #/menorah, #/menorah/<binyan>, #/progress, #/settings. A game of part 1 is named by its id,
 // a game of parts 2–4 by its kind.
 
 import { GAMES, gamePart, type GameId } from './games';
@@ -8,6 +8,7 @@ import { BINYANIM, type Binyan } from './verbs';
 export type Route =
   | { page: 'home' }
   | { page: 'settings' }
+  | { page: 'progress' }
   | { page: 'game'; game: GameId }
   | { page: 'dict'; query: string }
   | { page: 'verb'; id: string }
@@ -19,6 +20,7 @@ const slug = (game: GameId): string => game.replace(/^(present|past|future)-/u, 
 export function hashOf(route: Route): string {
   if (route.page === 'home') return '#/';
   if (route.page === 'settings') return '#/settings';
+  if (route.page === 'progress') return '#/progress';
   if (route.page === 'dict') return route.query === '' ? '#/dict' : `#/dict?${new URLSearchParams({ q: route.query })}`;
   if (route.page === 'verb') return `#/dict/${encodeURIComponent(route.id)}`;
   if (route.page === 'menorah') return route.binyan ? `#/menorah/${route.binyan}` : '#/menorah';
@@ -37,6 +39,7 @@ function decoded(text: string): string | undefined {
 export function routeOf(hash: string): Route {
   const path = hash.replace(/^#\/?/u, '');
   if (path === 'settings') return { page: 'settings' };
+  if (path === 'progress') return { page: 'progress' };
   if (path === 'dict' || path.startsWith('dict?')) return { page: 'dict', query: new URLSearchParams(path.slice(5)).get('q') ?? '' };
   if (path.startsWith('dict/')) {
     const id = decoded(path.slice(5));

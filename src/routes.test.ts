@@ -17,9 +17,11 @@ describe('routes', () => {
     for (const game of GAMES) expect(routeOf(hashOf({ page: 'game', game }))).toEqual({ page: 'game', game });
   });
 
-  it('open the settings and the home page', () => {
+  it('open the settings, the progress and the home page', () => {
     expect(routeOf('#/settings')).toEqual({ page: 'settings' });
     expect(hashOf({ page: 'settings' })).toBe('#/settings');
+    expect(routeOf('#/progress')).toEqual({ page: 'progress' });
+    expect(hashOf({ page: 'progress' })).toBe('#/progress');
     expect(routeOf('#/')).toEqual({ page: 'home' });
     expect(routeOf('')).toEqual({ page: 'home' });
     expect(hashOf({ page: 'home' })).toBe('#/');
@@ -57,6 +59,7 @@ describe('routes', () => {
       '#/dict/',
       '#/menorah/qal',
       '#/menorah/',
+      '#/progress/he-ru',
     ])
       expect(routeOf(hash)).toEqual({ page: 'home' });
   });

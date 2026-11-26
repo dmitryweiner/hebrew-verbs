@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { startApp, type AppOptions } from './app';
 import type { EmojiSupport } from './emoji';
 import { BINYAN_EXAMPLES, BINYAN_HEBREW, BINYAN_MODELS } from './binyanim';
+import { GAMES, type GameId } from './games';
 import { formOf, labelOf, personsOf, PRONOUNS, withPronoun, type Person, type Tense } from './persons';
 import { ruPhrase } from './phrases';
 import { parsePictures, pictureOf } from './pictures';
@@ -12,6 +13,7 @@ import { hashOf, routeOf } from './routes';
 import { personsWith } from './questions';
 import { seededRandom } from './selection';
 import type { Speaker } from './speech';
+import type { VerbStat } from './stats';
 import { loadState, saveState, STORAGE_KEY, type KeyValueStorage } from './storage';
 import { verb, verbs } from './testing';
 import { fill, texts } from './texts';
@@ -668,6 +670,106 @@ describe('settings', () => {
     $as('input[name="translit"]', HTMLInputElement)?.click();
     expect(Object.keys(loadState(storage).stats)).toEqual(['he-ru']);
     expect(storage.data.has(STORAGE_KEY)).toBe(true);
+  });
+});
+
+const verbStat = ([correct, wrong, streak]: [number, number, number]): VerbStat => ({
+  shown: correct + wrong,
+  correct,
+  wrong,
+  streak,
+  lastSeen: NOW,
+});
+
+/** Saves a game's statistics as if it was played: these verbs answered so, `open` verbs open. */
+function played(game: GameId, answers: Record<string, [correct: number, wrong: number, streak: number]>, open = 20) {
+  const state = loadState(storage);
+  state.stats[game] = { open, verbs: Object.fromEntries(Object.entries(answers).map(([id, a]) => [id, verbStat(a)])) };
+  saveState(storage, state);
+}
+
+/** A selector inside a game's block on the progress page. */
+const inGame = (game: GameId, selector: string) => `.game-stats[data-game="${game}"] ${selector}`;
+
+describe('the progress page', () => {
+  it('opens from the home page and the settings, every game not played yet', async () => {
+    await start();
+    expect($as('main .progress-link', HTMLAnchorElement)?.getAttribute('href')).toBe('#/progress');
+    expect(text('main .progress-link')).toBe(texts.home.progress);
+    await go('#/settings');
+    expect($as('main .progress-link', HTMLAnchorElement)?.getAttribute('href')).toBe('#/progress');
+    await go('#/progress');
+    expect(text('h1')).toBe(texts.progress.heading);
+    expect(text('main > .hint')).toBe(texts.progress.intro);
+    expect($$('.part h2').map((h) => h.textContent)).toEqual(Object.values(texts.parts));
+    const games = $$('.game-stats');
+    expect(games.map((g) => g.dataset.game)).toEqual([...GAMES]);
+    expect(games.map((g) => g.querySelector('h3')?.textContent)).toEqual(GAMES.map((game) => texts.games[game]));
+    expect(games.map((g) => g.querySelector('h3 a')?.getAttribute('href'))).toEqual(GAMES.map((game) => hashOf({ page: 'game', game })));
+    expect(games.map((g) => g.querySelector('.note')?.textContent)).toEqual(Array(9).fill(texts.progress.notPlayed));
+    expect($('.game-stats .tiles, .game-stats .reset')).toBeNull();
+  });
+
+  it('shows what a played game learned, opened and answered, and its hardest verbs, each a link to its card', async () => {
+    played('ru-he', { היה: [3, 0, 3], ידע: [1, 2, 0], עשה: [2, 1, 1] }, 30);
+    await start('#/progress');
+    expect($$(inGame('ru-he', '.tiles dt')).map((dt) => dt.textContent)).toEqual([
+      texts.progress.learned,
+      texts.progress.opened,
+      texts.progress.right,
+      texts.progress.answers,
+    ]);
+    expect($$(inGame('ru-he', '.tiles dd')).map((dd) => dd.textContent)).toEqual(['1 из 30', `30 из ${verbs.length}`, '67\u00a0%', '9']);
+    expect(text(inGame('ru-he', 'h4'))).toBe(texts.progress.hardest);
+    const hardest = $$as(inGame('ru-he', '.hardest a'), HTMLAnchorElement);
+    expect(hardest.map((a) => a.getAttribute('href'))).toEqual(['ידע', 'עשה'].map((id) => hashOf({ page: 'verb', id })));
+    expect(hardest[0]?.querySelector('.he')?.textContent).toBe(verb('ידע').lemma.nikud);
+    expect(hardest[0]?.querySelector('.translit')?.textContent).toBe(verb('ידע').lemma.translit);
+    expect(hardest[0]?.querySelector('.ru')?.textContent).toBe(ru(verb('ידע')));
+    expect(hardest[0]?.querySelector('.mistakes')?.textContent).toBe('неверно 2 из 3');
+    expect(text(inGame('he-ru', '.note'))).toBe(texts.progress.notPlayed);
+  });
+
+  it('tells a game without mistakes, and shows the spelling of the settings', async () => {
+    played('write', { היה: [2, 0, 2] });
+    played('past-form', { ידע: [0, 1, 0] });
+    const state = loadState(storage);
+    saveState(storage, { ...state, settings: { ...state.settings, nikud: false, translit: false } });
+    await start('#/progress');
+    expect(text(inGame('write', '.note'))).toBe(texts.progress.noMistakes);
+    expect($(inGame('write', '.hardest'))).toBeNull();
+    expect(text(inGame('past-form', '.hardest .he'))).toBe(verb('ידע').lemma.plain);
+    expect($('.game-stats .translit')).toBeNull();
+  });
+
+  it('resets one game after a question under its button, keeping the other games and the settings', async () => {
+    played('he-ru', { היה: [1, 0, 1] });
+    played('past-form', { ידע: [0, 1, 0] });
+    await start('#/progress');
+    const reset = $as(inGame('past-form', '.reset'), HTMLButtonElement);
+    const confirm = $(inGame('past-form', '.reset-confirm'));
+    expect(reset?.textContent).toBe(texts.progress.reset);
+    expect(confirm?.hidden).toBe(true);
+
+    reset?.click();
+    expect(confirm?.hidden).toBe(false);
+    // A game of parts 2–4 is named with its tense.
+    expect(text(inGame('past-form', '.reset-confirm p'))).toBe(
+      fill(texts.progress.resetQuestion, { game: `${texts.tenses.past} · ${texts.games['past-form']}` }),
+    );
+    $as(inGame('past-form', '.reset-cancel'), HTMLButtonElement)?.click();
+    expect(confirm?.hidden).toBe(true);
+    expect(Object.keys(stats())).toEqual(['he-ru', 'past-form']);
+
+    reset?.click();
+    $as(inGame('past-form', '.reset-yes'), HTMLButtonElement)?.click();
+    expect(Object.keys(stats())).toEqual(['he-ru']);
+    expect($(inGame('past-form', '.tiles'))).toBeNull();
+    expect(text(inGame('past-form', '.note'))).toBe(texts.progress.notPlayed);
+    expect(text(inGame('past-form', '.reset-status'))).toBe(texts.progress.resetDone);
+    expect(reset?.disabled).toBe(true);
+    expect($(inGame('he-ru', '.tiles'))).not.toBeNull();
+    expect(loadState(storage).settings).toEqual(loadState(null).settings);
   });
 });
 

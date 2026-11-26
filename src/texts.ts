@@ -17,6 +17,7 @@ export const texts = {
   home: {
     hint: 'Начните с части 1: значения глаголов. Все части открыты сразу.',
     learned: 'выучено {learned} из {open}',
+    progress: 'Прогресс: точность и трудные глаголы',
   },
   parts: { 1: 'Часть 1. Глаголы', 2: 'Часть 2. Настоящее время', 3: 'Часть 3. Прошедшее время', 4: 'Часть 4. Будущее время' },
   games: {
@@ -98,6 +99,26 @@ export const texts = {
     literary: 'лит.',
     notFound: 'Такого глагола в словаре нет.',
   },
+  progress: {
+    heading: 'Прогресс',
+    intro:
+      'Глагол выучен после трёх верных ответов подряд, ошибка снова делает его невыученным. Когда выучено 80 % открытых глаголов, открываются ещё десять.',
+    notPlayed: 'Ещё не играли.',
+    /** The tiles of a played game: their labels, then the values. */
+    learned: 'Выучено',
+    opened: 'Открыто',
+    right: 'Верно',
+    answers: 'Ответов',
+    of: '{n} из {total}',
+    hardest: 'Трудные глаголы',
+    noMistakes: 'Ошибок нет.',
+    wrong: 'неверно {wrong} из {shown}',
+    reset: 'Сбросить статистику игры',
+    resetQuestion: 'Сбросить статистику игры «{game}»? Это нельзя отменить.',
+    resetDone: 'Статистика игры сброшена.',
+  },
+  /** The answers to a reset's question, in the settings and on the progress page. */
+  reset: { yes: 'Сбросить', cancel: 'Отмена' },
   binyanim: {
     paal: 'пааль',
     nifal: 'нифаль',
@@ -221,9 +242,8 @@ export const texts = {
     stats: 'Статистика',
     reset: 'Сбросить статистику',
     resetQuestion: 'Сбросить статистику всех девяти игр? Это нельзя отменить.',
-    resetYes: 'Сбросить',
-    resetCancel: 'Отмена',
     resetDone: 'Статистика сброшена.',
+    oneGame: 'Прогресс каждой игры и сброс одной игры — на странице «Прогресс»',
     done: 'Готово',
   },
   /** A pronoun without a gender, where it takes both (src/persons.ts): я, мы. */

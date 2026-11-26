@@ -1,8 +1,9 @@
 // Browser smoke of the real app: the home page renders with the verb data,
 // a round of a part-1 game and of a tense game run to their results, a typed
 // answer is taken, the dictionary finds a verb by a form and opens its card,
-// the menorah opens a binyan and leads to an example's card, no horizontal
-// scroll on a phone (home, game, dictionary, card and menorah screens), the
+// the menorah opens a binyan and leads to an example's card, the progress
+// page shows a played game and resets it, no horizontal scroll on a phone
+// (home, game, dictionary, card, menorah and progress screens), the
 // menorah's arms meet its branches,
 // no console errors. In dev it also checks the canvas emoji test. With
 // --preview it runs against a fresh production build and also checks that
@@ -149,6 +150,38 @@ try {
     await context.close();
   });
 
+  await step('the progress page on a phone shows a played game, leads to a hard verb and resets the game', async () => {
+    const { page, context } = await app.open({ viewport: VIEWPORTS.phone });
+    await page.goto(app.base);
+    await page.evaluate(() => {
+      const stat = { shown: 3, correct: 1, wrong: 2, streak: 0, lastSeen: Date.now() };
+      const settings = { nikud: true, translit: true, autoNext: false };
+      localStorage.setItem(
+        'hebrew-verbs',
+        JSON.stringify({ version: 3, settings, stats: { 'he-ru': { open: 20, verbs: { ידע: stat } } } }),
+      );
+    });
+    await page.reload();
+    await page.locator('main .progress-link').click();
+    const game = page.locator('.game-stats[data-game="he-ru"]');
+    await game.locator('.tiles').waitFor();
+    check((await page.locator('.game-stats').count()) === 9, 'the page has not nine games');
+    check(
+      (await game.locator('.tiles dd').allTextContents()).join(' | ') === '0 из 20 | 20 из 1000 | 33\u00a0% | 3',
+      'the tiles are wrong',
+    );
+    await game.locator('.hardest a').click();
+    await page.locator('.tense-past tbody tr').first().waitFor();
+    check((await page.locator('h1 .he').textContent()) === 'לָדַעַת', 'the hard verb is not לדעת');
+    await page.goBack();
+    await game.locator('.reset').click();
+    await game.locator('.reset-yes').click();
+    await game.locator('.reset-status').filter({ hasText: 'сброшена' }).waitFor();
+    const stored = await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('hebrew-verbs') ?? '{}').stats ?? {}));
+    check(stored.length === 0, 'the game was not reset');
+    await context.close();
+  });
+
   if (!preview) {
     await step('the canvas emoji test tells a drawn emoji from a missing one', async () => {
       const { page, context } = await app.open();
@@ -166,7 +199,7 @@ try {
 
   for (const [name, viewport] of Object.entries(VIEWPORTS)) {
     await step(
-      `no horizontal scroll on ${name} (${viewport.width}px): home, the games, settings, dictionary, a card, the menorah`,
+      `no horizontal scroll on ${name} (${viewport.width}px): home, the games, settings, dictionary, a card, the menorah, progress`,
       async () => {
         const { page, context } = await app.open({ viewport });
         const screens = [
@@ -184,6 +217,8 @@ try {
           ['menorah', '#/menorah', '.menorah .branch'],
           // The longest model forms: hitpael's.
           ['menorah-hitpael', '#/menorah/hitpael', '.binyan-card .model'],
+          // After the games above: each answered one task.
+          ['progress', '#/progress', '.game-stats .tiles'],
         ];
         for (const [screen, hash, ready] of screens) {
           await page.goto(`${app.base}${hash}`);
