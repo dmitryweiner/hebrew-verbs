@@ -1,4 +1,4 @@
-import { isGameId, type GameId } from './games';
+import { isGameId, PARTS, type GameId, type Part } from './games';
 import { START_OPEN, type GameStats, type VerbStat } from './stats';
 
 export interface Settings {
@@ -13,24 +13,30 @@ export interface Settings {
 /** Statistics by game; a game never played is absent. */
 export type Stats = Partial<Record<GameId, GameStats>>;
 
+/** The verb ids met in each part (decisions 68–69), in the order met. */
+export type Met = Partial<Record<Part, string[]>>;
+
 export interface SavedState {
   settings: Settings;
   stats: Stats;
+  met: Met;
 }
 
 export type KeyValueStorage = Pick<Storage, 'getItem' | 'setItem'>;
 
 export const STORAGE_KEY = __APP_ID__;
 /**
- * 3: the autoNext setting; version 2 is read as it is (autoNext gets its
- * default). 2: statistics added; version 1 held the settings only, they are kept.
+ * 4: the verbs met in each part; versions 2–3 meet there the verbs its games
+ * asked. 3: the autoNext setting; version 2 is read as it is (autoNext gets
+ * its default). 2: statistics added; version 1 held the settings only, they
+ * are kept.
  */
-const VERSION = 3;
+const VERSION = 4;
 
 export const DEFAULT_SETTINGS: Settings = { nikud: true, translit: true, autoNext: false };
 
 export function emptyState(): SavedState {
-  return { settings: { ...DEFAULT_SETTINGS }, stats: {} };
+  return { settings: { ...DEFAULT_SETTINGS }, stats: {}, met: {} };
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -72,6 +78,26 @@ function parseStats(value: unknown): Stats {
   return stats;
 }
 
+function parseMet(value: unknown): Met {
+  if (!isRecord(value)) return {};
+  const met: Met = {};
+  for (const { part } of PARTS) {
+    const ids = value[part];
+    if (Array.isArray(ids)) met[part] = [...new Set(ids.filter((id): id is string => typeof id === 'string' && id !== ''))];
+  }
+  return met;
+}
+
+/** Before version 4: a part's verbs met are the ones its games asked. */
+function metOfStats(stats: Stats): Met {
+  const met: Met = {};
+  for (const { part, games } of PARTS) {
+    const ids = [...new Set(games.flatMap((game) => Object.keys(stats[game]?.verbs ?? {})))];
+    if (ids.length > 0) met[part] = ids;
+  }
+  return met;
+}
+
 /** The saved state; unreadable data is replaced with defaults, field by field. */
 export function loadState(storage: KeyValueStorage | null): SavedState {
   try {
@@ -79,9 +105,10 @@ export function loadState(storage: KeyValueStorage | null): SavedState {
     if (!raw) return emptyState();
     const data: unknown = JSON.parse(raw);
     if (!isRecord(data)) return emptyState();
-    if (data.version === 1) return { settings: parseSettings(data.settings), stats: {} };
-    if ((data.version !== VERSION && data.version !== 2) || !isRecord(data.settings)) return emptyState();
-    return { settings: parseSettings(data.settings), stats: parseStats(data.stats) };
+    if (data.version === 1) return { settings: parseSettings(data.settings), stats: {}, met: {} };
+    if ((data.version !== VERSION && data.version !== 3 && data.version !== 2) || !isRecord(data.settings)) return emptyState();
+    const stats = parseStats(data.stats);
+    return { settings: parseSettings(data.settings), stats, met: data.version === VERSION ? parseMet(data.met) : metOfStats(stats) };
   } catch {
     return emptyState();
   }

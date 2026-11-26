@@ -27,14 +27,16 @@ Node.js — the version in `.node-version` (`fnm use`; check `node -v`).
 - `npm run check` — typecheck + oxlint + prettier + unit tests. Must pass before
   any work is called done.
 - `npm run smoke` — browser smoke on the dev server (port 5397): the home
-  page, a `he-ru` round to its results, a `past-person` round on a phone, a
-  typed answer on a phone, a dictionary search by a form and its card on a
+  page, a `he-ru` round to its results after meeting its verbs (the header's
+  links hidden), a `past-person` round on a phone, a typed answer on a
+  phone, a meeting of part 3 on a phone (its past tables, then its game asks
+  at once), a dictionary search by a form and its card on a
   phone, the menorah on a phone (flames on their arms, a binyan's card, an
   example's card), the progress page on a phone (a played game's tiles, a
   hard verb's card, the reset), no horizontal scroll on the home, settings,
   dictionary (all, a form found), card, menorah (alone, hitpael's card),
-  progress and game screens (`he-ru`, `write`, `present-form`,
-  `future-person`), the canvas emoji test (dev only); `-- --preview` builds and also checks offline mode and an
+  progress, meeting (part 1, part 4's future tables) and game screens
+  (`he-ru`, `write`, `present-form`, `future-person`), the canvas emoji test (dev only); `-- --preview` builds and also checks offline mode and an
   update (port 4397); `-- --shots` saves `shots/<viewport>-<screen>.png`.
 - `npm run build` — typecheck and build into `dist/`.
 - `npm run format` — prettier.
@@ -159,13 +161,16 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
 - `src/app.ts` — loads and checks the data, keeps the saved state, shows the
   view of the hash route; `src/routes.ts` — the routes (`#/`, `#/settings`,
   `#/part/1/he-ru`, `#/part/2/form`, `#/dict?q=…`, `#/dict/<id>`, `#/menorah`,
-  `#/menorah/<binyan>`, `#/progress`).
+  `#/menorah/<binyan>`, `#/progress`, `#/part/1/intro` — a part's meeting).
 - `src/views/` — `home.ts` (the parts and each game's progress), `game.ts`
   (all nine games: a round, its feedback and results), `settings.ts`,
   `dictionary.ts` (the search and its results), `verb.ts` (a verb's card),
   `menorah.ts` (the menorah of the binyanim and a binyan's card),
   `progress.ts` (every game's progress, its hardest verbs, the reset of one
   game), `reset.ts` (a reset asked under its button, decision 57),
+  `meeting.ts` (a part's meeting with its verbs), `meet-card.ts` (a verb's
+  card to meet it, in a meeting and before a round), `forms.ts` (a verb's
+  table of a tense), `head.ts` (the head of a game or a meeting),
   `picture.ts` (emoji, Twemoji copy or drawing), `listen.ts` (🔊 buttons and
   the no-voice line); `context.ts` — what a view gets from the app;
   `src/dom.ts` — element builder, an isolated Hebrew word, the Hebrew runs
@@ -175,8 +180,9 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   the canvas test whether the font draws an emoji, the Twemoji copies.
 - `src/texts.ts` — every interface text (Russian).
 - `src/storage.ts` — versioned, validated settings and statistics in
-  localStorage (version 3: the `autoNext` setting; version 2 is read as it
-  is, version 1's settings are kept).
+  localStorage (version 4: the verbs met by part, versions 2–3 meeting the
+  verbs their games asked; version 3: the `autoNext` setting; version 1's
+  settings are kept).
 - The core without the DOM (stage 3): `src/hebrew.ts` — nikud, final
   letters, typed input; `src/persons.ts` — pronouns and the persons of each
   tense (я (м.) / я (ж.) everywhere, decision 35), their labels and the
@@ -184,6 +190,8 @@ browser (service worker, layout, workers) → a step in `scripts/smoke.mjs`.
   answer; `src/games.ts` — the nine games and their verb pools; `src/stats.ts` — a game's statistics and weights;
   `src/selection.ts` — the open verbs, the frontier and the round;
   `src/progress.ts` — a game's progress for the progress page;
+  `src/meeting.ts` — the verbs of a part to meet next, a round's verbs not
+  met (decisions 68–71);
   `src/questions.ts` — the tasks, exactly one right option in the spelling
   shown (decision 37); `src/answer.ts` — a typed headword. The rules:
   `docs/games.md`. `src/search.ts` — the dictionary's search (by any form,

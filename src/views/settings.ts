@@ -5,7 +5,7 @@
 // the progress page.
 
 import { h } from '../dom';
-import { GAMES } from '../games';
+import { GAMES, PARTS } from '../games';
 import { hashOf } from '../routes';
 import type { Settings } from '../storage';
 import { fill, texts } from '../texts';
@@ -38,7 +38,8 @@ export function settingsView(root: HTMLElement, ctx: AppContext): () => void {
     label: texts.settings.reset,
     question: texts.settings.resetQuestion,
     done: texts.settings.resetDone,
-    disabled: GAMES.every((game) => Object.keys(ctx.gameStats(game).verbs).length === 0),
+    disabled:
+      GAMES.every((game) => Object.keys(ctx.gameStats(game).verbs).length === 0) && PARTS.every(({ part }) => ctx.met(part).size === 0),
     onReset: () => ctx.resetStats(),
   });
 

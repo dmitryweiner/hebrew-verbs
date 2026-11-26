@@ -1,11 +1,13 @@
-// The progress page (plan, section 6): every game, by part, with how many of
-// its open verbs are learned, how far it is open, the share of right answers
-// and its hardest verbs, each a link to its card. A game played can be reset
-// on its own, asked again under its button (decision 57); every game at once
-// is reset in the settings.
+// The progress page (plan, section 6): every part with how many of its verbs
+// are met (decision 68), every game with how many of its open verbs are
+// learned, how far it is open, the share of right answers and its hardest
+// verbs, each a link to its card. A game played can be reset on its own,
+// asked again under its button (decision 57); every game at once is reset in
+// the settings.
 
 import { h, hebrewWord } from '../dom';
 import { gamePool, PARTS, type GameId } from '../games';
+import { partPool } from '../meeting';
 import { gameProgress } from '../progress';
 import { hashOf } from '../routes';
 import { fill, texts } from '../texts';
@@ -73,7 +75,18 @@ export function progressView(root: HTMLElement, ctx: AppContext): () => void {
   root.replaceChildren(
     h('h1', {}, texts.progress.heading),
     h('p', { class: 'hint' }, texts.progress.intro),
-    ...PARTS.map(({ part, games }) => h('section', { class: 'part' }, h('h2', {}, texts.parts[part]), ...games.map(gameStats))),
+    ...PARTS.map(({ part, games }) => {
+      const pool = partPool(ctx.verbs, part);
+      const met = ctx.met(part);
+      const known = fill(texts.meeting.progress, { known: pool.filter((v) => met.has(v.id)).length, total: pool.length });
+      return h(
+        'section',
+        { class: 'part' },
+        h('h2', {}, texts.parts[part]),
+        h('p', { class: 'part-known' }, known),
+        ...games.map(gameStats),
+      );
+    }),
   );
   return () => {};
 }
