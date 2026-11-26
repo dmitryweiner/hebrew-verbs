@@ -1,9 +1,9 @@
 # Games
 
 The rules of the nine games as the core (`src/`, no DOM) implements them, and
-how the app shows them (the last section). The
+how the app shows them and their progress (the last two sections). The
 decisions behind them are in the plan (`plans/2026-11-24-hebrew-verbs.md`,
-sections 2–3 and 6, decisions 5–10, 13, 25–27, 35, 37, 41, 45–49).
+sections 2–3 and 6, decisions 5–10, 13, 25–27, 35, 37, 41, 45–49, 57, 64–67).
 
 ## The games
 
@@ -100,7 +100,9 @@ answers) or a bad `open` is dropped or reset on its own. Version 2 is read as
 it is (`autoNext` off); version 1 (settings only) keeps its settings.
 
 "Сбросить статистику" in the settings empties `stats` of every game after a
-question right under the button; the settings stay (decision 57).
+question right under the button; the settings stay (decision 57). The
+progress page resets one game the same way: its entry goes, the others and
+the settings stay.
 
 ## In the app
 
@@ -135,3 +137,24 @@ question right under the button; the settings stay (decision 57).
   "Повторить ошибки" makes a round of the verbs answered wrong, each once,
   with a new person.
 - Digit keys 1–4 pick an option (a plain present with three forms takes no 4).
+
+## Progress
+
+`src/progress.ts`, `gameProgress(pool, stats)`; the page `#/progress`,
+`src/views/progress.ts`. Entry: a button at the end of the home page and a
+link in the settings' statistics (the header has no room on a phone).
+
+- Every game by part, its name a link to the game. A game never answered
+  says "Ещё не играли." and nothing else.
+- A played game: four tiles — learned of the open verbs ("0 из 20", as on
+  the home page), open of the game's pool ("20 из 1000"), the share of right
+  answers of all its answers, and the number of answers.
+- Its hardest verbs, at most five: the verbs of its pool answered wrong at
+  least once, the highest error rate (`errorRate`, smoothed as for the
+  weights) first, then more mistakes, then more frequent. Each is a link to
+  its card, in the spelling and transliteration of the settings, with
+  "неверно 2 из 3"; none — "Ошибок нет.".
+- "Сбросить статистику игры" asks right under the button, naming the game
+  with its tense ("Прошедшее · Местоимение → форма"); after the reset the
+  game says "Ещё не играли." and the button is disabled. Every game at once
+  is reset in the settings (`src/views/reset.ts` builds both).
