@@ -37,14 +37,15 @@ describe('state storage', () => {
     expect(loadState(new MemoryStorage())).toEqual(emptyState());
     expect(loadState(null)).toEqual(emptyState());
     expect(loadState(broken)).toEqual(emptyState());
-    expect(emptyState()).toEqual({ settings: DEFAULT_SETTINGS, stats: {} });
+    expect(emptyState()).toEqual({ settings: DEFAULT_SETTINGS, stats: {}, met: {} });
   });
 
-  it('saves and loads settings and statistics', () => {
+  it('saves and loads settings, statistics and the verbs met in each part', () => {
     const storage = new MemoryStorage();
     const state: SavedState = {
       settings: { nikud: false, translit: true, autoNext: true },
       stats: { 'past-form': { open: 30, verbs: { אכל: stat } } },
+      met: { 1: ['היה', 'אכל'], 3: ['אכל'] },
     };
     expect(saveState(storage, state)).toBe(true);
     expect(loadState(storage)).toEqual(state);
@@ -55,16 +56,20 @@ describe('state storage', () => {
     expect(saveState(null, emptyState())).toBe(false);
   });
 
-  it.each(['not json', '[]', '{"version":9,"settings":{"nikud":false}}', '{"version":3}'])('resets unreadable data: %s', (raw) => {
-    const storage = new MemoryStorage();
-    storage.setItem(STORAGE_KEY, raw);
-    expect(loadState(storage)).toEqual(emptyState());
-  });
+  it.each(['not json', '[]', '{"version":9,"settings":{"nikud":false}}', '{"version":3}', '{"version":4}'])(
+    'resets unreadable data: %s',
+    (raw) => {
+      const storage = new MemoryStorage();
+      storage.setItem(STORAGE_KEY, raw);
+      expect(loadState(storage)).toEqual(emptyState());
+    },
+  );
 
   it('keeps the settings of version 1, which had no statistics', () => {
     expect(loadState(stored({ version: 1, settings: { nikud: false, translit: false } }))).toEqual({
       settings: { nikud: false, translit: false, autoNext: false },
       stats: {},
+      met: {},
     });
   });
 
@@ -74,7 +79,29 @@ describe('state storage', () => {
     ).toEqual({
       settings: { nikud: false, translit: true, autoNext: false },
       stats: { write: { open: 20, verbs: { אכל: stat } } },
+      met: { 1: ['אכל'] },
     });
+  });
+
+  it('makes the verbs asked in the games of a part met there, coming from version 3', () => {
+    const state = loadState(
+      stored({
+        version: 3,
+        settings: DEFAULT_SETTINGS,
+        stats: {
+          'he-ru': { open: 20, verbs: { אכל: stat, היה: stat } },
+          write: { open: 20, verbs: { אכל: stat, ידע: stat } },
+          'future-person': { open: 20, verbs: { אכל: stat } },
+        },
+      }),
+    );
+    expect(state.met).toEqual({ 1: ['אכל', 'היה', 'ידע'], 4: ['אכל'] });
+  });
+
+  it('drops a bad list of met verbs, a bad part and a bad id', () => {
+    const met = { 1: ['אכל', 5, 'אכל', ''], 2: 'broken', 7: ['היה'], 4: ['ידע'] };
+    expect(loadState(stored({ version: 4, settings: DEFAULT_SETTINGS, stats: {}, met })).met).toEqual({ 1: ['אכל'], 4: ['ידע'] });
+    expect(loadState(stored({ version: 4, settings: DEFAULT_SETTINGS, stats: {}, met: 'x' })).met).toEqual({});
   });
 
   it('replaces bad settings with defaults one by one', () => {

@@ -1,8 +1,8 @@
-// Hash routes (plan, section 8): #/, #/part/1/he-ru, #/part/2/form,
+// Hash routes (plan, section 8): #/, #/part/1/he-ru, #/part/2/form, #/part/1/intro,
 // #/dict?q=…, #/dict/<id>, #/menorah, #/menorah/<binyan>, #/progress, #/settings. A game of part 1 is named by its id,
-// a game of parts 2–4 by its kind.
+// a game of parts 2–4 by its kind; a part's meeting with its verbs is intro.
 
-import { GAMES, gamePart, type GameId } from './games';
+import { GAMES, gamePart, PARTS, type GameId, type Part } from './games';
 import { BINYANIM, type Binyan } from './verbs';
 
 export type Route =
@@ -10,6 +10,7 @@ export type Route =
   | { page: 'settings' }
   | { page: 'progress' }
   | { page: 'game'; game: GameId }
+  | { page: 'intro'; part: Part }
   | { page: 'dict'; query: string }
   | { page: 'verb'; id: string }
   | { page: 'menorah'; binyan?: Binyan };
@@ -24,6 +25,7 @@ export function hashOf(route: Route): string {
   if (route.page === 'dict') return route.query === '' ? '#/dict' : `#/dict?${new URLSearchParams({ q: route.query })}`;
   if (route.page === 'verb') return `#/dict/${encodeURIComponent(route.id)}`;
   if (route.page === 'menorah') return route.binyan ? `#/menorah/${route.binyan}` : '#/menorah';
+  if (route.page === 'intro') return `#/part/${route.part}/intro`;
   return `#/part/${gamePart(route.game)}/${slug(route.game)}`;
 }
 
@@ -48,6 +50,8 @@ export function routeOf(hash: string): Route {
   if (path === 'menorah') return { page: 'menorah' };
   const binyan = BINYANIM.find((b) => path === `menorah/${b}`);
   if (binyan) return { page: 'menorah', binyan };
+  const intro = PARTS.find(({ part }) => path === `part/${part}/intro`);
+  if (intro) return { page: 'intro', part: intro.part };
   const game = GAMES.find((g) => path === `part/${gamePart(g)}/${slug(g)}`);
   return game ? { page: 'game', game } : { page: 'home' };
 }

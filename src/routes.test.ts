@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GAMES } from './games';
+import { GAMES, PARTS } from './games';
 import { hashOf, routeOf } from './routes';
 import { BINYANIM } from './verbs';
 
@@ -15,6 +15,13 @@ describe('routes', () => {
     expect(hashOf({ page: 'game', game: 'ru-he' })).toBe('#/part/1/ru-he');
     expect(hashOf({ page: 'game', game: 'past-form' })).toBe('#/part/3/form');
     for (const game of GAMES) expect(routeOf(hashOf({ page: 'game', game }))).toEqual({ page: 'game', game });
+  });
+
+  it("open a part's meeting with its verbs", () => {
+    expect(routeOf('#/part/1/intro')).toEqual({ page: 'intro', part: 1 });
+    expect(routeOf('#/part/4/intro')).toEqual({ page: 'intro', part: 4 });
+    for (const { part } of PARTS) expect(routeOf(hashOf({ page: 'intro', part }))).toEqual({ page: 'intro', part });
+    expect(hashOf({ page: 'intro', part: 3 })).toBe('#/part/3/intro');
   });
 
   it('open the settings, the progress and the home page', () => {
@@ -60,6 +67,8 @@ describe('routes', () => {
       '#/menorah/qal',
       '#/menorah/',
       '#/progress/he-ru',
+      '#/part/5/intro',
+      '#/part/0/intro',
     ])
       expect(routeOf(hash)).toEqual({ page: 'home' });
   });

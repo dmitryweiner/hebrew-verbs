@@ -1,32 +1,18 @@
 // A verb's card (plan, section 5): its picture (always, decision 14), the
 // headword with its sound, translations, root, binyan (a link to the
-// menorah), rank, and the tables of the three tenses, a row per form with
-// who says it and its sound; the literary future small beside the spoken
-// one (decision 6).
+// menorah), rank, and the tables of the three tenses (src/views/forms.ts).
 
 import { BINYAN_HEBREW } from '../binyanim';
 import { h, hebrewWord } from '../dom';
-import { labelOf, personsOf, TENSES, type Tense } from '../persons';
+import { TENSES, type Tense } from '../persons';
 import { pictureOf } from '../pictures';
 import { hashOf } from '../routes';
 import { texts } from '../texts';
-import { FUTURE_SLOTS, PAST_SLOTS, PRESENT_SLOTS, type Form, type Verb } from '../verbs';
+import type { Verb } from '../verbs';
 import type { AppContext } from './context';
+import { formsTable } from './forms';
 import { listening } from './listen';
 import { pictureElement } from './picture';
-
-/** A tense's forms in table order, or undefined where the verb lacks the tense (היה has no present). */
-function rowsOf(verb: Verb, tense: Tense): { slot: string; form: Form }[] | undefined {
-  const table: Partial<Record<string, Form>> | undefined = tense === 'present' ? verb.present : tense === 'past' ? verb.past : verb.future;
-  const slots: readonly string[] = tense === 'present' ? PRESENT_SLOTS : tense === 'past' ? PAST_SLOTS : FUTURE_SLOTS;
-  return (
-    table &&
-    slots.flatMap((slot) => {
-      const form = table[slot];
-      return form ? [{ slot, form }] : [];
-    })
-  );
-}
 
 export function verbView(id: string) {
   return (root: HTMLElement, ctx: AppContext): (() => void) => {
@@ -43,24 +29,8 @@ export function verbView(id: string) {
     const { listen, noVoice, stop } = listening(ctx);
     const picture = pictureOf(ctx.pictures, verb.id);
 
-    function tense(t: Tense): HTMLElement {
-      const rows = rowsOf(verb, t)?.map(({ slot, form }) => {
-        const literary = t === 'future' && (slot === '2fp' || slot === '3fp') && verb.futureLiterary?.[slot];
-        return h(
-          'tr',
-          {},
-          h('th', { scope: 'row' }, labelOf(personsOf(t).filter((p) => p.slot === slot))),
-          h('td', {}, he(form), literary && h('span', { class: 'literary' }, `${texts.verb.literary} `, he(literary))),
-          h('td', {}, listen(form.nikud)),
-        );
-      });
-      return h(
-        'section',
-        { class: `tense tense-${t}` },
-        h('h2', {}, texts.verb.tenses[t]),
-        rows ? h('table', { class: 'forms' }, h('tbody', {}, ...rows)) : h('p', { class: 'note' }, texts.verb.missing[t]),
-      );
-    }
+    const tense = (t: Tense) =>
+      h('section', { class: `tense tense-${t}` }, h('h2', {}, texts.verb.tenses[t]), formsTable(verb, t, he, listen));
 
     const variants = verb.lemma.variants;
     root.replaceChildren(

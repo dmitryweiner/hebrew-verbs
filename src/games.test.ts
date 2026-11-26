@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GAMES, gamePart, gamePool, gameTense, isGameId, PARTS } from './games';
+import { GAMES, gamePart, gamePool, gameTense, isGameId, PARTS, partTense } from './games';
 import { verbs } from './testing';
 
 describe('games', () => {
@@ -39,5 +39,6 @@ describe('games', () => {
     expect(PARTS.map((p) => p.games.map(gameTense)[0])).toEqual([undefined, 'present', 'past', 'future']);
     expect(gamePart('write')).toBe(1);
     expect(gamePart('past-person')).toBe(3);
+    expect(PARTS.map((p) => partTense(p.part))).toEqual([undefined, 'present', 'past', 'future']);
   });
 });

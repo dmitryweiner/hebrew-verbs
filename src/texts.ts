@@ -15,7 +15,7 @@ export const texts = {
   dictLink: 'Словарь',
   menorahLink: 'Биньяны',
   home: {
-    hint: 'Начните с части 1: значения глаголов. Все части открыты сразу.',
+    hint: 'Начните с части 1: сначала знакомство с глаголами, потом игры. Все части открыты сразу.',
     learned: 'выучено {learned} из {open}',
     progress: 'Прогресс: точность и трудные глаголы',
   },
@@ -30,6 +30,23 @@ export const texts = {
     'past-person': 'Форма → местоимение',
     'future-form': 'Местоимение → форма',
     'future-person': 'Форма → местоимение',
+  },
+  /** Meeting the verbs before a game asks them (decisions 68–71). */
+  meeting: {
+    name: 'Знакомство',
+    known: 'знакомо {known} из {total}',
+    /** A part's line on the progress page. */
+    progress: 'Знакомство: знакомо {known} из {total}',
+    count: 'Глагол {n} из {total}',
+    /** Above a verb a round meets before its tasks. */
+    newVerb: 'Новый глагол · {n} из {total}',
+    got: 'Понятно',
+    how: 'Как строятся формы:',
+    done: 'Знакомство окончено',
+    met: 'Новых знакомых глаголов: {n}',
+    check: 'Проверить себя',
+    more: 'Ещё {n}',
+    allKnown: 'Все глаголы этой части уже знакомы.',
   },
   /** A game of parts 2–4 is titled with its tense. */
   tenses: { present: 'Настоящее', past: 'Прошедшее', future: 'Будущее' },
@@ -241,7 +258,7 @@ export const texts = {
     voiceReload: 'После установки перезапустите браузер.',
     stats: 'Статистика',
     reset: 'Сбросить статистику',
-    resetQuestion: 'Сбросить статистику всех девяти игр? Это нельзя отменить.',
+    resetQuestion: 'Сбросить статистику всех девяти игр и знакомство с глаголами? Это нельзя отменить.',
     resetDone: 'Статистика сброшена.',
     oneGame: 'Прогресс каждой игры и сброс одной игры — на странице «Прогресс»',
     done: 'Готово',
