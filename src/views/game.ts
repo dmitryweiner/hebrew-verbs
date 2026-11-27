@@ -1,10 +1,11 @@
 // A game (plan, section 3): a round of ten tasks with a progress bar; after
-// an answer the right one is shown with the verb's picture, in parts 2–4 also
-// the phrase "pronoun + form" with its Russian, and the game waits for
-// "Дальше" (a right answer moves on by itself when the autoNext setting is
-// on). The round ends with the results and "Повторить ошибки". A round
-// starts with a card of each of its verbs not known in the part yet: nothing
-// is asked before it is met (decision 68).
+// an answer the verb's card with its picture, in parts 2–4 also the phrase
+// "pronoun + form" with its Russian, takes the right option's place, alone
+// after a right answer (decision 79), and the game waits for "Дальше" (a
+// right answer moves on by itself when the autoNext setting is on). The
+// round ends with the results and "Повторить ошибки". A round starts with a
+// card of each of its verbs not known in the part yet: nothing is asked
+// before it is met (decision 68).
 
 import { checkWritten } from '../answer';
 import { h, hebrewWord } from '../dom';
@@ -117,21 +118,18 @@ export function gameView(game: GameId) {
       return feedback(correct, verb, remark, q, current(round) === undefined);
     }
 
-    /** What each option shows, and its other side, revealed after the answer: what the chosen one means. */
+    /** What each option shows, and its other side, revealed after a mistake: what the chosen one means. */
     function sides(q: ChoiceQuestion): { face: Node; reveal: Node | string }[] {
       // Who says this form: אוכל is я (м.), ты (м.), он.
       if (q.kind === 'form')
         return q.options.map((f) => ({ face: he(f), reveal: labelOf(personsWith(q.verb, q.tense, f, round.spelling)) }));
-      if (q.kind === 'person') {
-        // The right pronoun keeps its gender only where the form has one: אֲנִי אוֹכֵל is я (м.), אֲנִי אָכַלְתִּי is я.
-        const sayers = personsWith(q.verb, q.tense, q.form, round.spelling).filter((p) => p.pronoun === q.person.pronoun);
-        return q.options.map((p) => ({ face: he(withPronoun(p, q.form)), reveal: p === q.person ? labelOf(sayers) : p.pronoun.label }));
-      }
+      // Under a phrase its pronoun, "он"; the right one turns into the answer's card, with the phrase in Russian.
+      if (q.kind === 'person') return q.options.map((p) => ({ face: he(withPronoun(p, q.form)), reveal: p.pronoun.label }));
       if (q.kind === 'he-ru') return q.options.map((v) => ({ face: h('span', { class: 'ru' }, translations(v)), reveal: word(v) }));
       return q.options.map((v) => ({ face: word(v), reveal: translations(v) }));
     }
 
-    function choiceTask(q: ChoiceQuestion, area: HTMLElement, result: HTMLElement): HTMLElement {
+    function choiceTask(q: ChoiceQuestion, area: HTMLElement): HTMLElement {
       const options = sides(q);
       const buttons = options.map(({ face }, i) => {
         const button = h('button', { type: 'button', class: 'option' }, face);
@@ -142,14 +140,20 @@ export function gameView(game: GameId) {
         // A plain present may have three options: the key 4 picks nothing.
         if (pickByKey === undefined || i >= buttons.length) return;
         const correct = i === q.answer;
+        const shown = answered(correct, q.verb);
+        // The card in place of the right option, where the eye already is (decision 79): alone after a
+        // right answer; after a mistake the others stay, each with what it is.
+        if (correct) {
+          area.replaceChildren(shown);
+          return;
+        }
         buttons.forEach((button, j) => {
           button.disabled = true;
-          if (j === q.answer) button.classList.add('right');
-          else if (j === i) button.classList.add('wrong');
+          if (j === i) button.classList.add('wrong');
           const reveal = options[j]?.reveal;
           if (reveal) button.append(h('span', { class: 'reveal' }, reveal));
         });
-        result.replaceChildren(answered(correct, q.verb));
+        buttons[q.answer]?.replaceWith(shown);
       }
       pickByKey = pick;
       area.replaceChildren(...buttons);
@@ -157,7 +161,7 @@ export function gameView(game: GameId) {
       return area;
     }
 
-    function writeTask(q: WriteQuestion, area: HTMLElement, result: HTMLElement): HTMLElement {
+    function writeTask(q: WriteQuestion, area: HTMLElement): HTMLElement {
       const input = h('input', {
         type: 'text',
         class: 'answer-input',
@@ -170,13 +174,20 @@ export function gameView(game: GameId) {
       });
       const check = h('button', { type: 'submit', class: 'primary' }, texts.game.check);
       const dontKnow = h('button', { type: 'button' }, texts.game.dontKnow);
-      const form = h('form', { class: 'write' }, input, h('div', { class: 'write-actions' }, check, dontKnow));
+      const actions = h('div', { class: 'write-actions' }, check, dontKnow);
+      const form = h('form', { class: 'write' }, input, actions);
 
+      /** The card takes the buttons' place, and the field's too unless a wrong answer is typed in it (decision 79). */
       function finish(correct: boolean, verb: Verb, remark: Node | null) {
         input.readOnly = true;
-        input.classList.add(correct ? 'right' : 'wrong');
-        for (const button of form.querySelectorAll('button')) button.disabled = true;
-        result.replaceChildren(answered(correct, verb, remark));
+        const shown = answered(correct, verb, remark);
+        if (correct || normalizeInput(input.value) === '') {
+          area.replaceChildren(shown);
+          return;
+        }
+        input.classList.add('wrong');
+        actions.remove();
+        area.append(shown);
       }
       form.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -202,29 +213,30 @@ export function gameView(game: GameId) {
       return area;
     }
 
-    /** The task's card: what is asked, with 🔊 where it is Hebrew. */
+    /** A tense task's verb, small under a line: headword and translations on one baseline, its 🔊 if asked for. */
+    function verbLine(verb: Verb, sound: boolean): HTMLElement {
+      return h('div', { class: 'lemma' }, word(verb), h('span', { class: 'ru' }, translations(verb)), sound && listen(verb.lemma.nikud));
+    }
+
+    /**
+     * The task's card: what is asked, with 🔊 where it is Hebrew. A tense task's card is built like the answer's
+     * (decision 80): what is asked big on top (the pronoun, its Russian under it; or the form), the verb under a line.
+     */
     function card(q: Question): HTMLElement {
       if (q.kind === 'form')
         return h(
           'div',
           { class: 'card' },
-          h('div', { class: 'verb-word lemma' }, word(q.verb), listen(q.verb.lemma.nikud)),
-          h('p', { class: 'ru' }, translations(q.verb)),
+          h('p', { class: 'pronoun' }, he(q.person.pronoun), h('span', { class: 'label' }, q.person.label)),
+          verbLine(q.verb, true),
           noInfinitive(q.verb),
-          h(
-            'p',
-            { class: 'pronoun big' },
-            he(q.person.pronoun),
-            h('span', { 'aria-hidden': 'true' }, '·'),
-            h('span', { class: 'label' }, q.person.label),
-          ),
         );
       if (q.kind === 'person')
         return h(
           'div',
           { class: 'card' },
           h('div', { class: 'verb-word big form' }, he(q.form), listen(q.form.nikud)),
-          h('p', { class: 'lemma' }, word(q.verb), h('span', { class: 'ru' }, translations(q.verb))),
+          verbLine(q.verb, false),
           noInfinitive(q.verb),
         );
       if (q.kind === 'he-ru')
@@ -242,8 +254,8 @@ export function gameView(game: GameId) {
       const q = current(round);
       if (!q) return showSummary();
       const task = q.kind === 'write' && !q.verb.infinitive ? texts.game.taskNoInfinitive : texts.game.task[q.kind];
-      const result = h('div', { class: 'result', 'aria-live': 'polite' });
-      const area = h('div');
+      // The answer's card appears in it: a screen reader hears it.
+      const area = h('div', { 'aria-live': 'polite' });
       root.replaceChildren(
         h(
           'section',
@@ -252,8 +264,7 @@ export function gameView(game: GameId) {
           card(q),
           q.kind !== 'ru-he' && q.kind !== 'write' && noVoice(),
           h('p', { class: 'task' }, task),
-          q.kind === 'write' ? writeTask(q, area, result) : choiceTask(q, area, result),
-          result,
+          q.kind === 'write' ? writeTask(q, area) : choiceTask(q, area),
         ),
       );
     }

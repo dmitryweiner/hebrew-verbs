@@ -272,24 +272,50 @@ a.meet-link:hover {
   align-items: center;
   gap: 8px;
 }
-/* A tense task: the pronoun asked, or the headword under the form shown. */
-.card .pronoun {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 4px 10px;
-  margin-block-start: 8px;
+/* A centred word with its 🔊: the word in the middle, the 🔊 beside it in a
+   column as wide as an empty one on the other side. */
+.card > .verb-word,
+.phrase > .verb-word {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  justify-self: stretch;
 }
+.card > .verb-word > .word,
+.phrase > .verb-word > .word {
+  grid-column: 2;
+}
+.card > .verb-word > .listen,
+.phrase > .verb-word > .listen {
+  justify-self: start;
+}
+/* A tense task (decision 80): the pronoun asked, its Russian under it... */
+.card .pronoun {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+.card .pronoun .label {
+  font-size: 1.125rem;
+}
+/* ...and under a line the verb: Hebrew and Russian on one baseline, the transliteration hanging below. */
 .card .lemma {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   gap: 4px 10px;
+  inline-size: 100%;
+  margin-block-start: 12px;
+  padding-block-start: 12px;
+  border-block-start: 1px solid var(--line);
 }
 .lemma .ru {
   color: var(--muted);
+}
+.lemma .listen {
+  align-self: center;
 }
 .listen {
   min-inline-size: 44px;
@@ -314,15 +340,15 @@ a.meet-link:hover {
   display: grid;
   gap: 8px;
 }
+/* The answer's card in place of the right option (decision 79), the width of the options. */
+.options > .feedback {
+  grid-column: 1 / -1;
+}
 .option {
   flex-direction: column;
   gap: 2px;
   min-block-size: 56px;
   text-align: center;
-}
-.option.right {
-  border-color: var(--good);
-  background: var(--good-bg);
 }
 .option.wrong {
   border-color: var(--bad);
@@ -331,7 +357,7 @@ a.meet-link:hover {
 .option:disabled {
   color: inherit;
 }
-.option:disabled:not(.right, .wrong) {
+.option:disabled:not(.wrong) {
   opacity: 0.75;
 }
 .reveal {
@@ -339,7 +365,8 @@ a.meet-link:hover {
   font-size: 0.875rem;
 }
 
-/* The write game: the field and its buttons. */
+/* The write game: the field and its buttons, after a mistake the field and the answer's card. */
+.answer,
 .write {
   display: grid;
   gap: 8px;
@@ -354,9 +381,6 @@ a.meet-link:hover {
   font-size: 1.5rem;
   text-align: center;
 }
-.answer-input.right {
-  border-color: var(--good);
-}
 .answer-input.wrong {
   border-color: var(--bad);
 }
@@ -365,12 +389,12 @@ a.meet-link:hover {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
-/* After an answer: centred like the task card above it, its colour in a band on top. */
+/* After an answer: centred like the task card, its colour in a band on top. It stands in place of
+   the right option (decision 79), and the verdict stays on it: the wrong pick may be off the screen. */
 .feedback {
   display: grid;
   justify-items: center;
   gap: 12px;
-  margin-block-start: 16px;
   padding: 16px 16px 20px;
   border: 1px solid var(--line);
   border-block-start: 4px solid var(--good);
@@ -965,6 +989,8 @@ a.dict-item:hover {
   }
   .options {
     grid-template-columns: 1fr 1fr;
+    /* The card spans a row: an option after it fills the cell it leaves. */
+    grid-auto-flow: row dense;
   }
   .next {
     justify-self: center;

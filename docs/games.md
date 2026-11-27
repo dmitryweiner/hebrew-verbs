@@ -3,7 +3,8 @@
 The rules of the nine games as the core (`src/`, no DOM) implements them, and
 how the app shows them and their progress (the last two sections). The
 decisions behind them are in the plan (`plans/2026-11-24-hebrew-verbs.md`,
-sections 2–3 and 6, decisions 5–10, 13, 25–27, 35, 37, 41, 45–49, 57, 64–72).
+sections 2–3 and 6, decisions 5–10, 13, 25–27, 35, 37, 41, 45–49, 57, 64–72,
+78–80).
 
 ## The games
 
@@ -127,8 +128,9 @@ the others, the verbs met and the settings stay.
 
 `src/views/game.ts`, `src/round.ts`; one view for all nine games.
 `src/views/home.ts`: all four parts open, each first with its meeting,
-"знакомо N из M" (met of the part's verbs), then each game with "выучено N
-из M" (learned of its open verbs).
+"знакомо N" (met of the part's verbs; not of how many: "знакомо 10 из 1000"
+frightened the learners, decision 78), then each game with "выучено N из M"
+(learned of its open verbs).
 
 - A meeting's card (`src/views/meet-card.ts`): the picture, the headword
   with 🔊, the translations; in parts 2–4 also the verb's table of the tense
@@ -140,27 +142,34 @@ the others, the verbs met and the settings stay.
 - A round's tasks are built when it starts, in the spelling of the nikud
   setting then; its verbs not met come first, "Новый глагол · 1 из 3".
   Every answer goes to the game's statistics at once.
-- After an answer: the right option green, a wrong choice red, and under
-  every option its other side: the headword under a translation and back;
+- After an answer the answer's card takes the right option's place, where
+  the eye already is (decision 79). After a right answer it stands alone,
+  the other options go. After a mistake they stay, the wrong choice red, and
+  under each its other side: the headword under a translation and back;
   under a form who says it (`labelOf`: "я (ж.), ты (ж.), она"); under a
-  phrase its pronoun ("он"; the right one "я (м.)" only where the form tells
-  the gender, else "я"). A tense task then shows the phrase, pronoun + form
-  (`withPronoun`), with 🔊 and its Russian (`ruPhrase`). The verb's card
-  follows: picture, headword with 🔊, translations. The answer's card is
-  centred like the task's: a band of its colour on top, the verdict as a
-  badge, the phrase, a line, the verb, "Дальше" (decision 58).
-- The cards of parts 2–4: `<tense>-form` shows the headword with 🔊, its
-  translations and the pronoun asked ("הוּא · он"); `<tense>-person` the form
-  with 🔊, the headword and translations small under it. The head names the
-  tense: "Прошедшее · Местоимение → форма".
+  phrase its pronoun ("он"). On a desktop's two columns the card spans a
+  row, and an option after it fills the cell it leaves.
+- The answer's card is centred like the task's: a band of its colour on top,
+  the verdict as a badge (the wrong choice may be off a phone's screen), in
+  a tense task the phrase, pronoun + form (`withPronoun`), with 🔊 and its
+  Russian (`ruPhrase`), a line, then the verb: picture, headword with 🔊,
+  translations; "Дальше" (decision 58).
+- The cards of parts 2–4 are built like the answer's (decision 80): what is
+  asked big on top, under a line the verb, its headword and translations on
+  one baseline. `<tense>-form` asks the pronoun, its Russian under it
+  (אֲנַחְנוּ, мы (м.)), the 🔊 with the headword; `<tense>-person` the form
+  with its 🔊. A 🔊 beside a centred word leaves the word in the middle. The
+  head names the tense: "Прошедшее · Местоимение → форма".
 - Without a Hebrew voice every 🔊 is disabled, and under a card with 🔊
   (`he-ru`, the tense games) a line links the settings, which tell how to
   install one. A voice installed later turns them on (`voiceschanged`).
 - The game waits for "Дальше". With `autoNext` on, a right answer moves on
   after 1.5 s, unless there is a remark or 🔊 was pressed.
 - `write`: the field takes the focus; "Не знаю" is a mistake that shows the
-  answer; an empty answer is ignored. A remark names the final letters or
-  says that another verb with the same translation was typed.
+  answer; an empty answer is ignored. The answer's card takes the buttons'
+  place, and the field's too, unless a wrong answer is typed in it: that one
+  stays, red, over the card. A remark names the final letters or says that
+  another verb with the same translation was typed.
 - The results list every task ✓/✗ (a tense task as its phrase and Russian);
   "Повторить ошибки" makes a round of the verbs answered wrong, each once,
   with a new person.
