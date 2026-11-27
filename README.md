@@ -1,14 +1,41 @@
 # Глаголы иврита — Hebrew verbs
 
-A trainer of the ~1000 most frequent Hebrew verbs for Russian speakers: the
-meaning, then the present, past and future tenses; a menorah of the seven
-binyanim, a dictionary and progress stats. The interface is in Russian only.
-A static app that works offline (PWA), deployed to GitHub Pages:
+[Русская версия](README.ru.md)
+
+A trainer of the 1000 most frequent Hebrew verbs for Russian speakers: the
+meaning first, then the present, past and future tenses. The interface is in
+Russian only. A static app that works offline (PWA):
 <https://dmitryweiner.github.io/hebrew-verbs/>.
 
-Work in progress: the nine games of the four parts, the dictionary, the
-menorah and the progress page are ready; the final polish is next. See
-[the plan](plans/2026-11-24-hebrew-verbs.md) (in Russian).
+## What is inside
+
+- **Four parts**, in order: the verbs, the present, the past, the future. All
+  are open from the start.
+- **Meeting the verbs.** A part first shows its verbs one by one: a picture,
+  the infinitive with its sound and translation, and in parts 2–4 the whole
+  table of the tense. A game never asks about a verb you have not met yet.
+  If a round needs new verbs, their cards come first.
+- **Nine games**, ten tasks a round: Hebrew → Russian, Russian → Hebrew and
+  writing the infinitive in part 1; pronoun → form and form → pronoun in each
+  tense. After an answer you get the verb's card, and in the tense games the
+  phrase with its translation ("ты (ж.) ела / съела"). The round ends with
+  its results and a retry of the mistakes.
+- **Spaced practice.** Each game opens the 20 most frequent verbs first. A
+  verb is learned after three right answers in a row, mistakes come back
+  sooner, and ten more verbs open once 80 % are learned.
+- **Dictionary**: search by any form (אכלתי finds לאכול), by root or in
+  Russian; a verb's card with the tables of the three tenses, every form
+  spoken.
+- **Menorah of the binyanim**: the seven binyanim, their meaning and
+  features, the model forms on פ־ע־ל and examples from the dictionary.
+- **Progress**: what each game has learned, its accuracy and its hardest
+  verbs; the reset of one game or of all.
+- **Settings**: classical nikud or plain (plene) spelling, Cyrillic
+  transliteration, moving on by itself after a right answer. The sound is
+  the system's Hebrew voice; the settings tell how to install one.
+- **Offline.** After the first visit everything works without the network.
+  On a phone, add it to the home screen ("Add to Home screen" or "Install
+  app" in the browser's menu). Progress is kept in this browser only.
 
 ## Development
 
@@ -22,7 +49,8 @@ npm run build      # → dist/
 ```
 
 See [AGENTS.md](AGENTS.md) for the layout, conventions and the data scripts,
-[docs/](docs/) for the documentation.
+[docs/](docs/) for the documentation, [the plan](plans/2026-11-24-hebrew-verbs.md)
+(in Russian) for the decisions behind it.
 
 ## Data sources
 
@@ -43,6 +71,8 @@ their forms are conjugated by [pymorphy3](https://github.com/no-plagiarism/pymor
 
 Emoji images for devices without the emoji: [Twemoji](https://github.com/jdecked/twemoji)
 (CC BY 4.0), in `public/twemoji.json`.
+
+The app shows the same attribution on its page "О приложении" (`#/about`).
 
 ## License
 

@@ -12,7 +12,7 @@
     // Styles are imported for their side effect.
     "import/no-unassigned-import": ["error", { "allow": ["**/*.css"] }],
     // Build-time constants injected by Vite's `define` are spelled __LIKE_THIS__.
-    "no-underscore-dangle": ["error", { "allow": ["__APP_ID__"] }]
+    "no-underscore-dangle": ["error", { "allow": ["__APP_ID__", "__APP_VERSION__", "__APP_DATE__"] }]
   },
   "overrides": [
     {

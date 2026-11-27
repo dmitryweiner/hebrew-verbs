@@ -3,13 +3,15 @@
 // after meeting its verbs, a meeting of part 3 leads to its game, a typed
 // answer is taken, the dictionary finds a verb by a form and opens its card,
 // the menorah opens a binyan and leads to an example's card, the progress
-// page shows a played game and resets it, no horizontal scroll on a phone
-// (home, game, dictionary, card, menorah and progress screens), the
-// menorah's arms meet its branches,
-// no console errors. In dev it also checks the canvas emoji test. With
-// --preview it runs against a fresh production build and also checks that
-// the service worker makes the app work offline and that a new deploy
-// reaches a page that is already open (phones suspend pages, never close them).
+// page shows a played game and resets it, the about page gives the sources
+// and the version, no horizontal scroll on a phone (home, game, dictionary,
+// card, menorah, progress and about screens), the menorah's arms meet its
+// branches, no console errors. In dev it also checks the canvas emoji test.
+// With --preview it runs against a fresh production build and also checks
+// that the service worker makes the app work offline on a phone (a round,
+// the drawings, the Twemoji copies), that a new deploy reaches a page that is
+// already open (phones suspend pages, never close them), and that it waits
+// while a game is played.
 //
 //   npm run smoke               # dev server
 //   npm run smoke -- --preview  # production build + offline check
@@ -214,6 +216,18 @@ try {
     await context.close();
   });
 
+  await step('the about page opens from the footer on a phone: the sources, their licenses and the version', async () => {
+    const { page, context } = await app.open({ viewport: VIEWPORTS.phone });
+    await page.locator('footer .about-link').click();
+    await page.locator('.about-meta').waitFor();
+    check((await page.locator('.sources li').count()) === 5, 'the page has not five sources');
+    check((await page.locator('.sources a.license').count()) === 3, 'the shipped sources have not their licenses');
+    const { version } = JSON.parse(readFileSync('package.json', 'utf8'));
+    const shown = await page.locator('.about-meta .version').textContent();
+    check(shown?.startsWith(`${version} от `) && /\d{2}\.\d{2}\.\d{4}$/.test(shown), `the version reads "${shown}"`);
+    await context.close();
+  });
+
   if (!preview) {
     await step('the canvas emoji test tells a drawn emoji from a missing one', async () => {
       const { page, context } = await app.open();
@@ -231,7 +245,7 @@ try {
 
   for (const [name, viewport] of Object.entries(VIEWPORTS)) {
     await step(
-      `no horizontal scroll on ${name} (${viewport.width}px): home, the games, settings, dictionary, a card, the menorah, progress, meetings`,
+      `no horizontal scroll on ${name} (${viewport.width}px): home, the games, settings, dictionary, a card, the menorah, progress, meetings, about`,
       async () => {
         const { page, context } = await app.open({ viewport });
         const screens = [
@@ -254,6 +268,8 @@ try {
           ['meeting-future', '#/part/4/intro', '.meet-card .forms'],
           // After the games above: each answered one task.
           ['progress', '#/progress', '.game-stats .tiles'],
+          // The repository's link is the longest line.
+          ['about', '#/about', '.about-meta'],
         ];
         for (const [screen, hash, ready] of screens) {
           await page.goto(`${app.base}${hash}`);
@@ -271,12 +287,33 @@ try {
   }
 
   if (preview) {
-    await step('works offline after the first visit', async () => {
-      const { page, context } = await app.open();
+    await step('works offline on a phone after the first visit: a round, a drawing, the Twemoji copies, the about page', async () => {
+      const { page, context } = await app.open({ viewport: VIEWPORTS.phone });
       await page.evaluate(() => navigator.serviceWorker.ready);
       await context.setOffline(true);
       await page.reload();
       check((await page.locator('h1').textContent()) === HEADING, 'the app did not load offline');
+      await page.goto(`${app.base}#/part/1/he-ru`);
+      await meetAll(page);
+      await page.locator('.option').first().waitFor();
+      check((await page.locator('.option').count()) === 4, 'a round did not start offline');
+      // Own drawings are files with Hebrew names; the Twemoji copies, one file, load only where the font lacks an emoji.
+      const [drawing, twemoji] = await page.evaluate(
+        (paths) =>
+          Promise.all(
+            paths.map((path) =>
+              fetch(new URL(path, document.baseURI)).then(
+                (r) => (r.ok ? r.text() : ''),
+                () => '',
+              ),
+            ),
+          ),
+        ['pictures/בא.svg', 'twemoji.json'],
+      );
+      check(drawing.startsWith('<svg'), 'an own drawing is not served offline');
+      check(Object.keys(JSON.parse(twemoji || '{}')).length > 500, 'the Twemoji copies are not served offline');
+      await page.goto(`${app.base}#/about`);
+      await page.locator('.about-meta').waitFor();
       await context.close();
     });
 
@@ -293,6 +330,37 @@ try {
         // What a phone does when the user returns to a suspended page.
         await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
         check((await reloaded) !== null, 'the open page never switched to the new version');
+        check((await page.evaluate(() => window.oldPage)) === undefined, 'the page was not reloaded');
+      } finally {
+        writeFileSync(worker, original);
+      }
+      await context.close();
+    });
+  }
+
+  if (preview) {
+    await step('a new deploy waits until the game is left (decision 74)', async () => {
+      const { page, context } = await app.open();
+      await page.evaluate(() => navigator.serviceWorker.ready);
+      await page.goto(`${app.base}#/part/1/he-ru`);
+      await page.locator('.meet-card').waitFor();
+      await page.evaluate(() => {
+        window.oldPage = true;
+        window.newWorker = new Promise((r) => navigator.serviceWorker.addEventListener('controllerchange', () => r(true), { once: true }));
+      });
+      const worker = 'dist/sw.js';
+      const original = readFileSync(worker, 'utf8');
+      appendFileSync(worker, `\n// deploy ${Date.now()}\n`);
+      try {
+        await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+        const changed = await page.evaluate(() => Promise.race([window.newWorker, new Promise((r) => setTimeout(() => r(false), 10_000))]));
+        check(changed === true, 'the new version did not take control');
+        // A reload would have started by now.
+        await page.waitForTimeout(500);
+        check((await page.evaluate(() => window.oldPage)) === true, 'the page reloaded in the middle of a game');
+        const reloaded = page.waitForEvent('load', { timeout: 10_000 }).catch(() => null);
+        await page.evaluate(() => (window.location.hash = '#/'));
+        check((await reloaded) !== null, 'the page did not switch to the new version when the game was left');
         check((await page.evaluate(() => window.oldPage)) === undefined, 'the page was not reloaded');
       } finally {
         writeFileSync(worker, original);

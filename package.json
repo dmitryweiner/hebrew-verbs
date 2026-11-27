@@ -1,7 +1,7 @@
 {
   "name": "hebrew-verbs",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Learn the 1000 most frequent Hebrew verbs and their present, past and future tenses (interface in Russian).",
   "license": "GPL-3.0-or-later",
   "type": "module",

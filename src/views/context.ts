@@ -10,6 +10,12 @@ import type { GameStats } from '../stats';
 import type { Settings } from '../storage';
 import type { Verb } from '../verbs';
 
+/** The build's version (package.json) and the date of its last change, YYYY-MM-DD (vite.config.ts). */
+export interface Build {
+  version: string;
+  date: string;
+}
+
 export interface AppContext {
   verbs: readonly Verb[];
   pictures: Pictures;
@@ -31,6 +37,7 @@ export interface AppContext {
   emoji: EmojiSupport;
   now: () => number;
   random: Random;
+  build: Build;
 }
 
 /** A view draws itself into the root and returns a function that stops its timers and listeners. */

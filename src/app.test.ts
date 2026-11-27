@@ -26,6 +26,7 @@ const head = html.slice(html.indexOf('<head>') + 6, html.indexOf('</head>')).rep
 const body = html.slice(html.indexOf('<body>') + 6, html.indexOf('</body>'));
 const pictures = parsePictures(JSON.parse(readFileSync(resolve(import.meta.dirname, 'data/pictures.json'), 'utf8')));
 const NOW = 1_700_000_000_000;
+const BUILD = { version: '1.0.0', date: '2026-11-26' };
 
 function memoryStorage(): KeyValueStorage & { data: Map<string, string> } {
   const data = new Map<string, string>();
@@ -75,6 +76,7 @@ async function start(hash = '#/', overrides: Partial<AppOptions> = {}) {
     emoji,
     now: () => NOW,
     random: seededRandom(7),
+    build: BUILD,
     ...overrides,
   });
   await flush();
@@ -177,7 +179,7 @@ afterEach(async () => {
 describe('loading', () => {
   it('says it loads, then shows the home page', async () => {
     await setHash('#/');
-    stop = startApp({ storage, loadData: later, speaker, emoji });
+    stop = startApp({ storage, loadData: later, speaker, emoji, build: BUILD });
     expect(text('#app .status')).toBe(texts.loading);
     await new Promise((r) => setTimeout(r));
     await flush();
@@ -1117,6 +1119,60 @@ describe('the menorah', () => {
     await start(hashOf({ page: 'verb', id: 'דיבר' }));
     await go($as('.verb-meta a.binyan', HTMLAnchorElement)?.getAttribute('href') ?? '');
     expect(text('.binyan-card h2 .he')).toBe(BINYAN_HEBREW.piel);
+  });
+});
+
+/** A source's license link on the about page. */
+const license = (id: string) => $as(`.sources [data-source="${id}"] a.license`, HTMLAnchorElement);
+
+describe('the about page', () => {
+  it('opens from the footer on every page and from the settings', async () => {
+    await start();
+    expect($as('footer .about-link', HTMLAnchorElement)?.getAttribute('href')).toBe('#/about');
+    await go('#/settings');
+    expect($as('main .about-link', HTMLAnchorElement)?.getAttribute('href')).toBe('#/about');
+    expect(text('main .about-link')).toBe(texts.settings.about);
+    await go('#/about');
+    expect(text('h1')).toBe(texts.about.heading);
+    expect($$('main > p').map((p) => p.textContent)).toEqual([
+      texts.about.intro,
+      texts.about.offline,
+      texts.about.storage,
+      texts.about.made,
+    ]);
+  });
+
+  it('names every source with its link, what it gave and its license (decision 18)', async () => {
+    await start('#/about');
+    const sources = $$('.sources li');
+    expect(sources.map((li) => [li.dataset.source, li.querySelector('.what')?.textContent])).toEqual(Object.entries(texts.about.sources));
+    expect(sources.map((li) => li.dataset.source)).toEqual(['wiktionary', 'frequencyWords', 'hspell', 'pymorphy', 'twemoji']);
+    for (const li of sources) expect(li.querySelector('a.source')?.getAttribute('href')).toMatch(/^https?:\/\/\w/u);
+    // What ships carries its license; the build-only tools ship nothing.
+    for (const id of ['wiktionary', 'frequencyWords']) {
+      expect(license(id)?.textContent).toBe('CC BY-SA 4.0');
+      expect(license(id)?.href).toBe('https://creativecommons.org/licenses/by-sa/4.0/');
+    }
+    expect(license('twemoji')?.textContent).toBe('CC BY 4.0');
+    expect(license('twemoji')?.href).toBe('https://creativecommons.org/licenses/by/4.0/');
+    expect(license('hspell') ?? license('pymorphy')).toBeNull();
+  });
+
+  it('gives the licenses of the data and the code, the source code and the version with its date', async () => {
+    await start('#/about');
+    expect($$('.about-meta dt').map((dt) => dt.textContent)).toEqual([
+      texts.about.data,
+      texts.about.code,
+      texts.about.repo,
+      texts.about.version,
+    ]);
+    const links = $$as('.about-meta dd a', HTMLAnchorElement).map((a) => [a.textContent, a.href]);
+    expect(links).toEqual([
+      ['CC BY-SA 4.0', 'https://creativecommons.org/licenses/by-sa/4.0/'],
+      ['GPL-3.0-or-later', 'https://www.gnu.org/licenses/gpl-3.0.html'],
+      ['github.com/dmitryweiner/hebrew-verbs', 'https://github.com/dmitryweiner/hebrew-verbs'],
+    ]);
+    expect($$('.about-meta dd').at(-1)?.textContent).toBe('1.0.0 от 26.11.2026');
   });
 });
 

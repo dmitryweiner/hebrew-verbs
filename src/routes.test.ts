@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GAMES, PARTS } from './games';
-import { hashOf, routeOf } from './routes';
+import { hashOf, isExercise, routeOf } from './routes';
 import { BINYANIM } from './verbs';
 
 describe('routes', () => {
@@ -29,6 +29,8 @@ describe('routes', () => {
     expect(hashOf({ page: 'settings' })).toBe('#/settings');
     expect(routeOf('#/progress')).toEqual({ page: 'progress' });
     expect(hashOf({ page: 'progress' })).toBe('#/progress');
+    expect(routeOf('#/about')).toEqual({ page: 'about' });
+    expect(hashOf({ page: 'about' })).toBe('#/about');
     expect(routeOf('#/')).toEqual({ page: 'home' });
     expect(routeOf('')).toEqual({ page: 'home' });
     expect(hashOf({ page: 'home' })).toBe('#/');
@@ -54,6 +56,13 @@ describe('routes', () => {
     for (const binyan of BINYANIM) expect(routeOf(hashOf({ page: 'menorah', binyan }))).toEqual({ page: 'menorah', binyan });
   });
 
+  it('tell a game and a meeting, where the header hides its links and a new version waits', () => {
+    for (const hash of ['#/part/1/he-ru', '#/part/4/person', '#/part/1/intro', '#/part/3/intro'])
+      expect(isExercise(routeOf(hash))).toBe(true);
+    for (const hash of ['#/', '#/settings', '#/progress', '#/about', '#/dict', '#/dict/דיבר', '#/menorah', '#/menorah/piel'])
+      expect(isExercise(routeOf(hash))).toBe(false);
+  });
+
   it('send an unknown or broken hash home', () => {
     for (const hash of [
       '#/part/1/form',
@@ -69,6 +78,7 @@ describe('routes', () => {
       '#/progress/he-ru',
       '#/part/5/intro',
       '#/part/0/intro',
+      '#/about/x',
     ])
       expect(routeOf(hash)).toEqual({ page: 'home' });
   });
