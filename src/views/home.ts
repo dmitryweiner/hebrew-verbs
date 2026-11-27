@@ -1,6 +1,7 @@
 // The home page: the four parts, each with its meeting (how many of its
-// verbs are known) and the progress of each game (plan, section 3: all parts
-// open at once, a hint to start with part 1), and a link to the progress page.
+// verbs are known, not of how many: decision 78) and the progress of each
+// game (plan, section 3: all parts open at once, a hint to start with
+// part 1), and a link to the progress page.
 
 import { h } from '../dom';
 import { gamePool, PARTS } from '../games';
@@ -25,7 +26,6 @@ export function homeView(root: HTMLElement, ctx: AppContext): () => void {
         ),
       );
     });
-    const pool = partPool(ctx.verbs, part);
     const met = ctx.met(part);
     const meeting = h(
       'li',
@@ -37,7 +37,7 @@ export function homeView(root: HTMLElement, ctx: AppContext): () => void {
         h(
           'span',
           { class: 'meet-progress' },
-          fill(texts.meeting.known, { known: pool.filter((v) => met.has(v.id)).length, total: pool.length }),
+          fill(texts.meeting.known, { known: partPool(ctx.verbs, part).filter((v) => met.has(v.id)).length }),
         ),
       ),
     );

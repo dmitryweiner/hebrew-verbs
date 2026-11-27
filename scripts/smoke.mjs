@@ -1,6 +1,6 @@
 // Browser smoke of the real app: the home page renders with the verb data,
 // a round of a part-1 game and of a tense game run to their results, each
-// after meeting its verbs, a meeting of part 3 leads to its game, a typed
+// after meeting its verbs (the answer's card as wide as the options), a meeting of part 3 leads to its game, a typed
 // answer is taken, the dictionary finds a verb by a form and opens its card,
 // the menorah opens a binyan and leads to an example's card, the progress
 // page shows a played game and resets it, the about page gives the sources
@@ -69,7 +69,12 @@ try {
     // A game and its meeting hide the header's links (decision 55).
     check(!(await page.locator('.dict-link').isVisible()), 'the header shows its links in a game');
     await meetAll(page);
-    for (let i = 0; i < 10; i++) await answerFirst(page);
+    // The answer's card takes the right option's place, across both columns of options (decision 79).
+    await page.locator('.option').first().click();
+    const [card, grid] = await Promise.all([page.locator('.feedback').boundingBox(), page.locator('.options').boundingBox()]);
+    check(card && grid && Math.abs(card.width - grid.width) < 1, `the answer's card is ${card?.width}px wide of ${grid?.width}px`);
+    await page.locator('.next').click();
+    for (let i = 1; i < 10; i++) await answerFirst(page);
     await page.locator('.summary').waitFor();
     check((await page.locator('.results li').count()) === 10, 'the results do not list ten tasks');
     const stored = await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('hebrew-verbs') ?? '{}').stats ?? {}));

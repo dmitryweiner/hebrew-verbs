@@ -36,7 +36,8 @@ export const texts = {
   /** Meeting the verbs before a game asks them (decisions 68–71). */
   meeting: {
     name: 'Знакомство',
-    known: 'знакомо {known} из {total}',
+    /** On the home page the count alone: "знакомо 10 из 1000" frightened the learners (decision 78). */
+    known: 'знакомо {known}',
     /** A part's line on the progress page. */
     progress: 'Знакомство: знакомо {known} из {total}',
     count: 'Глагол {n} из {total}',
