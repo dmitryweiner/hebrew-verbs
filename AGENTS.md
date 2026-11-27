@@ -28,7 +28,7 @@ Node.js — the version in `.node-version` (`fnm use`; check `node -v`).
   any work is called done.
 - `npm run smoke` — browser smoke on the dev server (port 5397): the home
   page, a `he-ru` round to its results after meeting its verbs (the header's
-  links hidden), a `past-person` round on a phone, a typed answer on a
+  links hidden, the answer's card across both columns of options), a `past-person` round on a phone, a typed answer on a
   phone, a meeting of part 3 on a phone (its past tables, then its game asks
   at once), a dictionary search by a form and its card on a
   phone, the menorah on a phone (flames on their arms, a binyan's card, an
